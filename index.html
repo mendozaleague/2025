@@ -159,11 +159,19 @@
             overflow: hidden;
         }
         
+        .distance-bar.dark-bg {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
         .distance-fill {
             height: 100%;
             background: linear-gradient(90deg, #feed85, #feed89);
             border-radius: 3px;
             transition: width 0.3s ease;
+        }
+        
+        .distance-fill.dark-bg {
+            background: linear-gradient(90deg, #333, #000);
         }
         
         .error {
@@ -232,7 +240,7 @@
         const players = {
             'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', position: '3B — American League' },
             'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', position: 'OF(!) — American League' },
-            'J. ROGERS': { id: 676730, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', position: 'C — American League' },
+            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', position: 'C — American League' },
             'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', position: '1B — National League' },
             'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', position: 'OF — American League' },
             'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', position: '1B — National League' },
@@ -327,6 +335,9 @@
                             rowClass = 'even-place';
                         }
                         
+                        // Determine if this is an even place (yellow background) for styling
+                        const isEvenPlace = (index === 1 || index === 3 || index === 5 || index === 7 || index === 9);
+                        
                         return `
                             <div class="player-row ${rowClass}">
                                 <div class="rank ${index === 0 ? 'closest' : ''}">${index + 1}</div>
@@ -340,8 +351,8 @@
                                         <div class="distance-to-200">
                                             ${player.distanceTo200 > 0 ? '+' : ''}${(player.distanceTo200).toFixed(3)} from .200
                                         </div>
-                                        <div class="distance-bar">
-                                            <div class="distance-fill" style="width: ${fillWidth}%"></div>
+                                        <div class="distance-bar ${isEvenPlace ? 'dark-bg' : ''}">
+                                            <div class="distance-fill ${isEvenPlace ? 'dark-bg' : ''}" style="width: ${fillWidth}%"></div>
                                         </div>
                                         <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">
                                             ${player.atBats}/200AB
