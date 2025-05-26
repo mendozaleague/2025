@@ -15,53 +15,55 @@
             font-family: 'Arial', sans-serif;
             background: white;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
             color: #2c2c2c;
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 100%;
             margin: 0 auto;
         }
         
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
             background: #feed85;
-            border-radius: 15px;
+            border-radius: 12px;
             border: 2px solid #feed85;
         }
         
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
             text-shadow: none;
             color: black;
+            line-height: 1.2;
         }
         
         .header p {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             opacity: 1;
             color: black;
+            line-height: 1.3;
         }
         
         .last-updated {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
             opacity: 0.8;
         }
         
         .loading {
             text-align: center;
-            font-size: 1.2rem;
-            margin: 50px 0;
+            font-size: 1.1rem;
+            margin: 30px 0;
         }
         
         .leaderboard {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             border: 1px solid #ddd;
@@ -70,7 +72,7 @@
         .player-row {
             display: flex;
             align-items: center;
-            padding: 20px;
+            padding: 15px 12px;
             border-bottom: 1px solid #ddd;
             transition: all 0.3s ease;
             position: relative;
@@ -97,7 +99,7 @@
         }
         
         .player-row:hover {
-            transform: translateX(5px);
+            transform: translateX(2px);
         }
         
         .player-row:last-child {
@@ -105,11 +107,12 @@
         }
         
         .rank {
-            font-size: 2rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            width: 60px;
+            width: 35px;
             text-align: center;
-            margin-right: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
         }
         
         .rank.closest {
@@ -122,40 +125,46 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            min-width: 0;
         }
         
         .player-name {
-            font-size: 1.6rem;
+            font-size: 1.1rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            line-height: 1.2;
         }
         
         .player-team {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             opacity: 0.8;
+            line-height: 1.2;
         }
         
         .batting-stats {
             text-align: right;
+            flex-shrink: 0;
         }
         
         .batting-avg {
-            font-size: 2rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            line-height: 1.2;
         }
         
         .distance-to-200 {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             opacity: 0.8;
+            margin-bottom: 4px;
         }
         
         .distance-bar {
-            width: 100px;
-            height: 6px;
+            width: 70px;
+            height: 5px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 3px;
-            margin-top: 5px;
+            margin: 4px 0;
             overflow: hidden;
         }
         
@@ -177,9 +186,9 @@
         .error {
             text-align: center;
             color: black;
-            font-size: 1.1rem;
-            margin: 50px 0;
-            padding: 20px;
+            font-size: 1rem;
+            margin: 30px 0;
+            padding: 15px;
             background: #feed85;
             border-radius: 10px;
             border: 1px solid #feed89;
@@ -194,29 +203,59 @@
             animation: pulse 2s infinite;
         }
         
+        .at-bats-text {
+            font-size: 0.7rem;
+            margin-top: 3px;
+            opacity: 0.7;
+            line-height: 1.2;
+        }
+        
         @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            
             .header h1 {
-                font-size: 2rem;
+                font-size: 1.6rem;
+            }
+            
+            .header p {
+                font-size: 0.85rem;
             }
             
             .player-row {
-                flex-direction: column;
-                text-align: center;
-                padding: 15px;
+                padding: 12px 10px;
             }
             
             .rank {
-                margin-bottom: 10px;
+                font-size: 1.2rem;
+                width: 30px;
+                margin-right: 10px;
             }
             
-            .player-info {
-                flex-direction: column;
-                width: 100%;
+            .player-name {
+                font-size: 1rem;
             }
             
-            .batting-stats {
-                margin-top: 15px;
-                text-align: center;
+            .player-team {
+                font-size: 0.7rem;
+            }
+            
+            .batting-avg {
+                font-size: 1.2rem;
+            }
+            
+            .distance-to-200 {
+                font-size: 0.7rem;
+            }
+            
+            .distance-bar {
+                width: 60px;
+                height: 4px;
+            }
+            
+            .at-bats-text {
+                font-size: 0.65rem;
             }
         }
     </style>
@@ -354,7 +393,7 @@
                                         <div class="distance-bar ${isEvenPlace ? 'dark-bg' : ''}">
                                             <div class="distance-fill ${isEvenPlace ? 'dark-bg' : ''}" style="width: ${fillWidth}%"></div>
                                         </div>
-                                        <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">
+                                        <div class="at-bats-text">
                                             ${player.atBats}/200AB
                                         </div>
                                     </div>
