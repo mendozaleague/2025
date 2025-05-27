@@ -29,7 +29,7 @@
             margin-bottom: 20px;
             padding: 15px;
             background: #feed85;
-            border-radius: 12px;
+            border-radius: 0px;
             border: 2px solid #feed85;
         }
         
@@ -98,7 +98,7 @@
         
         .leaderboard {
             background: white;
-            border-radius: 12px;
+            border-radius: 0px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             border: 1px solid #ddd;
@@ -203,7 +203,7 @@
             margin: 30px 0;
             padding: 15px;
             background: #feed85;
-            border-radius: 10px;
+            border-radius: 0px;
             border: 1px solid #feed89;
         }
         
@@ -319,14 +319,41 @@
                     const battingAvg = hittingStats?.avg ? parseFloat(hittingStats.avg) : 0;
                     const distanceTo200 = Math.abs(battingAvg - 0.200);
                     
+                    // Debug logging for Korey Lee and Jose Siri
+                    if (player.fullName === 'Korey Lee' || player.fullName === 'José Siri') {
+                        console.log(`\n=== DEBUG: ${player.fullName} ===`);
+                        console.log('Full player object:', player);
+                        console.log('Roster entries:', player.rosterEntries);
+                        if (player.rosterEntries) {
+                            player.rosterEntries.forEach((entry, index) => {
+                                console.log(`Roster entry ${index}:`, entry);
+                                console.log(`Status code: ${entry.status?.code}`);
+                                console.log(`Status description: ${entry.status?.description}`);
+                            });
+                        }
+                    }
+                    
                     // Check if player is on IL by looking at roster entries
                     let isOnIL = false;
                     if (player.rosterEntries && player.rosterEntries.length > 0) {
-                        // Get the most recent roster entry
-                        const currentRosterEntry = player.rosterEntries[player.rosterEntries.length - 1];
-                        const rosterStatus = currentRosterEntry.status?.code;
-                        // Common IL status codes: IL10, IL15, IL60
-                        isOnIL = rosterStatus && (rosterStatus.includes('IL') || rosterStatus === 'IL10' || rosterStatus === 'IL15' || rosterStatus === 'IL60');
+                        // Check all roster entries for IL status
+                        for (const entry of player.rosterEntries) {
+                            const rosterStatus = entry.status?.code;
+                            // Common IL status codes: IL10, IL15, IL60, plus other variations
+                            if (rosterStatus && (
+                                rosterStatus.includes('IL') || 
+                                rosterStatus === 'IL10' || 
+                                rosterStatus === 'IL15' || 
+                                rosterStatus === 'IL60' ||
+                                rosterStatus === 'DL10' ||
+                                rosterStatus === 'DL15' ||
+                                rosterStatus === 'DL60'
+                            )) {
+                                isOnIL = true;
+                                console.log(`${player.fullName} detected as IL with status: ${rosterStatus}`);
+                                break;
+                            }
+                        }
                     }
                     
                     // Find the display name with jersey number and position
@@ -336,6 +363,7 @@
                     // Add (IL) if player is on injured list
                     if (isOnIL) {
                         displayName += ' (IL)';
+                        console.log(`${player.fullName} display name updated to: ${displayName}`);
                     }
                     
                     const position = playerInfo ? playerInfo.position : 'Unknown';
