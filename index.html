@@ -207,17 +207,6 @@
             line-height: 1.2;
         }
         
-        .live-indicator {
-            font-size: 1rem;
-            margin-left: 5px;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        
         .player-team {
             font-size: 0.75rem;
             opacity: 0.8;
@@ -255,6 +244,11 @@
             border: 1px solid #feed89;
         }
         
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
         .loading {
             animation: pulse 2s infinite;
         }
@@ -264,6 +258,38 @@
             margin-top: 3px;
             opacity: 0.7;
             line-height: 1.2;
+        }
+        
+        .plate-appearance-alert {
+            display: inline-block;
+            font-size: 1rem;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .flash-red {
+            animation: flashRed 2s ease-out;
+        }
+        
+        .flash-green {
+            animation: flashGreen 2s ease-out;
+        }
+        
+        @keyframes flashRed {
+            0% { background-color: inherit; }
+            20% { background-color: #ff4444; }
+            100% { background-color: inherit; }
+        }
+        
+        @keyframes flashGreen {
+            0% { background-color: inherit; }
+            20% { background-color: #44ff44; }
+            100% { background-color: inherit; }
         }
         
         @media (max-width: 768px) {
@@ -321,10 +347,6 @@
             .at-bats-text {
                 font-size: 0.65rem;
             }
-            
-            .live-indicator {
-                font-size: 0.9rem;
-            }
         }
     </style>
 </head>
@@ -347,6 +369,47 @@
     </div>
 
     <script>
+        // Random phrases array with "Hits are for squares!" having 20% probability
+        const randomPhrases = [
+            'Hits are for squares!',
+            'Stakes is Mid',
+            'As Above | So Below',
+            'Your Perfect Fantasy',
+            'This is My Fantasy',
+            'Best we can do is our Worst',
+            'Not so Good ain\'t so Bad',
+            'Not so Bad ain\'t so Good',
+            '⑪ M. Mendoza .215/1,337',
+            '⑨ B. Uecker .200/731',
+            '...It\'s a Shame!',
+            'It\'s Good to be Okay',
+            'Someone hire Tony Rizzo',
+            'Greetings from the Middle West',
+            'Shoutout to Josep Oller',
+            'Happy International Bookie Appreciation Day',
+            'Manny Ramirez hit .170 his rookie year',
+            'So it goes!',
+            'Batting & Nothingness',
+            'Root for Nothing!',
+            'Out, out, damn\'ed shortstop!',
+            '& They say a Compruter can do My Job better than I can damn do it!'
+        ];
+
+        // Function to get random phrase with 20% chance for "Hits are for Squares!"
+        function getRandomPhrase() {
+            const random = Math.random();
+            if (random < 0.2) {
+                return 'Hits are for Squares!';
+            } else {
+                // Pick from the other phrases (excluding the first one which is "Hits are for Squares!")
+                const otherPhrases = randomPhrases.slice(1);
+                return otherPhrases[Math.floor(Math.random() * otherPhrases.length)];
+            }
+        }
+
+        // Set the random phrase once when the page loads
+        const currentPhrase = getRandomPhrase();
+
         // Player mapping with their MLB API player IDs and jersey numbers
         const players = {
             'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', position: '3B • National League' },
@@ -363,80 +426,62 @@
         };
 
         let playerData = [];
-        let liveGameData = {};
-
-        // Function to check for live games and current batters
-        async function fetchLiveGameData() {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const response = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=game(content(editorial(recap))),decisions,person,probablePitcher,staff,linescore,boxscore`);
-                
-                if (!response.ok) {
-                    console.warn('Could not fetch live game data');
-                    return {};
-                }
-                
-                const data = await response.json();
-                const liveData = {};
-                
-                // Check each game for live status and current batter
-                for (const date of data.dates) {
-                    for (const game of date.games) {
-                        if (game.status.statusCode === 'I' || game.status.statusCode === 'IW') { // In Progress or In Progress (Warmup)
-                            try {
-                                // Get live game feed for current batter info
-                                const liveResponse = await fetch(`https://statsapi.mlb.com/api/v1.1/game/${game.gamePk}/feed/live`);
-                                if (liveResponse.ok) {
-                                    const liveGameData = await liveResponse.json();
-                                    const currentPlay = liveGameData.liveData?.plays?.currentPlay;
-                                    
-                                    if (currentPlay && currentPlay.matchup && currentPlay.matchup.batter) {
-                                        const batterId = currentPlay.matchup.batter.id;
-                                        liveData[batterId] = {
-                                            isAtBat: true,
-                                            gameId: game.gamePk
-                                        };
-                                    }
-                                }
-                            } catch (error) {
-                                console.warn(`Could not fetch live data for game ${game.gamePk}`);
-                            }
-                        }
-                    }
-                }
-                
-                return liveData;
-            } catch (error) {
-                console.warn('Error fetching live game data:', error);
-                return {};
-            }
-        }
+        let previousPlayerStats = {}; // Store previous stats to detect changes
 
         async function fetchPlayerStats() {
             try {
                 const currentYear = new Date().getFullYear();
                 const playerIds = Object.values(players).map(p => p.id).join(',');
                 
-                // Fetch both player stats and live game data
-                const [statsResponse, liveData] = await Promise.all([
-                    fetch(`https://statsapi.mlb.com/api/v1/people?personIds=${playerIds}&hydrate=stats(group=[hitting],type=[season],season=${currentYear}),currentTeam,rosterEntries`),
-                    fetchLiveGameData()
-                ]);
+                // MLB Stats API endpoint for current season stats with roster status and live game data
+                const response = await fetch(`https://statsapi.mlb.com/api/v1/people?personIds=${playerIds}&hydrate=stats(group=[hitting],type=[season],season=${currentYear}),currentTeam,rosterEntries`);
                 
-                if (!statsResponse.ok) {
-                    throw new Error(`HTTP error! status: ${statsResponse.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                const data = await statsResponse.json();
-                liveGameData = liveData;
+                const data = await response.json();
                 
-                playerData = data.people.map(player => {
+                // Check for live games and plate appearances
+                let liveGameData = {};
+                try {
+                    const liveResponse = await fetch('https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=' + new Date().toISOString().split('T')[0] + '&hydrate=linescore,game(content(media(featured))),decisions');
+                    if (liveResponse.ok) {
+                        const liveData = await liveResponse.json();
+                        // Check each game for our players
+                        for (const date of liveData.dates) {
+                            for (const game of date.games) {
+                                if (game.status.statusCode === 'I') { // In progress
+                                    try {
+                                        const gameResponse = await fetch(`https://statsapi.mlb.com/api/v1/game/${game.gamePk}/playByPlay`);
+                                        if (gameResponse.ok) {
+                                            const gameData = await gameResponse.json();
+                                            // Check if any of our players are currently batting
+                                            if (gameData.liveData && gameData.liveData.plays && gameData.liveData.plays.currentPlay) {
+                                                const currentPlay = gameData.liveData.plays.currentPlay;
+                                                if (currentPlay.matchup && currentPlay.matchup.batter) {
+                                                    const batterId = currentPlay.matchup.batter.id;
+                                                    if (Object.values(players).some(p => p.id === batterId)) {
+                                                        liveGameData[batterId] = { inPlateAppearance: true };
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } catch (e) {
+                                        // Ignore individual game fetch errors
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Ignore live game fetch errors
+                }
+                
+                const newPlayerData = data.people.map(player => {
                     const hittingStats = player.stats?.[0]?.splits?.[0]?.stat;
                     const battingAvg = hittingStats?.avg ? parseFloat(hittingStats.avg) : 0;
                     const distanceTo200 = Math.abs(battingAvg - 0.200);
-                    
-                    // Check if player is currently at bat
-                    const isCurrentlyAtBat = liveGameData[player.id]?.isAtBat || false;
                     
                     // Check if player is on IL by looking at roster entries
                     let isOnIL = false;
@@ -469,6 +514,28 @@
                     
                     const position = playerInfo ? playerInfo.position : 'Unknown';
                     
+                    // Check for stat changes
+                    const playerId = player.id;
+                    const previousStats = previousPlayerStats[playerId];
+                    let statChange = null;
+                    
+                    if (previousStats) {
+                        const previousDistance = previousStats.distanceTo200;
+                        if (distanceTo200 < previousDistance) {
+                            statChange = 'closer'; // Moved closer to .200
+                        } else if (distanceTo200 > previousDistance) {
+                            statChange = 'farther'; // Moved farther from .200
+                        }
+                    }
+                    
+                    // Store current stats for next comparison
+                    previousPlayerStats[playerId] = {
+                        battingAverage: battingAvg,
+                        distanceTo200: distanceTo200,
+                        atBats: hittingStats?.atBats || 0,
+                        hits: hittingStats?.hits || 0
+                    };
+                    
                     return {
                         id: player.id,
                         name: player.fullName,
@@ -480,10 +547,12 @@
                         atBats: hittingStats?.atBats || 0,
                         hits: hittingStats?.hits || 0,
                         isOnIL: isOnIL,
-                        isCurrentlyAtBat: isCurrentlyAtBat
+                        inPlateAppearance: liveGameData[player.id]?.inPlateAppearance || false,
+                        statChange: statChange
                     };
                 }).sort((a, b) => a.distanceTo200 - b.distanceTo200);
                 
+                playerData = newPlayerData;
                 renderLeaderboard();
                 
             } catch (error) {
@@ -520,6 +589,9 @@
                 return;
             }
             
+            // Get the phrase that was set when page loaded
+            const randomPhrase = currentPhrase;
+            
             const leaderboardHTML = `
                 <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
                 <div class="leaderboard">
@@ -534,23 +606,28 @@
                         } else if (index === 1) {
                             rowClass = 'second-place';
                         } else if (index === 2 || index === 4 || index === 6 || index === 8 || index === 10) {
+                            // 3rd, 5th, 7th, 9th, 11th places (0-indexed: 2, 4, 6, 8, 10)
                             rowClass = 'odd-place';
                         } else if (index === 3 || index === 5 || index === 7 || index === 9) {
+                            // 4th, 6th, 8th, 10th places (0-indexed: 3, 5, 7, 9)
                             rowClass = 'even-place';
                         }
+                        
+                        // Determine if this is an even place (yellow background) for styling
+                        const isEvenPlace = (index === 1 || index === 3 || index === 5 || index === 7 || index === 9);
                         
                         // Check if below 200 at-bats
                         const belowMinimum = player.atBats < 200 ? '*' : '';
                         
-                        // Add live indicator if player is currently at bat
-                        const liveIndicator = player.isCurrentlyAtBat ? '<span class="live-indicator">🚨</span>' : '';
-                        
                         return `
-                            <div class="player-row ${rowClass}">
+                            <div class="player-row ${rowClass} ${player.statChange === 'closer' ? 'flash-green' : ''} ${player.statChange === 'farther' ? 'flash-red' : ''}" id="player-${player.id}">
                                 <div class="rank ${index === 0 ? 'closest' : ''}">${index + 1}</div>
                                 <div class="player-info">
                                     <div>
-                                        <div class="player-name">${player.displayName}${liveIndicator}</div>
+                                        <div class="player-name">
+                                            ${player.displayName}
+                                            ${player.inPlateAppearance ? '<span class="plate-appearance-alert">🚨</span>' : ''}
+                                        </div>
                                         <div class="player-team">${player.position}</div>
                                     </div>
                                     <div class="batting-stats">
@@ -562,7 +639,7 @@
                     }).join('')}
                 </div>
                 <div class="minimum-note">*Below 200 At Bat minimum</div>
-                <div class="hits-squares-text">Hits are for squares!</div>
+                <div class="hits-squares-text">${randomPhrase}</div>
             `;
             
             content.innerHTML = leaderboardHTML;
@@ -571,19 +648,12 @@
         // Initial load
         fetchPlayerStats();
         
-        // Auto-refresh every 15 seconds during baseball season (more frequent for live updates)
-        setInterval(fetchPlayerStats, 15000);
+        // Auto-refresh every 30 seconds
+        setInterval(fetchPlayerStats, 30000);
         
         // Add a manual refresh button (optional)
         document.addEventListener('keydown', function(event) {
             if (event.key === 'r' || event.key === 'R') {
-                fetchPlayerStats();
-            }
-        });
-
-        // Handle page visibility changes to refresh when tab becomes active
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
                 fetchPlayerStats();
             }
         });
