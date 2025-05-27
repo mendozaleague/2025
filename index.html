@@ -48,11 +48,42 @@
             line-height: 1.3;
         }
         
+        .info-box {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+        }
+        
+        .info-box p {
+            font-size: 0.9rem;
+            opacity: 1;
+            color: #2c2c2c;
+            line-height: 1.3;
+        }
+        
+        .info-box a {
+            color: #2c2c2c;
+            text-decoration: underline;
+        }
+        
         .last-updated {
             text-align: center;
-            margin-bottom: 15px;
+            margin-top: 30px;
             font-size: 0.8rem;
             opacity: 0.8;
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .copyright a {
+            color: #2c2c2c;
+            text-decoration: underline;
         }
         
         .loading {
@@ -146,41 +177,18 @@
             flex-shrink: 0;
         }
         
-        .batting-avg {
+        .batting-display {
             font-size: 1.4rem;
             font-weight: bold;
-            margin-bottom: 3px;
             line-height: 1.2;
         }
         
-        .distance-to-200 {
-            font-size: 0.75rem;
+        .minimum-note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
             opacity: 0.8;
-            margin-bottom: 4px;
-        }
-        
-        .distance-bar {
-            width: 70px;
-            height: 5px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-            margin: 4px 0;
-            overflow: hidden;
-        }
-        
-        .distance-bar.dark-bg {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .distance-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #feed85, #feed89);
-            border-radius: 3px;
-            transition: width 0.3s ease;
-        }
-        
-        .distance-fill.dark-bg {
-            background: linear-gradient(90deg, #333, #000);
+            font-style: italic;
         }
         
         .error {
@@ -241,17 +249,8 @@
                 font-size: 0.7rem;
             }
             
-            .batting-avg {
+            .batting-display {
                 font-size: 1.2rem;
-            }
-            
-            .distance-to-200 {
-                font-size: 0.7rem;
-            }
-            
-            .distance-bar {
-                width: 60px;
-                height: 4px;
             }
             
             .at-bats-text {
@@ -264,14 +263,19 @@
     <div class="container">
         <div class="header">
             <h1>🏇⚾💸 THE 2025 MENDOZA STAKES 🏇⚾💸</h1>
-            <p>LIVE updates of the 2nd annual Bob Uecker Memorial Race to .200</p>
+            <p>LIVE standings of the 2nd annual Bob Uecker Memorial Race to .200<br>
+            <span id="headerTimestamp">Updated: Loading...</span></p>
         </div>
         
-        <div class="last-updated" id="lastUpdated"></div>
+        <div class="info-box">
+            <p>For more information about The Mendoza League, please contact <a href="mailto:commish@mendozaleague.com?subject=Your ideas are intriguing to me, and I wish to subscribe to your newsletter.">your loyal Commissioner</a>.</p>
+        </div>
         
         <div id="content">
             <div class="loading">Loading player data...</div>
         </div>
+        
+        <div class="copyright">©2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
 
     <script>
@@ -344,10 +348,13 @@
 
         function renderLeaderboard() {
             const content = document.getElementById('content');
-            const lastUpdated = document.getElementById('lastUpdated');
+            const headerTimestamp = document.getElementById('headerTimestamp');
             
-            // Update timestamp
-            lastUpdated.textContent = `Last updated: ${new Date().toLocaleString()}`;
+            // Update timestamp in header
+            const now = new Date();
+            const formattedTime = now.toLocaleString('en-US');
+            
+            headerTimestamp.textContent = `Updated: ${formattedTime}`;
             
             if (playerData.length === 0) {
                 content.innerHTML = '<div class="error">No player data available</div>';
@@ -377,6 +384,9 @@
                         // Determine if this is an even place (yellow background) for styling
                         const isEvenPlace = (index === 1 || index === 3 || index === 5 || index === 7 || index === 9);
                         
+                        // Check if below 200 at-bats
+                        const belowMinimum = player.atBats < 200 ? '*' : '';
+                        
                         return `
                             <div class="player-row ${rowClass}">
                                 <div class="rank ${index === 0 ? 'closest' : ''}">${index + 1}</div>
@@ -386,22 +396,14 @@
                                         <div class="player-team">${player.position}</div>
                                     </div>
                                     <div class="batting-stats">
-                                        <div class="batting-avg">${player.battingAverage.toFixed(3)}</div>
-                                        <div class="distance-to-200">
-                                            ${player.distanceTo200 > 0 ? '+' : ''}${(player.distanceTo200).toFixed(3)} from .200
-                                        </div>
-                                        <div class="distance-bar ${isEvenPlace ? 'dark-bg' : ''}">
-                                            <div class="distance-fill ${isEvenPlace ? 'dark-bg' : ''}" style="width: ${fillWidth}%"></div>
-                                        </div>
-                                        <div class="at-bats-text">
-                                            ${player.atBats}/200AB
-                                        </div>
+                                        <div class="batting-display">${player.battingAverage.toFixed(3).substring(1)}/${player.atBats}${belowMinimum}</div>
                                     </div>
                                 </div>
                             </div>
                         `;
                     }).join('')}
                 </div>
+                <div class="minimum-note">*Below 200 At Bat minimum</div>
             `;
             
             content.innerHTML = leaderboardHTML;
