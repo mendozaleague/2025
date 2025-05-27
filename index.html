@@ -83,10 +83,11 @@
             margin-top: 30px;
             font-size: 0.8rem;
             opacity: 0.8;
+            color: #cc99cc;
         }
         
         .copyright a {
-            color: #2c2c2c;
+            color: #cc99cc;
             text-decoration: underline;
         }
         
@@ -285,17 +286,17 @@
     <script>
         // Player mapping with their MLB API player IDs and jersey numbers
         const players = {
-            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', position: '3B — American League' },
-            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', position: 'OF(!) — American League' },
-            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', position: 'C — American League' },
-            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', position: '1B — National League' },
-            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', position: 'OF — American League' },
-            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', position: '1B — National League' },
-            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', position: 'SS — American League' },
-            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', position: 'OF — National League' },
-            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', position: 'OF — National League' },
-            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ K. LEE', position: 'C — American League' },
-            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', position: 'UT — American League' }
+            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', position: '3B • National League' },
+            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', position: 'OF(!) • American League' },
+            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', position: 'C • American League' },
+            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', position: '1B • National League' },
+            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', position: 'OF • American League' },
+            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', position: '1B • National League' },
+            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', position: 'SS • American League' },
+            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', position: 'OF • National League' },
+            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', position: 'OF • National League' },
+            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ K. LEE', position: 'C • American League' },
+            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', position: 'UT • American League' }
         };
 
         let playerData = [];
