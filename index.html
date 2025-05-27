@@ -78,6 +78,33 @@
             text-decoration: underline;
         }
         
+        .mendoza-line-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #2c2c2c;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        
+        .mendoza-line-divider::before,
+        .mendoza-line-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 120px);
+            height: 2px;
+            background-color: #2c2c2c;
+        }
+        
+        .mendoza-line-divider::before {
+            left: 0;
+        }
+        
+        .mendoza-line-divider::after {
+            right: 0;
+        }
+        
         .last-updated {
             text-align: center;
             margin-top: 30px;
@@ -85,9 +112,19 @@
             opacity: 0.8;
         }
         
+        .hits-squares-text {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            font-weight: normal;
+            font-style: italic;
+            font-family: 'Brush Script MT', cursive, 'Arial', sans-serif;
+            color: #2c2c2c;
+        }
+        
         .copyright {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 15px;
             font-size: 0.8rem;
             opacity: 0.8;
             color: #cc99cc;
@@ -102,14 +139,6 @@
             text-align: center;
             font-size: 1.1rem;
             margin: 30px 0;
-        }
-        
-        .leaderboard {
-            background: white;
-            border-radius: 0px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border: 1px solid #ddd;
         }
         
         .player-row {
@@ -246,6 +275,19 @@
             
             .header .race-title {
                 font-size: 0.85rem;
+            }
+            
+            .mendoza-line-divider {
+                font-size: 1.2rem;
+            }
+            
+            .mendoza-line-divider::before,
+            .mendoza-line-divider::after {
+                width: calc(50% - 100px);
+            }
+            
+            .hits-squares-text {
+                font-size: 1.6rem;
             }
             
             .player-row {
@@ -431,6 +473,7 @@
             }
             
             const leaderboardHTML = `
+                <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
                 <div class="leaderboard">
                     ${playerData.map((player, index) => {
                         const maxDistance = Math.max(...playerData.map(p => p.distanceTo200));
@@ -473,6 +516,7 @@
                     }).join('')}
                 </div>
                 <div class="minimum-note">*Below 200 At Bat minimum</div>
+                <div class="hits-squares-text">Hits are for squares!</div>
             `;
             
             content.innerHTML = leaderboardHTML;
