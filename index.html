@@ -202,12 +202,23 @@
             line-height: 1.2;
         }
         
-        .minimum-note {
-            text-align: right;
+        .key-and-minimum {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 15px;
             font-size: 0.8rem;
             color: black;
+            margin-left: 12px;
             margin-right: 12px;
+        }
+        
+        .key-note {
+            text-align: left;
+        }
+        
+        .minimum-note {
+            text-align: right;
         }
         
         .error {
@@ -300,6 +311,11 @@
             .batting-display {
                 font-size: 1.2rem;
             }
+            
+            .key-and-minimum {
+                margin-left: 10px;
+                margin-right: 10px;
+            }
         }
     </style>
 </head>
@@ -316,9 +332,9 @@
         </div>
         
         <div class="info-box">
-            <p>For more information about The Mendoza League,<br>please contact <a href="mailto:commish@mendozaleague.com?subject=Your ideas are intriguing to me, and I wish to subscribe to your newsletter.">your loyal Commissioner</a>.</p>
+            <p>For more information about The Mendoza League<br>read our <a href="https://dudlawson.com/LEDE2025" target="_blank">Form</a> or contact <a href="mailto:commish@mendozaleague.com?subject=Your ideas are intriguing to me, and I wish to subscribe to your newsletter.">your loyal Commissioner</a></p>
         </div>
-        <div class="copyright">©2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
+        <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
 
     <script>
@@ -331,8 +347,8 @@
             'Best we can do is our Worst',
             'Not so Good ain\'t so Bad',
             'Not so Bad ain\'t so Good',
-            '⑪ M. Mendoza .215/1337',
-            '⑨ B. Uecker .200/731',
+            '<span style="font-style: normal;">⑪</span> M. Mendoza .215/1337',
+            '<span style="font-style: normal;">⑨</span> B. Uecker .200/731',
             '...It\'s a Shame!',
             'It\'s Good to be Okay',
             'Someone hire Tony Rizzo',
@@ -357,7 +373,7 @@
             'All Star Break Ticket Sales open July 14–17',
             'Our 10th Glorious Season',
             'What\'s the Mendoza Line for pitchers?',
-            '㊵ B. Colon .084/299',
+            '<span style="font-style: normal;">㊵</span> B. Colon .084/299',
             '...& they\'re off!!!'
         ];
 
@@ -608,7 +624,10 @@
                         `;
                     }).join('')}
                 </div>
-                <div class="minimum-note">*Below 200 AB min.</div>
+                <div class="key-and-minimum">
+                    <div class="key-note">BA/ABs</div>
+                    <div class="minimum-note">*Below 200 min.</div>
+                </div>
                 <div class="hits-squares-text">${currentPhrase}</div>
             `;
             
