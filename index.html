@@ -489,17 +489,14 @@
                                     eventEmoji = '💥'; // Regular hit
                                 }
                                 
-                                // Override stat change logic for hits based on current batting average
+                                // Override stat change logic for hits based on previous batting average
                                 const previousAvg = previousStats.battingAverage;
-                                if (previousAvg > 0.200) {
-                                    // Above .200: hit moves farther from .200 (bad)
+                                if (previousAvg >= 0.200) {
+                                    // At or above .200: hit moves farther from .200 (RED - bad for race)
                                     statChange = 'farther';
-                                } else if (previousAvg < 0.200) {
-                                    // Below .200: hit moves closer to .200 (good)
-                                    statChange = 'closer';
                                 } else {
-                                    // Exactly .200: any change is bad
-                                    statChange = 'farther';
+                                    // Below .200: hit moves closer to .200 (GREEN - good for race)
+                                    statChange = 'closer';
                                 }
                                 
                             } else {
@@ -512,16 +509,13 @@
                                     eventEmoji = '❌'; // Strikeout
                                 }
                                 
-                                // Override stat change logic for outs based on current batting average
+                                // Override stat change logic for outs based on previous batting average
                                 const previousAvg = previousStats.battingAverage;
-                                if (previousAvg > 0.200) {
-                                    // Above .200: out moves closer to .200 (good)
+                                if (previousAvg >= 0.200) {
+                                    // At or above .200: out moves closer to .200 (GREEN - good for race)
                                     statChange = 'closer';
-                                } else if (previousAvg < 0.200) {
-                                    // Below .200: out moves farther from .200 (bad)
-                                    statChange = 'farther';
                                 } else {
-                                    // Exactly .200: any change is bad
+                                    // Below .200: out moves farther from .200 (RED - bad for race)
                                     statChange = 'farther';
                                 }
                             }
