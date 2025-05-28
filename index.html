@@ -259,6 +259,11 @@
             animation: eventPulse 2s ease-out;
         }
         
+        .mendoza-line-emoji {
+            font-size: 1.2rem;
+            margin-left: 4px;
+        }
+        
         @keyframes eventPulse {
             0% { opacity: 0; transform: scale(0.5); }
             20% { opacity: 1; transform: scale(1.2); }
@@ -376,7 +381,19 @@
             'Our 10th Glorious Season',
             'What\'s the Mendoza Line for pitchers?',
             '<span style="font-style: normal;">㊵</span> B. Colon .084/299',
-            '...& they\'re off!!!'
+            '...& they\'re off!!!',
+            'There\'s only one May',
+            '<span style="font-style: normal;">㉔</span> W. Mays: the only good Giant',
+            'Give Barry his own HOF wing',
+            'Every Statement is Political',
+            'R.I.P. W. Shorter',
+            'R.I.P. J. Zawinul',
+            'R.I.P. J. Pastorius',
+            'Let\'s tighten it up, now!',
+            'It is Accomplished!',
+            'Big Gulps, huh?',
+            'Congratulations to 2025 Kentucky Derby Winner Sovereignty',
+            'Congratulations to 2025 Preakness Stakes Winner Journalism'
         ];
 
         function getRandomPhrase() {
@@ -500,13 +517,14 @@
                                 }
                                 
                             } else {
-                                // No hit gained, but at-bat increased - could be strikeout
-                                // We'll check if strikeouts increased
+                                // No hit gained, but at-bat increased - could be strikeout or other out
                                 const currentSO = hittingStats?.strikeOuts || 0;
                                 const previousSO = previousStats.strikeOuts || 0;
                                 
                                 if (currentSO > previousSO) {
                                     eventEmoji = '❌'; // Strikeout
+                                } else {
+                                    eventEmoji = '✖️'; // Other out (non-strikeout)
                                 }
                                 
                                 // Override stat change logic for outs based on previous batting average
@@ -601,6 +619,9 @@
                         
                         const belowMinimum = player.atBats < 200 ? '*' : '';
                         
+                        // Check if player is exactly at .200
+                        const isAtMendozaLine = player.battingAverage === 0.200;
+                        
                         return `
                             <div class="player-row ${rowClass} ${player.statChange === 'closer' ? 'flash-green' : ''} ${player.statChange === 'farther' ? 'flash-red' : ''}">
                                 <div class="rank">${index + 1}</div>
@@ -608,12 +629,13 @@
                                     <div>
                                         <div class="player-name">
                                             ${player.displayName}
+                                            ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
                                             ${player.eventEmoji ? `<span class="event-emoji">${player.eventEmoji}</span>` : ''}
                                         </div>
                                         <div class="player-team">${player.position}</div>
                                     </div>
                                     <div class="batting-stats">
-                                        <div class="batting-display">${player.battingAverage.toFixed(3).substring(1)}/${player.atBats.toString().padStart(3, '0')}${belowMinimum}</div>
+                                        <div class="batting-display"><span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}/${player.atBats.toString().padStart(3, '0')}${belowMinimum}</span></div>
                                     </div>
                                 </div>
                             </div>
