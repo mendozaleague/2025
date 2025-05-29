@@ -400,7 +400,7 @@
         </div>
         
         <div class="live-standings">
-            <p><strong class="live-blink">LIVE</strong> standings updated 08:31:02 PM<br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+            <p><strong class="live-blink">LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
         </div>
         <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
@@ -468,6 +468,7 @@
         }
 
         const currentPhrase = getRandomPhrase();
+        let isInitialLoad = true;
 
         const players = {
             'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', league: 'NL' },
@@ -506,6 +507,21 @@
             return isOnIL;
         }
 
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            
+            const timestampElement = document.getElementById('last-updated');
+            if (timestampElement) {
+                timestampElement.textContent = timeString;
+            }
+        }
+
         async function fetchPlayerStats() {
             try {
                 const currentYear = new Date().getFullYear();
@@ -536,7 +552,7 @@
                     let statChange = null;
                     let eventEmoji = '';
                     
-                    if (previousStats) {
+                    if (previousStats && !isInitialLoad) {
                         const previousDistance = previousStats.distanceTo200;
                         const previousHits = previousStats.hits;
                         const previousAtBats = previousStats.atBats;
@@ -625,70 +641,91 @@
                 
                 playerData = newPlayerData;
                 renderLeaderboard();
+                updateTimestamp();
+                
+                // Mark initial load as complete
+                if (isInitialLoad) {
+                    isInitialLoad = false;
+                }
                 
             } catch (error) {
                 console.error('Error fetching player stats:', error);
-                document.getElementById('content').innerHTML = `
-                    <div class="error">
-                        ⚠️ Error loading player data. Please check your internet connection and try again.
-                        <br><small>Error: ${error.message}</small>
-                    </div>
-                `;
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML = `
+                        <div class="error">
+                            ⚠️ Error loading player data. Please check your internet connection and try again.
+                            <br><small>Error: ${error.message}</small>
+                        </div>
+                    `;
+                }
             }
         }
 
         function renderLeaderboard() {
             const content = document.getElementById('content');
             
+            if (!content) return;
+            
             if (playerData.length === 0) {
                 content.innerHTML = '<div class="error">No player data available</div>';
                 return;
             }
             
-            const leaderboardHTML = `
-                <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
-                <div class="leaderboard">
-                    ${playerData.map((player, index) => {
-                        let rowClass = '';
-                        if (index === 0) {
-                            rowClass = 'first-place';
-                        } else if (index === 1) {
-                            rowClass = 'second-place';
-                        } else if (index === 2 || index === 4 || index === 6 || index === 8 || index === 10) {
-                            rowClass = 'odd-place';
-                        } else if (index === 3 || index === 5 || index === 7 || index === 9) {
-                            rowClass = 'even-place';
-                        }
-                        
-                        // Check if player is exactly at .200
-                        const isAtMendozaLine = player.battingAverage === 0.200;
-                        // Check if player is in first place
-                        const isFirstPlace = index === 0;
-                        
-                        return `
-                            <div class="player-row ${rowClass} ${player.statChange === 'closer' ? 'flash-green' : ''} ${player.statChange === 'farther' ? 'flash-red' : ''}">
-                                <div class="player-info">
-                                    <div>
-                                        <div class="player-name">
-                                            ${player.displayName}
-                                            ${isFirstPlace ? `<span class="first-place-emoji">🏁</span>` : ''}
-                                            ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
-                                            ${player.eventEmoji ? `<span class="event-emoji">${player.eventEmoji}</span>` : ''}
-                                            <div class="hover-tooltip">${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200 At Bats</div>
-                                        </div>
-                                    </div>
-                                    <div class="batting-stats">
-                                        <div class="batting-display"><span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span></div>
+            // Check if we already have the leaderboard structure
+            let leaderboard = content.querySelector('.leaderboard');
+            let hitsSquaresText = content.querySelector('.hits-squares-text');
+            let mendozaLineDivider = content.querySelector('.mendoza-line-divider');
+            
+            // If this is the first render or structure doesn't exist, create it
+            if (!leaderboard || !hitsSquaresText || !mendozaLineDivider) {
+                content.innerHTML = `
+                    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
+                    <div class="leaderboard"></div>
+                    <div class="hits-squares-text">${currentPhrase}</div>
+                `;
+                leaderboard = content.querySelector('.leaderboard');
+            }
+            
+            // Update only the leaderboard content
+            if (leaderboard) {
+                leaderboard.innerHTML = playerData.map((player, index) => {
+                    let rowClass = '';
+                    if (index === 0) {
+                        rowClass = 'first-place';
+                    } else if (index === 1) {
+                        rowClass = 'second-place';
+                    } else if (index === 2 || index === 4 || index === 6 || index === 8 || index === 10) {
+                        rowClass = 'odd-place';
+                    } else if (index === 3 || index === 5 || index === 7 || index === 9) {
+                        rowClass = 'even-place';
+                    }
+                    
+                    // Check if player is exactly at .200
+                    const isAtMendozaLine = player.battingAverage === 0.200;
+                    // Check if player is in first place
+                    const isFirstPlace = index === 0;
+                    
+                    return `
+                        <div class="player-row ${rowClass} ${player.statChange === 'closer' ? 'flash-green' : ''} ${player.statChange === 'farther' ? 'flash-red' : ''}">
+                            <div class="player-info">
+                                <div>
+                                    <div class="player-name">
+                                        ${player.displayName}
+                                        ${isFirstPlace ? `<span class="first-place-emoji">🏁</span>` : ''}
+                                        ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
+                                        ${player.eventEmoji ? `<span class="event-emoji">${player.eventEmoji}</span>` : ''}
+                                        <div class="hover-tooltip">${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200 At Bats</div>
                                     </div>
                                 </div>
+                                <div class="batting-stats">
+                                    <div class="batting-display"><span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span></div>
+                                </div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div class="hits-squares-text">${currentPhrase}</div>
-            `;
-            
-            content.innerHTML = leaderboardHTML;
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
         // Initial load
