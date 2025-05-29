@@ -459,6 +459,7 @@
         let previousPlayerStats = {};
         let refreshInterval;
         let isRefreshActive = false;
+        let isUpdatingContent = false; // Flag to track when we're updating content
 
         async function shouldRefresh() {
             try {
@@ -664,16 +665,25 @@
                 return;
             }
             
-            // Store current scroll position
-            const currentScrollY = window.scrollY;
+            // Set flag that we're updating content
+            isUpdatingContent = true;
+            
+            // Only preserve scroll position if this is an update to existing content
+            // (not the initial load)
+            let shouldPreserveScroll = false;
+            let currentScrollY = 0;
             
             // Check if we already have the leaderboard structure
             let leaderboard = content.querySelector('.leaderboard');
-            let hitsSquaresText = content.querySelector('.hits-squares-text');
-            let mendozaLineDivider = content.querySelector('.mendoza-line-divider');
+            
+            if (leaderboard && !isInitialLoad) {
+                // This is an update to existing content, preserve scroll
+                shouldPreserveScroll = true;
+                currentScrollY = window.scrollY;
+            }
             
             // If this is the first render or structure doesn't exist, create it
-            if (!leaderboard || !hitsSquaresText || !mendozaLineDivider) {
+            if (!leaderboard) {
                 content.innerHTML = `
                     <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
                     <div class="leaderboard"></div>
@@ -771,11 +781,16 @@
                 });
             }
             
-            // Restore scroll position after DOM update
-            if (currentScrollY > 0) {
-                requestAnimationFrame(() => {
+            // Only restore scroll position if we determined we should preserve it
+            // and only if there was a meaningful scroll position
+            if (shouldPreserveScroll && currentScrollY > 50) {
+                // Use setTimeout to ensure DOM is fully updated before scrolling
+                setTimeout(() => {
                     window.scrollTo(0, currentScrollY);
-                });
+                    isUpdatingContent = false;
+                }, 0);
+            } else {
+                isUpdatingContent = false;
             }
         }
 
