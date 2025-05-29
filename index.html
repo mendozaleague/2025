@@ -401,6 +401,7 @@
     <script>
         const randomPhrases = [
             'Hits are for Squares!',
+            'Our 10th "Glorious" Season',
             'Stakes is Mid',
             'As Above | So Below',
             'Your Perfect Fantasy',
@@ -433,8 +434,10 @@
             const random = Math.random();
             if (random < 0.2) {
                 return 'Hits are for Squares!';
+            } else if (random < 0.4) {
+                return 'Our 10th "Glorious" Season';
             } else {
-                const otherPhrases = randomPhrases.slice(1);
+                const otherPhrases = randomPhrases.slice(2);
                 return otherPhrases[Math.floor(Math.random() * otherPhrases.length)];
             }
         }
@@ -492,7 +495,7 @@
                 
                 const games = schedule.dates[0].games;
                 
-                // Check if any games are actually live/in progress (FIXED LOGIC)
+                // Check if any games are actually live/in progress
                 const hasActiveGames = games.some(game => {
                     const statusCode = game.status.statusCode;
                     return statusCode === 'P' ||  // Pre-Game (starting soon)
@@ -678,7 +681,8 @@
             
             let leaderboard = content.querySelector('.leaderboard');
             
-            if (leaderboard && !isInitialLoad) {
+            // Only preserve scroll if we're not at the very top AND not on initial load
+            if (leaderboard && !isInitialLoad && window.scrollY > 10) {
                 shouldPreserveScroll = true;
                 currentScrollY = window.scrollY;
             }
@@ -775,7 +779,7 @@
                 });
             }
             
-            if (shouldPreserveScroll && currentScrollY > 50) {
+            if (shouldPreserveScroll && currentScrollY > 10) {
                 setTimeout(() => {
                     window.scrollTo(0, currentScrollY);
                     isUpdatingContent = false;
