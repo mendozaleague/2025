@@ -396,7 +396,7 @@
         </div>
         
         <div id="content">
-            <div class="loading">Loading player data...</div>
+            <div class="loading">Hold yer horses...</div>
         </div>
         
         <div class="live-standings">
@@ -647,7 +647,7 @@
                 if (content) {
                     content.innerHTML = `
                         <div class="error">
-                            ⚠️ Error loading player data. Please check your internet connection and try again.
+                            You gotta be online for that...
                             <br><small>Error: ${error.message}</small>
                         </div>
                     `;
@@ -661,7 +661,7 @@
             if (!content) return;
             
             if (playerData.length === 0) {
-                content.innerHTML = '<div class="error">No player data available</div>';
+                content.innerHTML = '<div class="error">I don\'t know her...</div>';
                 return;
             }
             
