@@ -379,7 +379,26 @@
                 font-size: 1.25rem;
             }
         }
-    </style>
+    
+.flash-dot-white {
+    animation: flashDotWhite 2s ease-out;
+}
+@keyframes flashDotWhite {
+    0% { color: inherit; }
+    20% { color: white; }
+    100% { color: inherit; }
+}
+
+.flash-dot-pink {
+    animation: flashDotPink 2s ease-out;
+}
+@keyframes flashDotPink {
+    0% { color: inherit; }
+    20% { color: pink; }
+    100% { color: inherit; }
+}
+
+</style>
 </head>
 <body>
     <div class="container">
@@ -617,14 +636,36 @@
                         }
                     }
                     
-                    previousPlayerStats[playerId] = {
-                        battingAverage: battingAvg,
-                        distanceTo200: distanceTo200,
-                        atBats: hittingStats?.atBats || 0,
-                        hits: hittingStats?.hits || 0,
-                        homeRuns: hittingStats?.homeRuns || 0,
-                        strikeOuts: hittingStats?.strikeOuts || 0
-                    };
+                    
+previousPlayerStats[playerId] = {
+    battingAverage: battingAvg,
+    distanceTo200: distanceTo200,
+    atBats: hittingStats?.atBats || 0,
+    hits: hittingStats?.hits || 0,
+    homeRuns: hittingStats?.homeRuns || 0,
+    strikeOuts: hittingStats?.strikeOuts || 0,
+    walks: hittingStats?.baseOnBalls || 0,
+    sacFlies: hittingStats?.sacFlies || 0,
+    sacBunts: hittingStats?.sacBunts || 0
+};
+
+let dotFlashClass = '';
+if (previousStats && !isInitialLoad) {
+    const walkDiff = (hittingStats?.baseOnBalls || 0) - (previousStats.walks || 0);
+    const sacFlyDiff = (hittingStats?.sacFlies || 0) - (previousStats.sacFlies || 0);
+    const sacBuntDiff = (hittingStats?.sacBunts || 0) - (previousStats.sacBunts || 0);
+
+    if (walkDiff > 0) {
+        dotFlashClass = 'flash-dot-white';
+    } else if (sacFlyDiff > 0 || sacBuntDiff > 0) {
+        dotFlashClass = 'flash-dot-pink';
+    } else if (distanceTo200 < previousStats.distanceTo200) {
+        dotFlashClass = 'flash-dot-green';
+    } else if (distanceTo200 > previousStats.distanceTo200) {
+        dotFlashClass = 'flash-dot-red';
+    }
+}
+
                     
                     return {
                         id: player.id,
@@ -638,7 +679,8 @@
                         hits: hittingStats?.hits || 0,
                         isOnIL: isOnIL,
                         isInGame: isInGame,
-                        statChange: statChange
+                        statChange: statChange,
+                        dotFlashClass: dotFlashClass
                     };
                 }).sort((a, b) => a.distanceTo200 - b.distanceTo200);
                 
@@ -721,8 +763,7 @@
                                         ${player.displayName}
                                         ${player.isInGame ? 
                                             (isAtMendozaLine ? 
-                                                `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">😎</span>` :
-                                                `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
+                                                `<span class="game-status-dot ${player.dotFlashClass}">•</span>`
                                             ) : 
                                             (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '')
                                         }
@@ -734,7 +775,7 @@
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
+                                            <span style="font-style: normal;">${player.statChange === "closer" ? "📈 " : player.statChange === "farther" ? "📉 " : ""}${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
                                         </div>
                                     </div>
                                 </div>
