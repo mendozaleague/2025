@@ -186,7 +186,6 @@
             font-size: 1.5rem;
             font-weight: bold;
             line-height: 1.2;
-            cursor: pointer;
             position: relative;
             padding-left: 0;
         }
@@ -194,70 +193,68 @@
         .batting-stats {
             text-align: right;
             flex-shrink: 0;
+            position: relative;
+            min-width: 0;
         }
         
         .batting-display {
             font-size: 1.5rem;
             font-weight: bold;
             line-height: 1.2;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            text-align: right;
         }
         
-        .hover-tooltip {
+        .batting-average {
+            position: relative;
+            z-index: 1;
+            text-align: right;
+        }
+        
+        .tap-tooltip {
             position: absolute;
-            padding: 8px 12px;
-            font-size: 0.9rem;
-            font-weight: normal;
-            z-index: 1000;
+            top: 0;
+            right: 0;
+            padding: 4px 8px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 2;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.2s, visibility 0.2s;
             pointer-events: none;
-            top: 50%;
-            left: 100%;
-            transform: translateY(-50%);
-            margin-left: 10px;
-            min-width: 150px;
-            max-width: 300px;
-            word-wrap: break-word;
+            text-align: right;
             white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            border-radius: 4px;
         }
         
-        .player-row.first-place .hover-tooltip,
-        .player-row.odd-place .hover-tooltip {
-            background: #feed85;
-            border: 2px solid #feed85;
-            color: black;
-        }
-        
-        .player-row.second-place .hover-tooltip,
-        .player-row.even-place .hover-tooltip {
-            background: black;
-            border: 2px solid black;
+        /* Background styling for tooltips on black bars */
+        .player-row.first-place .tap-tooltip,
+        .player-row.odd-place .tap-tooltip {
             color: #feed85;
+            background-color: black;
         }
         
-        .player-name:hover .hover-tooltip {
+        /* Background styling for tooltips on yellow bars */
+        .player-row.second-place .tap-tooltip,
+        .player-row.even-place .tap-tooltip {
+            color: black;
+            background-color: #feed85;
+        }
+        
+        .batting-display:hover .tap-tooltip,
+        .batting-display.active .tap-tooltip {
             opacity: 1;
             visibility: visible;
-        }
-        
-        .key-and-minimum {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            font-size: 0.8rem;
-            color: black;
-            margin-left: 12px;
-            margin-right: 12px;
-        }
-        
-        .key-note {
-            text-align: left;
-        }
-        
-        .minimum-note {
-            text-align: left;
         }
         
         .error {
@@ -270,30 +267,41 @@
             border: 1px solid #feed89;
         }
         
-        .flash-red {
-            animation: flashRed 2s ease-out;
-        }
-        
-        .flash-green {
-            animation: flashGreen 2s ease-out;
-        }
-        
-        @keyframes flashRed {
-            0% { background-color: inherit; }
-            20% { background-color: #ff4444; }
-            100% { background-color: inherit; }
-        }
-        
-        @keyframes flashGreen {
-            0% { background-color: inherit; }
-            20% { background-color: #44ff44; }
-            100% { background-color: inherit; }
-        }
-        
-        .event-emoji {
+        .game-status-dot {
             font-size: 1.5rem;
-            margin-left: 8px;
-            animation: eventPulse 2s ease-out;
+            margin-left: 4px;
+            font-weight: normal;
+        }
+        
+        /* Game status dot colors based on bar color */
+        .player-row.first-place .game-status-dot,
+        .player-row.odd-place .game-status-dot {
+            color: #feed85; /* Yellow dot on black bars */
+        }
+        
+        .player-row.second-place .game-status-dot,
+        .player-row.even-place .game-status-dot {
+            color: black; /* Black dot on yellow bars */
+        }
+        
+        .flash-dot-red {
+            animation: flashDotRed 2s ease-out;
+        }
+        
+        .flash-dot-green {
+            animation: flashDotGreen 2s ease-out;
+        }
+        
+        @keyframes flashDotRed {
+            0% { color: inherit; }
+            20% { color: #ff4444; }
+            100% { color: inherit; }
+        }
+        
+        @keyframes flashDotGreen {
+            0% { color: inherit; }
+            20% { color: #44ff44; }
+            100% { color: inherit; }
         }
         
         .mendoza-line-emoji {
@@ -304,13 +312,6 @@
         .first-place-emoji {
             font-size: 1.5rem;
             margin-left: 4px;
-        }
-        
-        @keyframes eventPulse {
-            0% { opacity: 0; transform: scale(0.5); }
-            20% { opacity: 1; transform: scale(1.2); }
-            40% { transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.8); }
         }
         
         .live-blink {
@@ -362,29 +363,17 @@
                 font-size: 1.25rem;
             }
             
-            .event-emoji {
+            .tap-tooltip {
                 font-size: 1.25rem;
+                padding: 3px 6px;
             }
             
             .mendoza-line-emoji {
                 font-size: 1.25rem;
             }
             
-            .first-place-emoji {
+            .game-status-dot {
                 font-size: 1.25rem;
-            }
-            
-            .key-and-minimum {
-                margin-left: 10px;
-                margin-right: 10px;
-            }
-            
-            .hover-tooltip {
-                font-size: 0.85rem;
-                padding: 8px 12px;
-                min-width: 120px;
-                max-width: 250px;
-                margin-left: 8px;
             }
         }
     </style>
@@ -393,7 +382,7 @@
     <div class="container">
         <div class="header">
             <h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
-            <p class="race-title"><em>The 2nd Running of the Annual<br>Bob Uecker Memorial Race to .200</em></p>
+            <p class="race-title"><em>The 2nd Annual Running of the<br>Bob Uecker Memorial Race to .200</em></p>
         </div>
         
         <div id="content">
@@ -417,38 +406,26 @@
             'Do your Worst!',
             'Not so Good ain\'t so Bad',
             'Not so Bad ain\'t so Good',
-            '<span style="font-style: normal;">⑪</span> M. Mendoza <span style="font-style: normal;">.215/1337</span>',
-            '<span style="font-style: normal;">⑨</span> B. Uecker <span style="font-style: normal;">.200/731</span>',
-            '...It\'s a Shame!',
+            'It\'s a Shame!',
             'It\'s Good to be Okay',
-            'Somebody hire Tony Rizzo',
-            'Greetings from<br>the Middle West',
-            'Shoutout to Josep Oller',
-            'Happy International Bookie Appreciation Day',
-            'Manny hit .170 his rookie year',
             'So it Goes!',
             'Batting & Nothingness',
             'Root for Nothing!',
-            'Out, out, damn\'ed Shortstop!',
-            'Hang the D.H.',
-            'Bring Back the Shift',
-            'Don\'t touch \'em at all!',
-            'We miss Jason Benetti',
-            'Trim those sideburns!',
+            'Greetings from the Middle West',
+            '...& They\'re Off!!!',
             'No one can give more than 100% by definition that is the most anyone can give',
-            'Peanuts & Cracker Jack is redundant',
-            'Citizens United for Better Snacks',
-            'I don\'t care about The Pope',
-            'All-Star Break Ticket Sales open July 14–17',
-            'Our 10th "Glorious" Season',
-            '...& they\'re off!!!',
-            'There\'s only one May',
-            '<span style="font-style: normal;">㉔</span> W. Mays: the one Good Giant',
-            'Put Barry in The Hall',
+            'Hang the D.H.',
+            'Manny hit .170 his Rookie year',
+            'Congratulations to 2025 Kentucky Derby winner Sovereignty',
+            'Congratulations to 2025 Preakness Stakes winner Journalism',
             'So... Big Gulps, huh?',
-            'Congratulations to 2025 Kentucky Derby Winner Sovereignty',
-            'Congratulations to 2025 Preakness Stakes Winner Journalism',
-            '& Here come the Pretzels...'
+            'Put Barry in the Hall',
+            'The only good Giant was Willie',
+            '...& Here Come the Pretzels!',
+            'I thought I told you to trim those sideburns!',
+            'Strikeouts are Fascist',
+            'Sometimes you Win, sometimes you Lose, sometimes it Rains.',
+            'You guys are guests in my Corn.'
         ];
 
         function getRandomPhrase() {
@@ -480,6 +457,70 @@
 
         let playerData = [];
         let previousPlayerStats = {};
+        let refreshInterval;
+        let isRefreshActive = false;
+
+        async function shouldRefresh() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const scheduleResponse = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}`);
+                
+                if (!scheduleResponse.ok) {
+                    console.warn('Could not fetch schedule, defaulting to refresh');
+                    return true; // Default to refreshing if we can't check
+                }
+                
+                const schedule = await scheduleResponse.json();
+                
+                if (!schedule.dates || schedule.dates.length === 0) {
+                    console.log('No games scheduled for today');
+                    return false;
+                }
+                
+                const games = schedule.dates[0].games;
+                
+                // Check if any games are live, in progress, or scheduled but not started
+                const hasActiveGames = games.some(game => {
+                    const statusCode = game.status.statusCode;
+                    return statusCode === 'S' ||  // Scheduled
+                           statusCode === 'P' ||  // Pre-Game
+                           statusCode === 'I' ||  // In Progress
+                           statusCode === 'W' ||  // Warmup
+                           statusCode === 'D' ||  // Delayed
+                           statusCode === 'T';    // Suspended
+                });
+                
+                console.log(`Games active: ${hasActiveGames}, Total games today: ${games.length}`);
+                return hasActiveGames;
+                
+            } catch (error) {
+                console.error('Error checking game schedule:', error);
+                return true; // Default to refreshing if there's an error
+            }
+        }
+
+        function startRefreshInterval() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            
+            refreshInterval = setInterval(async () => {
+                const shouldDoRefresh = await shouldRefresh();
+                
+                if (shouldDoRefresh && !isRefreshActive) {
+                    console.log('Games are active - starting refresh');
+                    isRefreshActive = true;
+                    fetchPlayerStats();
+                } else if (!shouldDoRefresh && isRefreshActive) {
+                    console.log('No games active - stopping refresh');
+                    isRefreshActive = false;
+                } else if (shouldDoRefresh && isRefreshActive) {
+                    // Games are active and we're already refreshing - continue
+                    fetchPlayerStats();
+                }
+                // If no games and not refreshing, do nothing
+            }, 30000); // Check every 30 seconds
+        }
 
         function checkILStatus(player) {
             let isOnIL = false;
@@ -499,6 +540,13 @@
             }
             
             return isOnIL;
+        }
+
+        function checkGameStatus(player) {
+            // This would need to be implemented with MLB API game data
+            // For now, we'll return false as a placeholder
+            // In a real implementation, you'd check if the player's team has an active game
+            return false;
         }
 
         function updateTimestamp() {
@@ -535,75 +583,25 @@
                     const distanceTo200 = Math.abs(battingAvg - 0.200);
                     
                     const isOnIL = checkILStatus(player);
+                    const isInGame = checkGameStatus(player);
                     const playerInfo = Object.values(players).find(p => p.id === player.id);
                     let displayName = playerInfo ? playerInfo.displayName : player.fullName;
                     
                     const league = playerInfo ? playerInfo.league : 'Unknown';
                     
-                    // Check for stat changes and events
+                    // Check for stat changes - simplified version without event emojis
                     const playerId = player.id;
                     const previousStats = previousPlayerStats[playerId];
                     let statChange = null;
-                    let eventEmoji = '';
                     
                     if (previousStats && !isInitialLoad) {
                         const previousDistance = previousStats.distanceTo200;
-                        const previousHits = previousStats.hits;
-                        const previousAtBats = previousStats.atBats;
-                        const currentHits = hittingStats?.hits || 0;
-                        const currentAtBats = hittingStats?.atBats || 0;
                         
                         // Determine if moved closer to or farther from .200
                         if (distanceTo200 < previousDistance) {
                             statChange = 'closer'; // Moved closer to .200
                         } else if (distanceTo200 > previousDistance) {
                             statChange = 'farther'; // Moved farther from .200
-                        }
-                        
-                        // Check for events when at-bats increased (new plate appearance)
-                        if (currentAtBats > previousAtBats) {
-                            if (currentHits > previousHits) {
-                                // Got a hit - check if it was a home run by looking at other stats
-                                const currentHR = hittingStats?.homeRuns || 0;
-                                const previousHR = previousStats.homeRuns || 0;
-                                
-                                if (currentHR > previousHR) {
-                                    eventEmoji = '💣'; // Home run
-                                } else {
-                                    eventEmoji = '💥'; // Regular hit
-                                }
-                                
-                                // Override stat change logic for hits based on previous batting average
-                                const previousAvg = previousStats.battingAverage;
-                                if (previousAvg >= 0.200) {
-                                    // At or above .200: hit moves farther from .200 (RED - bad for race)
-                                    statChange = 'farther';
-                                } else {
-                                    // Below .200: hit moves closer to .200 (GREEN - good for race)
-                                    statChange = 'closer';
-                                }
-                                
-                            } else {
-                                // No hit gained, but at-bat increased - could be strikeout or other out
-                                const currentSO = hittingStats?.strikeOuts || 0;
-                                const previousSO = previousStats.strikeOuts || 0;
-                                
-                                if (currentSO > previousSO) {
-                                    eventEmoji = '❌'; // Strikeout
-                                } else {
-                                    eventEmoji = '✖️'; // Other out (non-strikeout)
-                                }
-                                
-                                // Override stat change logic for outs based on previous batting average
-                                const previousAvg = previousStats.battingAverage;
-                                if (previousAvg >= 0.200) {
-                                    // At or above .200: out moves closer to .200 (GREEN - good for race)
-                                    statChange = 'closer';
-                                } else {
-                                    // Below .200: out moves farther from .200 (RED - bad for race)
-                                    statChange = 'farther';
-                                }
-                            }
                         }
                     }
                     
@@ -628,8 +626,8 @@
                         atBats: hittingStats?.atBats || 0,
                         hits: hittingStats?.hits || 0,
                         isOnIL: isOnIL,
-                        statChange: statChange,
-                        eventEmoji: eventEmoji
+                        isInGame: isInGame,
+                        statChange: statChange
                     };
                 }).sort((a, b) => a.distanceTo200 - b.distanceTo200);
                 
@@ -704,24 +702,73 @@
                     const isFirstPlace = index === 0;
                     
                     return `
-                        <div class="player-row ${rowClass} ${player.statChange === 'closer' ? 'flash-green' : ''} ${player.statChange === 'farther' ? 'flash-red' : ''}">
+                        <div class="player-row ${rowClass}">
                             <div class="player-info">
                                 <div>
                                     <div class="player-name">
                                         ${player.displayName}
-                                        ${isFirstPlace ? `<span class="first-place-emoji">🏁</span>` : ''}
                                         ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
-                                        ${player.eventEmoji ? `<span class="event-emoji">${player.eventEmoji}</span>` : ''}
-                                        <div class="hover-tooltip">${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200 At Bats</div>
+                                        ${player.isInGame ? `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>` : ''}
                                     </div>
                                 </div>
                                 <div class="batting-stats">
-                                    <div class="batting-display"><span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span></div>
+                                    <div class="batting-display" data-player-id="${player.id}">
+                                        <div class="batting-average">
+                                            <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
+                                        </div>
+                                        <div class="tap-tooltip">
+                                            <span style="font-style: normal;">${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200 AB</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     `;
                 }).join('');
+                
+                // Add event listeners for tap/click functionality
+                const battingDisplays = leaderboard.querySelectorAll('.batting-display');
+                battingDisplays.forEach(display => {
+                    // Handle click/tap
+                    display.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Remove active class from all other displays
+                        battingDisplays.forEach(other => {
+                            if (other !== display) {
+                                other.classList.remove('active');
+                            }
+                        });
+                        
+                        // Toggle active class on clicked display
+                        display.classList.toggle('active');
+                    });
+                    
+                    // Handle touch events for better mobile support
+                    display.addEventListener('touchstart', function(e) {
+                        e.preventDefault();
+                        
+                        // Remove active class from all other displays
+                        battingDisplays.forEach(other => {
+                            if (other !== display) {
+                                other.classList.remove('active');
+                            }
+                        });
+                        
+                        // Toggle active class on touched display
+                        display.classList.toggle('active');
+                    });
+                });
+                
+                // Close tooltips when clicking elsewhere
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.batting-display')) {
+                        battingDisplays.forEach(display => {
+                            display.classList.remove('active');
+                        });
+                    }
+                });
             }
             
             // Restore scroll position after DOM update
@@ -732,15 +779,22 @@
             }
         }
 
-        // Initial load
+        // Initial load - always fetch on first load
         fetchPlayerStats();
         
-        // Auto-refresh every 30 seconds
-        setInterval(fetchPlayerStats, 30000);
+        // Start the smart refresh system
+        startRefreshInterval();
         
-        // Refresh on 'r' key press
+        // Initial check to see if games are active
+        shouldRefresh().then(active => {
+            isRefreshActive = active;
+            console.log(`Initial game status check: ${active ? 'Games active' : 'No games active'}`);
+        });
+        
+        // Manual refresh on 'r' key press - always works regardless of game status
         document.addEventListener('keydown', function(event) {
             if (event.key === 'r' || event.key === 'R') {
+                console.log('Manual refresh triggered');
                 fetchPlayerStats();
             }
         });
