@@ -133,6 +133,7 @@
             padding: 15px 12px;
             border-bottom: 1px solid #ddd;
             transition: all 0.3s ease;
+            position: relative;
         }
         
         .player-row.first-place {
@@ -181,16 +182,11 @@
         }
         
         .player-name {
-            font-size: 1.1rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            margin-bottom: 3px;
             line-height: 1.2;
-        }
-        
-        .player-team {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            line-height: 1.2;
+            cursor: pointer;
+            position: relative;
         }
         
         .batting-stats {
@@ -199,9 +195,34 @@
         }
         
         .batting-display {
-            font-size: 1.4rem;
+            font-size: 1.8rem;
             font-weight: bold;
             line-height: 1.2;
+        }
+        
+        .hover-tooltip {
+            position: absolute;
+            background: white;
+            border: 2px solid white;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: black;
+            z-index: 1000;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            margin-left: 10px;
+        }
+        
+        .player-name:hover .hover-tooltip {
+            opacity: 1;
+            visibility: visible;
         }
         
         .key-and-minimum {
@@ -220,7 +241,7 @@
         }
         
         .minimum-note {
-            text-align: right;
+            text-align: left;
         }
         
         .error {
@@ -308,20 +329,21 @@
             }
             
             .player-name {
-                font-size: 1rem;
-            }
-            
-            .player-team {
-                font-size: 0.7rem;
+                font-size: 1.5rem;
             }
             
             .batting-display {
-                font-size: 1.2rem;
+                font-size: 1.5rem;
             }
             
             .key-and-minimum {
                 margin-left: 10px;
                 margin-right: 10px;
+            }
+            
+            .hover-tooltip {
+                font-size: 0.9rem;
+                padding: 6px 10px;
             }
         }
     </style>
@@ -409,17 +431,17 @@
         const currentPhrase = getRandomPhrase();
 
         const players = {
-            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', position: '3B • National League' },
-            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', position: 'OF(!) • American League' },
-            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', position: 'C • American League' },
-            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', position: '1B • National League' },
-            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', position: 'OF • American League' },
-            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', position: '1B • National League' },
-            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', position: 'SS • American League' },
-            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', position: 'OF • National League' },
-            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', position: 'OF • National League' },
-            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ KOREY L.', position: 'C • American League' },
-            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', position: 'UT • American League' }
+            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', league: 'NL' },
+            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', league: 'AL' },
+            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', league: 'AL' },
+            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', league: 'NL' },
+            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', league: 'AL' },
+            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', league: 'NL' },
+            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', league: 'AL' },
+            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', league: 'NL' },
+            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', league: 'NL' },
+            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ KOREY L.', league: 'AL' },
+            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', league: 'AL' }
         };
 
         let playerData = [];
@@ -471,7 +493,7 @@
                         displayName += ' (IL)';
                     }
                     
-                    const position = playerInfo ? playerInfo.position : 'Unknown';
+                    const league = playerInfo ? playerInfo.league : 'Unknown';
                     
                     // Check for stat changes and events
                     const playerId = player.id;
@@ -555,7 +577,7 @@
                         name: player.fullName,
                         displayName: displayName,
                         team: player.currentTeam?.name || 'Unknown',
-                        position: position,
+                        league: league,
                         battingAverage: battingAvg,
                         distanceTo200: distanceTo200,
                         atBats: hittingStats?.atBats || 0,
@@ -617,8 +639,6 @@
                             rowClass = 'even-place';
                         }
                         
-                        const belowMinimum = player.atBats < 200 ? '*' : '';
-                        
                         // Check if player is exactly at .200
                         const isAtMendozaLine = player.battingAverage === 0.200;
                         
@@ -631,20 +651,16 @@
                                             ${player.displayName}
                                             ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
                                             ${player.eventEmoji ? `<span class="event-emoji">${player.eventEmoji}</span>` : ''}
+                                            <div class="hover-tooltip">${player.atBats}/200 At Bats</div>
                                         </div>
-                                        <div class="player-team">${player.position}</div>
                                     </div>
                                     <div class="batting-stats">
-                                        <div class="batting-display"><span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}/${player.atBats.toString().padStart(3, '0')}${belowMinimum}</span></div>
+                                        <div class="batting-display"><span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span></div>
                                     </div>
                                 </div>
                             </div>
                         `;
                     }).join('')}
-                </div>
-                <div class="key-and-minimum">
-                    <div class="key-note">BA/ABs</div>
-                    <div class="minimum-note">*Below 200 min.</div>
                 </div>
                 <div class="hits-squares-text">${currentPhrase}</div>
             `;
