@@ -681,8 +681,9 @@
             
             let leaderboard = content.querySelector('.leaderboard');
             
-            // Only preserve scroll if we're not at the very top AND not on initial load
-            if (leaderboard && !isInitialLoad && window.scrollY > 10) {
+            // Only preserve scroll if we're not at the very top AND not at the bottom AND not on initial load
+            const isAtBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 5;
+            if (leaderboard && !isInitialLoad && window.scrollY > 10 && !isAtBottom) {
                 shouldPreserveScroll = true;
                 currentScrollY = window.scrollY;
             }
