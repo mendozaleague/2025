@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE 2025 MENDOZA STAKES</title>
-    <meta name="description" content="The 2nd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
-    <meta name="author" content="Dud Lawson">
     <style>
         * {
             margin: 0;
@@ -379,26 +377,7 @@
                 font-size: 1.25rem;
             }
         }
-    
-.flash-dot-white {
-    animation: flashDotWhite 2s ease-out;
-}
-@keyframes flashDotWhite {
-    0% { color: inherit; }
-    20% { color: white; }
-    100% { color: inherit; }
-}
-
-.flash-dot-pink {
-    animation: flashDotPink 2s ease-out;
-}
-@keyframes flashDotPink {
-    0% { color: inherit; }
-    20% { color: pink; }
-    100% { color: inherit; }
-}
-
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
@@ -420,7 +399,6 @@
     <script>
         const randomPhrases = [
             'Hits are for Squares!',
-            'Our 10th "Glorious" Season',
             'Stakes is Mid',
             'As Above | So Below',
             'Your Perfect Fantasy',
@@ -453,10 +431,8 @@
             const random = Math.random();
             if (random < 0.2) {
                 return 'Hits are for Squares!';
-            } else if (random < 0.4) {
-                return 'Our 10th "Glorious" Season';
             } else {
-                const otherPhrases = randomPhrases.slice(2);
+                const otherPhrases = randomPhrases.slice(1);
                 return otherPhrases[Math.floor(Math.random() * otherPhrases.length)];
             }
         }
@@ -482,7 +458,7 @@
         let previousPlayerStats = {};
         let refreshInterval;
         let isRefreshActive = false;
-        let isUpdatingContent = false;
+        let isUpdatingContent = false; // Flag to track when we're updating content
 
         function updateLiveIndicator(hasActiveGames) {
             const liveIndicator = document.getElementById('live-indicator');
@@ -502,7 +478,7 @@
                 
                 if (!scheduleResponse.ok) {
                     console.warn('Could not fetch schedule, defaulting to refresh');
-                    return true;
+                    return true; // Default to refreshing if we can't check
                 }
                 
                 const schedule = await scheduleResponse.json();
@@ -514,26 +490,29 @@
                 
                 const games = schedule.dates[0].games;
                 
-                // Check if any games are actually live/in progress
+                // Check if any games are live, in progress, or scheduled but not started
                 const hasActiveGames = games.some(game => {
                     const statusCode = game.status.statusCode;
-                    return statusCode === 'P' ||  // Pre-Game (starting soon)
+                    return statusCode === 'S' ||  // Scheduled
+                           statusCode === 'P' ||  // Pre-Game
                            statusCode === 'I' ||  // In Progress
-                           statusCode === 'W' ||  // Warmup (just before start)
+                           statusCode === 'W' ||  // Warmup
                            statusCode === 'D' ||  // Delayed
                            statusCode === 'T';    // Suspended
                 });
                 
                 console.log(`Games active: ${hasActiveGames}, Total games today: ${games.length}`);
                 
+                // Update the live indicator based on game status
                 updateLiveIndicator(hasActiveGames);
                 
                 return hasActiveGames;
                 
             } catch (error) {
                 console.error('Error checking game schedule:', error);
+                // On error, don't blink the indicator
                 updateLiveIndicator(false);
-                return true;
+                return true; // Default to refreshing if there's an error
             }
         }
 
@@ -553,9 +532,11 @@
                     console.log('No games active - stopping refresh');
                     isRefreshActive = false;
                 } else if (shouldDoRefresh && isRefreshActive) {
+                    // Games are active and we're already refreshing - continue
                     fetchPlayerStats();
                 }
-            }, 30000);
+                // If no games and not refreshing, do nothing
+            }, 30000); // Check every 30 seconds
         }
 
         function checkILStatus(player) {
@@ -579,6 +560,9 @@
         }
 
         function checkGameStatus(player) {
+            // This would need to be implemented with MLB API game data
+            // For now, we'll return false as a placeholder
+            // In a real implementation, you'd check if the player's team has an active game
             return false;
         }
 
@@ -622,6 +606,7 @@
                     
                     const league = playerInfo ? playerInfo.league : 'Unknown';
                     
+                    // Check for stat changes - simplified version without event emojis
                     const playerId = player.id;
                     const previousStats = previousPlayerStats[playerId];
                     let statChange = null;
@@ -629,43 +614,23 @@
                     if (previousStats && !isInitialLoad) {
                         const previousDistance = previousStats.distanceTo200;
                         
+                        // Determine if moved closer to or farther from .200
                         if (distanceTo200 < previousDistance) {
-                            statChange = 'closer';
+                            statChange = 'closer'; // Moved closer to .200
                         } else if (distanceTo200 > previousDistance) {
-                            statChange = 'farther';
+                            statChange = 'farther'; // Moved farther from .200
                         }
                     }
                     
-                    
-previousPlayerStats[playerId] = {
-    battingAverage: battingAvg,
-    distanceTo200: distanceTo200,
-    atBats: hittingStats?.atBats || 0,
-    hits: hittingStats?.hits || 0,
-    homeRuns: hittingStats?.homeRuns || 0,
-    strikeOuts: hittingStats?.strikeOuts || 0,
-    walks: hittingStats?.baseOnBalls || 0,
-    sacFlies: hittingStats?.sacFlies || 0,
-    sacBunts: hittingStats?.sacBunts || 0
-};
-
-let dotFlashClass = '';
-if (previousStats && !isInitialLoad) {
-    const walkDiff = (hittingStats?.baseOnBalls || 0) - (previousStats.walks || 0);
-    const sacFlyDiff = (hittingStats?.sacFlies || 0) - (previousStats.sacFlies || 0);
-    const sacBuntDiff = (hittingStats?.sacBunts || 0) - (previousStats.sacBunts || 0);
-
-    if (walkDiff > 0) {
-        dotFlashClass = 'flash-dot-white';
-    } else if (sacFlyDiff > 0 || sacBuntDiff > 0) {
-        dotFlashClass = 'flash-dot-pink';
-    } else if (distanceTo200 < previousStats.distanceTo200) {
-        dotFlashClass = 'flash-dot-green';
-    } else if (distanceTo200 > previousStats.distanceTo200) {
-        dotFlashClass = 'flash-dot-red';
-    }
-}
-
+                    // Store current stats for next comparison
+                    previousPlayerStats[playerId] = {
+                        battingAverage: battingAvg,
+                        distanceTo200: distanceTo200,
+                        atBats: hittingStats?.atBats || 0,
+                        hits: hittingStats?.hits || 0,
+                        homeRuns: hittingStats?.homeRuns || 0,
+                        strikeOuts: hittingStats?.strikeOuts || 0
+                    };
                     
                     return {
                         id: player.id,
@@ -679,8 +644,7 @@ if (previousStats && !isInitialLoad) {
                         hits: hittingStats?.hits || 0,
                         isOnIL: isOnIL,
                         isInGame: isInGame,
-                        statChange: statChange,
-                        dotFlashClass: dotFlashClass
+                        statChange: statChange
                     };
                 }).sort((a, b) => a.distanceTo200 - b.distanceTo200);
                 
@@ -688,6 +652,7 @@ if (previousStats && !isInitialLoad) {
                 renderLeaderboard();
                 updateTimestamp();
                 
+                // Mark initial load as complete
                 if (isInitialLoad) {
                     isInitialLoad = false;
                 }
@@ -716,20 +681,24 @@ if (previousStats && !isInitialLoad) {
                 return;
             }
             
+            // Set flag that we're updating content
             isUpdatingContent = true;
             
+            // Only preserve scroll position if this is an update to existing content
+            // (not the initial load)
             let shouldPreserveScroll = false;
             let currentScrollY = 0;
             
+            // Check if we already have the leaderboard structure
             let leaderboard = content.querySelector('.leaderboard');
             
-            // Only preserve scroll if we're not at the very top AND not at the bottom AND not on initial load
-            const isAtBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 5;
-            if (leaderboard && !isInitialLoad && window.scrollY > 10 && !isAtBottom) {
+            if (leaderboard && !isInitialLoad) {
+                // This is an update to existing content, preserve scroll
                 shouldPreserveScroll = true;
                 currentScrollY = window.scrollY;
             }
             
+            // If this is the first render or structure doesn't exist, create it
             if (!leaderboard) {
                 content.innerHTML = `
                     <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
@@ -739,6 +708,7 @@ if (previousStats && !isInitialLoad) {
                 leaderboard = content.querySelector('.leaderboard');
             }
             
+            // Update only the leaderboard content
             if (leaderboard) {
                 leaderboard.innerHTML = playerData.map((player, index) => {
                     let rowClass = '';
@@ -752,7 +722,9 @@ if (previousStats && !isInitialLoad) {
                         rowClass = 'even-place';
                     }
                     
+                    // Check if player is exactly at .200
                     const isAtMendozaLine = player.battingAverage === 0.200;
+                    // Check if player is in first place
                     const isFirstPlace = index === 0;
                     
                     return `
@@ -761,12 +733,8 @@ if (previousStats && !isInitialLoad) {
                                 <div>
                                     <div class="player-name">
                                         ${player.displayName}
-                                        ${player.isInGame ? 
-                                            (isAtMendozaLine ? 
-                                                `<span class="game-status-dot ${player.dotFlashClass}">•</span>`
-                                            ) : 
-                                            (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '')
-                                        }
+                                        ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
+                                        ${player.isInGame ? `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>` : ''}
                                     </div>
                                 </div>
                                 <div class="batting-stats">
@@ -775,7 +743,7 @@ if (previousStats && !isInitialLoad) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${player.statChange === "closer" ? "📈 " : player.statChange === "farther" ? "📉 " : ""}${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
+                                            <span style="font-style: normal;">${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
                                         </div>
                                     </div>
                                 </div>
@@ -784,34 +752,42 @@ if (previousStats && !isInitialLoad) {
                     `;
                 }).join('');
                 
+                // Add event listeners for tap/click functionality
                 const battingDisplays = leaderboard.querySelectorAll('.batting-display');
                 battingDisplays.forEach(display => {
+                    // Handle click/tap
                     display.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         
+                        // Remove active class from all other displays
                         battingDisplays.forEach(other => {
                             if (other !== display) {
                                 other.classList.remove('active');
                             }
                         });
                         
+                        // Toggle active class on clicked display
                         display.classList.toggle('active');
                     });
                     
+                    // Handle touch events for better mobile support
                     display.addEventListener('touchstart', function(e) {
                         e.preventDefault();
                         
+                        // Remove active class from all other displays
                         battingDisplays.forEach(other => {
                             if (other !== display) {
                                 other.classList.remove('active');
                             }
                         });
                         
+                        // Toggle active class on touched display
                         display.classList.toggle('active');
                     });
                 });
                 
+                // Close tooltips when clicking elsewhere
                 document.addEventListener('click', function(e) {
                     if (!e.target.closest('.batting-display')) {
                         battingDisplays.forEach(display => {
@@ -821,7 +797,10 @@ if (previousStats && !isInitialLoad) {
                 });
             }
             
-            if (shouldPreserveScroll && currentScrollY > 10) {
+            // Only restore scroll position if we determined we should preserve it
+            // and only if there was a meaningful scroll position
+            if (shouldPreserveScroll && currentScrollY > 50) {
+                // Use setTimeout to ensure DOM is fully updated before scrolling
                 setTimeout(() => {
                     window.scrollTo(0, currentScrollY);
                     isUpdatingContent = false;
@@ -831,16 +810,19 @@ if (previousStats && !isInitialLoad) {
             }
         }
 
-        // Initialize
+        // Initial load - always fetch on first load
         fetchPlayerStats();
+        
+        // Start the smart refresh system
         startRefreshInterval();
         
+        // Initial check to see if games are active
         shouldRefresh().then(active => {
             isRefreshActive = active;
             console.log(`Initial game status check: ${active ? 'Games active' : 'No games active'}`);
         });
         
-        // Manual refresh with 'r' key
+        // Manual refresh on 'r' key press - always works regardless of game status
         document.addEventListener('keydown', function(event) {
             if (event.key === 'r' || event.key === 'R') {
                 console.log('Manual refresh triggered');
