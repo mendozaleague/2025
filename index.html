@@ -33,22 +33,31 @@
         }
         
         .header h1 {
-            font-size: 1.8rem;
+            font-size: 2.0rem;
             margin-bottom: 8px;
             color: black;
             line-height: 1.2;
         }
         
-        .header p {
+        .header .race-title {
             font-size: 0.9rem;
             color: black;
             line-height: 1.3;
-        }
-        
-        .header .race-title {
             font-weight: bold;
             font-style: italic;
-            margin-bottom: 5px;
+            margin-bottom: 0;
+        }
+        
+        .live-standings {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #2c2c2c;
+        }
+        
+        .live-standings a {
+            color: #2c2c2c;
+            text-decoration: underline;
         }
         
         .info-box {
@@ -174,11 +183,12 @@
         }
         
         .player-name {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: bold;
             line-height: 1.2;
             cursor: pointer;
             position: relative;
+            padding-left: 20px;
         }
         
         .batting-stats {
@@ -187,21 +197,17 @@
         }
         
         .batting-display {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: bold;
             line-height: 1.2;
         }
         
         .hover-tooltip {
             position: absolute;
-            background: white;
-            border: 2px solid white;
-            padding: 6px 10px;
+            padding: 8px 12px;
             font-size: 0.9rem;
             font-weight: normal;
-            color: black;
             z-index: 1000;
-            white-space: nowrap;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.2s, visibility 0.2s;
@@ -210,6 +216,24 @@
             left: 100%;
             transform: translateY(-50%);
             margin-left: 10px;
+            min-width: 150px;
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: nowrap;
+        }
+        
+        .player-row.first-place .hover-tooltip,
+        .player-row.odd-place .hover-tooltip {
+            background: #feed85;
+            border: 2px solid #feed85;
+            color: black;
+        }
+        
+        .player-row.second-place .hover-tooltip,
+        .player-row.even-place .hover-tooltip {
+            background: black;
+            border: 2px solid black;
+            color: #feed85;
         }
         
         .player-name:hover .hover-tooltip {
@@ -267,13 +291,18 @@
         }
         
         .event-emoji {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             margin-left: 8px;
             animation: eventPulse 2s ease-out;
         }
         
         .mendoza-line-emoji {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+            margin-left: 4px;
+        }
+        
+        .first-place-emoji {
+            font-size: 1.5rem;
             margin-left: 4px;
         }
         
@@ -284,13 +313,23 @@
             100% { opacity: 0; transform: scale(0.8); }
         }
         
+        .live-blink {
+            animation: liveBlink 2s ease-in-out infinite;
+        }
+        
+        @keyframes liveBlink {
+            0%, 50% { opacity: 1; }
+            75% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
             body {
                 padding: 8px;
             }
             
             .header h1 {
-                font-size: 1.6rem;
+                font-size: 1.75rem;
             }
             
             .header p {
@@ -315,11 +354,23 @@
             }
             
             .player-name {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
             
             .batting-display {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
+            }
+            
+            .event-emoji {
+                font-size: 1.25rem;
+            }
+            
+            .mendoza-line-emoji {
+                font-size: 1.25rem;
+            }
+            
+            .first-place-emoji {
+                font-size: 1.25rem;
             }
             
             .key-and-minimum {
@@ -328,8 +379,11 @@
             }
             
             .hover-tooltip {
-                font-size: 0.9rem;
-                padding: 6px 10px;
+                font-size: 0.85rem;
+                padding: 8px 12px;
+                min-width: 120px;
+                max-width: 250px;
+                margin-left: 8px;
             }
         }
     </style>
@@ -338,16 +392,15 @@
     <div class="container">
         <div class="header">
             <h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
-            <p class="race-title"><strong><em>2nd Annual Bob Uecker Memorial Race to .200</em></strong></p>
-            <p><strong>LIVE</strong> standings updated: <span id="headerTimestamp">Loading...</span></p>
+            <p class="race-title"><em>2nd Annual Bob Uecker Memorial Race to .200</em></p>
         </div>
         
         <div id="content">
             <div class="loading">Loading player data...</div>
         </div>
         
-        <div class="info-box">
-            <p>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact <a href="mailto:commish@mendozaleague.com?subject=Your ideas are intriguing to me, and I wish to subscribe to your newsletter.">your loyal Commissioner</a>.</p>
+        <div class="live-standings">
+            <p><strong class="live-blink">LIVE</strong> standings updated 08:31:02 PM<br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
         </div>
         <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
@@ -475,10 +528,6 @@
                     const playerInfo = Object.values(players).find(p => p.id === player.id);
                     let displayName = playerInfo ? playerInfo.displayName : player.fullName;
                     
-                    if (isOnIL) {
-                        displayName += ' (IL)';
-                    }
-                    
                     const league = playerInfo ? playerInfo.league : 'Unknown';
                     
                     // Check for stat changes and events
@@ -590,20 +639,6 @@
 
         function renderLeaderboard() {
             const content = document.getElementById('content');
-            const headerTimestamp = document.getElementById('headerTimestamp');
-            
-            const now = new Date();
-            const options = { 
-                month: 'long', 
-                day: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: true 
-            };
-            const formattedTime = now.toLocaleString('en-US', options).replace(' at ', ' @ ');
-            
-            headerTimestamp.textContent = formattedTime;
             
             if (playerData.length === 0) {
                 content.innerHTML = '<div class="error">No player data available</div>';
@@ -627,6 +662,8 @@
                         
                         // Check if player is exactly at .200
                         const isAtMendozaLine = player.battingAverage === 0.200;
+                        // Check if player is in first place
+                        const isFirstPlace = index === 0;
                         
                         return `
                             <div class="player-row ${rowClass} ${player.statChange === 'closer' ? 'flash-green' : ''} ${player.statChange === 'farther' ? 'flash-red' : ''}">
@@ -634,9 +671,10 @@
                                     <div>
                                         <div class="player-name">
                                             ${player.displayName}
+                                            ${isFirstPlace ? `<span class="first-place-emoji">🏁</span>` : ''}
                                             ${isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : ''}
                                             ${player.eventEmoji ? `<span class="event-emoji">${player.eventEmoji}</span>` : ''}
-                                            <div class="hover-tooltip">${player.atBats}/200 At Bats</div>
+                                            <div class="hover-tooltip">${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200 At Bats</div>
                                         </div>
                                     </div>
                                     <div class="batting-stats">
