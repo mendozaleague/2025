@@ -403,6 +403,18 @@
     animation: slowBlink 2s infinite;
 }
 
+
+/* Override color to match bar background if player is on IL */
+.player-row.first-place .game-status-dot.il-dot,
+.player-row.odd-place .game-status-dot.il-dot {
+    color: black; /* matches black bar */
+}
+
+.player-row.second-place .game-status-dot.il-dot,
+.player-row.even-place .game-status-dot.il-dot {
+    color: #feed85; /* matches yellow bar */
+}
+
 </style>
 </head>
 <body>
@@ -829,12 +841,11 @@ content.innerHTML = `
                                     <div class="player-name">
                                         ${player.displayName}${player.isMirrored ? " ↕" : ""}
                                         ${player.isInGame ? 
-                                            (isAtMendozaLine ? 
-                                                `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">😎</span>` :
-                                                `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
-                                            ) : 
-                                            (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '')
-                                        }
+    (isAtMendozaLine ? 
+        `<span class="game-status-dot ${player.isOnIL ? 'il-dot' : ''} ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">😎</span>` :
+        `<span class="game-status-dot ${player.isOnIL ? 'il-dot' : ''} ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
+    ) : 
+    (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
                                     </div>
                                 </div>
                                 <div class="batting-stats">
