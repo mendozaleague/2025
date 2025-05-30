@@ -701,6 +701,27 @@ const isInGame = await checkGameStatus(player);
                 }));
                 
                 playerData = processedPlayers.sort((a, b) => a.distanceTo200 - b.distanceTo200);
+
+// Detect mirrored pair: same distance, opposite sides
+const mirroredPairs = [];
+for (let i = 0; i < playerData.length; i++) {
+    for (let j = i + 1; j < playerData.length; j++) {
+        const p1 = playerData[i];
+        const p2 = playerData[j];
+
+        if (p1.distanceTo200 === p2.distanceTo200 &&
+            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
+            mirroredPairs.push(p1.id, p2.id);
+            break;
+        }
+    }
+    if (mirroredPairs.length > 0) break;
+}
+
+playerData.forEach(player => {
+    player.isMirrored = mirroredPairs.includes(player.id);
+});
+
                 renderLeaderboard();
     console.log('✅ fetchPlayerStats success');
                 updateTimestamp();
@@ -724,7 +745,16 @@ const isInGame = await checkGameStatus(player);
             }
         }
 
-        function renderLeaderboard() {
+        
+function getMirroredFooterPhrase() {
+    const lastWasAbove = localStorage.getItem('lastMirroredPhraseWasAbove') === 'true';
+    const nextPhrase = lastWasAbove ? 'So Below | As Above' : 'As Above | So Below';
+    localStorage.setItem('lastMirroredPhraseWasAbove', (!lastWasAbove).toString());
+    return nextPhrase;
+}
+
+
+function renderLeaderboard() {
             const content = document.getElementById('content');
             
             if (!content) return;
@@ -747,11 +777,32 @@ const isInGame = await checkGameStatus(player);
             }
             
             if (!leaderboard) {
-                content.innerHTML = `
-                    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
-                    <div class="leaderboard"></div>
-                    <div class="hits-squares-text">${currentPhrase}</div>
-                `;
+                
+let mirroredFooter = null;
+
+// Detect mirrored pair
+for (let i = 0; i < playerData.length; i++) {
+    for (let j = i + 1; j < playerData.length; j++) {
+        const p1 = playerData[i];
+        const p2 = playerData[j];
+
+        if (p1.distanceTo200 === p2.distanceTo200 &&
+            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
+            mirroredFooter = getMirroredFooterPhrase();
+            break;
+        }
+    }
+    if (mirroredFooter) break;
+}
+
+const footerPhrase = mirroredFooter || currentPhrase;
+
+content.innerHTML = `
+    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
+    <div class="leaderboard"></div>
+    <div class="hits-squares-text">${footerPhrase}</div>
+`;
+
                 leaderboard = content.querySelector('.leaderboard');
             }
             
@@ -776,7 +827,7 @@ const isInGame = await checkGameStatus(player);
                             <div class="player-info">
                                 <div>
                                     <div class="player-name">
-                                        ${player.displayName}
+                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}
                                         ${player.isInGame ? 
                                             (isAtMendozaLine ? 
                                                 `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">😎</span>` :
