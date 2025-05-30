@@ -415,6 +415,21 @@
     color: #feed85; /* matches yellow bar */
 }
 
+
+@keyframes pulseDot {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.3); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.game-status-dot.at-bat-dot {
+    animation: pulseDot 1s infinite;
+}
+
+.game-status-dot.smiley-flash {
+    animation: pulseDot 1s infinite;
+}
+
 </style>
 </head>
 <body>
@@ -842,7 +857,7 @@ content.innerHTML = `
                                         ${player.displayName}${player.isMirrored ? " ↕" : ""}
                                         ${player.isInGame ? 
     (isAtMendozaLine ? 
-        `<span class="game-status-dot ${player.isOnIL ? 'il-dot' : ''} ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">😎</span>` :
+        `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.isOnIL ? "il-dot" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
         `<span class="game-status-dot ${player.isOnIL ? 'il-dot' : ''} ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
     ) : 
     (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
