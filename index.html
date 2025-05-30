@@ -390,6 +390,16 @@
 .game-status-dot.hbp {
     color: #cc99cc;
 }
+
+@keyframes slowBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+}
+
+#live-dot.blink {
+    animation: slowBlink 2s infinite;
+}
+
 </style>
 </head>
 <body>
@@ -404,7 +414,7 @@
         </div>
         
         <div class="live-standings">
-            <p><strong id="live-indicator">LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+            <p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
         </div>
         <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
@@ -472,6 +482,7 @@
         let refreshInterval;
         let isRefreshActive = false;
         let isUpdatingContent = false;
+    updateLiveDotBasedOnPlayers();
 
         function updateLiveIndicator(hasActiveGames) {
             const liveIndicator = document.getElementById('live-indicator');
@@ -512,6 +523,7 @@
                 });
                 
             } catch (error) {
+    console.error('❌ fetchPlayerStats failed:', error);
                 console.error('Error checking game status for player:', error);
                 return false;
             }
@@ -553,6 +565,7 @@
                 return hasActiveGames;
                 
             } catch (error) {
+    console.error('❌ fetchPlayerStats failed:', error);
                 console.error('Error checking game schedule:', error);
                 updateLiveIndicator(false);
                 return true;
@@ -616,6 +629,7 @@
         }
 
         async function fetchPlayerStats() {
+    console.log('⚾ fetchPlayerStats called');
             try {
                 const currentYear = new Date().getFullYear();
                 const playerIds = Object.values(players).map(p => p.id).join(',');
@@ -688,6 +702,7 @@ if (player.fullName === "Dylan Moore" && !isInGame) {
                 
                 playerData = processedPlayers.sort((a, b) => a.distanceTo200 - b.distanceTo200);
                 renderLeaderboard();
+    console.log('✅ fetchPlayerStats success');
                 updateTimestamp();
                 
                 if (isInitialLoad) {
@@ -695,6 +710,7 @@ if (player.fullName === "Dylan Moore" && !isInGame) {
                 }
                 
             } catch (error) {
+    console.error('❌ fetchPlayerStats failed:', error);
                 console.error('Error fetching player stats:', error);
                 const content = document.getElementById('content');
                 if (content) {
@@ -826,13 +842,31 @@ if (player.fullName === "Dylan Moore" && !isInGame) {
                 setTimeout(() => {
                     window.scrollTo(0, currentScrollY);
                     isUpdatingContent = false;
+    updateLiveDotBasedOnPlayers();
                 }, 0);
             } else {
                 isUpdatingContent = false;
+    updateLiveDotBasedOnPlayers();
             }
         }
 
-        // Initialize
+        
+function updateLiveDotBasedOnPlayers() {
+    const anyInGame = playerData.some(p => p.isInGame);
+    const liveDot = document.getElementById('live-dot');
+    if (liveDot) {
+        if (anyInGame) {
+        liveDot.style.display = 'inline';
+        liveDot.classList.add('blink');
+    } else {
+        liveDot.style.display = 'none';
+        liveDot.classList.remove('blink');
+    }
+    }
+}
+
+
+// Initialize
         fetchPlayerStats();
         startRefreshInterval();
         
