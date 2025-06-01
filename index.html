@@ -658,7 +658,44 @@
             }
         }
 
-        async function fetchPlayerStats() {
+        
+async function checkLineupStatus(playerId, teamId) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const scheduleRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
+        if (!scheduleRes.ok) return false;
+
+        const scheduleData = await scheduleRes.json();
+        if (!scheduleData.dates || scheduleData.dates.length === 0) return false;
+
+        const game = scheduleData.dates[0].games.find(g => g.teams.home.team.id === teamId || g.teams.away.team.id === teamId);
+        if (!game) return false;
+
+        const gamePk = game.gamePk;
+        const boxscoreRes = await fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`);
+        if (!boxscoreRes.ok) return false;
+
+        const boxscoreData = await boxscoreRes.json();
+        const allPlayers = { ...boxscoreData.teams.home.players, ...boxscoreData.teams.away.players };
+
+        for (const key in allPlayers) {
+            const player = allPlayers[key];
+            if (player.person.id === playerId) {
+                if (player.status?.code === 'EJECTED') return false;
+                if (player.gameStatus?.isInGame === true) return true;
+                if (player.battingOrder) return true;
+            }
+        }
+
+        return false;
+    } catch (e) {
+        console.error('Lineup check failed', e);
+        return false;
+    }
+}
+
+
+async function fetchPlayerStats() {
     console.log('⚾ fetchPlayerStats called');
             try {
                 const currentYear = new Date().getFullYear();
@@ -681,6 +718,8 @@
                     const isOnIL = checkILStatus(player);
                     
 const isInGame = await checkGameStatus(player);
+const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
+
 
  // Now properly awaited
                     const playerInfo = Object.values(players).find(p => p.id === player.id);
@@ -723,7 +762,8 @@ const isInGame = await checkGameStatus(player);
                         hits: hittingStats?.hits || 0,
                         isOnIL: isOnIL,
                         isInGame: isInGame,
-                        statChange: statChange
+                        statChange: statChange,
+                        isActive: isInLineup
                     };
                 }));
                 
@@ -833,18 +873,44 @@ content.innerHTML = `
                 leaderboard = content.querySelector('.leaderboard');
             }
             
-            if (leaderboard) {
+            
+
+
+
+
+let rowClasses = [];
+let lastRoundedAvg = null;
+let colorToggle = false; // Start with odd-place (black) after first 2
+
+playerData.forEach((player, index) => {
+    const roundedAvg = player.battingAverage.toFixed(3);
+
+    if (index === 0) {
+        rowClasses.push('first-place');
+        lastRoundedAvg = roundedAvg;
+    } else if (index === 1) {
+        rowClasses.push('second-place');
+        lastRoundedAvg = roundedAvg;
+    } else {
+        if (roundedAvg === lastRoundedAvg) {
+            rowClasses.push(rowClasses[index - 1]);
+        } else {
+            const nextClass = colorToggle ? 'even-place' : 'odd-place';
+            rowClasses.push(nextClass);
+            colorToggle = !colorToggle;
+            lastRoundedAvg = roundedAvg;
+        }
+    }
+});
+
+
+
+
+
+if (leaderboard) {
                 leaderboard.innerHTML = playerData.map((player, index) => {
-                    let rowClass = '';
-                    if (index === 0) {
-                        rowClass = 'first-place';
-                    } else if (index === 1) {
-                        rowClass = 'second-place';
-                    } else if (index === 2 || index === 4 || index === 6 || index === 8 || index === 10) {
-                        rowClass = 'odd-place';
-                    } else if (index === 3 || index === 5 || index === 7 || index === 9) {
-                        rowClass = 'even-place';
-                    }
+                    let rowClass = rowClasses[index];
+                    
                     
                     const isAtMendozaLine = player.battingAverage === 0.200;
                     const isFirstPlace = index === 0;
@@ -855,10 +921,10 @@ content.innerHTML = `
                                 <div>
                                     <div class="player-name">
                                         ${player.displayName}${player.isMirrored ? " ↕" : ""}
-                                        ${player.isInGame ? 
+                                        ${player.isInGame && player.isActive && !player.isOnIL ? 
     (isAtMendozaLine ? 
-        `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.isOnIL ? "il-dot" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
-        `<span class="game-status-dot ${player.isOnIL ? 'il-dot' : ''} ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
+        `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
+        `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
     ) : 
     (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
                                     </div>
