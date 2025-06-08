@@ -968,7 +968,7 @@ if (leaderboard) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats}/200AB</span>
+                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
                                         </div>
                                     </div>
                                 </div>
