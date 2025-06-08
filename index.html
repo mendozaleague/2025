@@ -880,26 +880,28 @@ content.innerHTML = `
 
 let rowClasses = [];
 let lastRoundedAvg = null;
-let colorToggle = false; // Start with odd-place (black) after first 2
+let firstGroupAssigned = false;
+let secondGroupAssigned = false;
+let colorToggle = false;
 
 playerData.forEach((player, index) => {
     const roundedAvg = player.battingAverage.toFixed(3);
 
-    if (index === 0) {
+    if (!firstGroupAssigned) {
         rowClasses.push('first-place');
         lastRoundedAvg = roundedAvg;
-    } else if (index === 1) {
+        firstGroupAssigned = true;
+    } else if (roundedAvg === lastRoundedAvg) {
+        rowClasses.push(rowClasses[index - 1]);
+    } else if (!secondGroupAssigned) {
         rowClasses.push('second-place');
         lastRoundedAvg = roundedAvg;
+        secondGroupAssigned = true;
     } else {
-        if (roundedAvg === lastRoundedAvg) {
-            rowClasses.push(rowClasses[index - 1]);
-        } else {
-            const nextClass = colorToggle ? 'even-place' : 'odd-place';
-            rowClasses.push(nextClass);
-            colorToggle = !colorToggle;
-            lastRoundedAvg = roundedAvg;
-        }
+        const nextClass = colorToggle ? 'even-place' : 'odd-place';
+        rowClasses.push(nextClass);
+        colorToggle = !colorToggle;
+        lastRoundedAvg = roundedAvg;
     }
 });
 
