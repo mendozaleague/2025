@@ -625,9 +625,24 @@
         }
 
         
+const MLB_TEAM_NAMES = [
+  "Yankees", "Red Sox", "Blue Jays", "Orioles", "Rays",
+  "White Sox", "Guardians", "Tigers", "Royals", "Twins",
+  "Astros", "Mariners", "Rangers", "Athletics", "Angels",
+  "Braves", "Phillies", "Mets", "Marlins", "Nationals",
+  "Cubs", "Cardinals", "Brewers", "Pirates", "Reds",
+  "Dodgers", "Giants", "Padres", "Rockies", "Diamondbacks"
+];
+
 function checkMinorLeagueStatus(player) {
-    return player.currentTeam == null || 
-           (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'));
+    const teamName = player.currentTeam?.name || '';
+    const isInMajorLeague = MLB_TEAM_NAMES.some(name => teamName.includes(name));
+
+    return (
+        player.currentTeam == null ||
+        !isInMajorLeague ||
+        (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'))
+    );
 }
 
 function checkILStatus(player) {
@@ -938,7 +953,7 @@ if (leaderboard) {
                             <div class="player-info">
                                 <div>
                                     <div class="player-name">
-                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}${player.isInMinors ? '<span class="game-status-dot" style="color:#999;">↓</span>' : ""}
+                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}
                                         ${player.isInGame && player.isActive && !player.isOnIL ? 
     (isAtMendozaLine ? 
         `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
@@ -953,7 +968,7 @@ if (leaderboard) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
+                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats}/200AB</span>
                                         </div>
                                     </div>
                                 </div>
