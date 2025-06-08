@@ -623,7 +623,13 @@
             }, 30000);
         }
 
-        function checkILStatus(player) {
+        
+function checkMinorLeagueStatus(player) {
+    return player.currentTeam == null || 
+           (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'));
+}
+
+function checkILStatus(player) {
             let isOnIL = false;
             
             if (player.rosterEntries && player.rosterEntries.length > 0) {
@@ -716,6 +722,7 @@ async function fetchPlayerStats() {
                     const distanceTo200 = Math.abs(battingAvg - 0.200);
                     
                     const isOnIL = checkILStatus(player);
+                    const isInMinors = checkMinorLeagueStatus(player);
                     
 const isInGame = await checkGameStatus(player);
 const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
@@ -763,7 +770,8 @@ const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
                         isOnIL: isOnIL,
                         isInGame: isInGame,
                         statChange: statChange,
-                        isActive: isInLineup
+                        isActive: isInLineup,
+                        isInMinors: isInMinors
                     };
                 }));
                 
@@ -884,7 +892,14 @@ let firstGroupAssigned = false;
 let secondGroupAssigned = false;
 let colorToggle = false;
 
+
+const topAvg = playerData[0].battingAverage.toFixed(3);
+const topCount = playerData.filter(p => p.battingAverage.toFixed(3) === topAvg).length;
+const hasSoleFirstPlace = topCount === 1;
+
 playerData.forEach((player, index) => {
+    const isFirstPlace = index === 0 && hasSoleFirstPlace;
+
     const roundedAvg = player.battingAverage.toFixed(3);
 
     if (!firstGroupAssigned) {
@@ -922,7 +937,7 @@ if (leaderboard) {
                             <div class="player-info">
                                 <div>
                                     <div class="player-name">
-                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}
+                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}${player.isInMinors ? '<span class="game-status-dot" style="color:#999;">↓</span>' : ""}
                                         ${player.isInGame && player.isActive && !player.isOnIL ? 
     (isAtMendozaLine ? 
         `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
@@ -937,7 +952,7 @@ if (leaderboard) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
+                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
                                         </div>
                                     </div>
                                 </div>
