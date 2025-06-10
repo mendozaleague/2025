@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<link href="data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🐎&lt;/text&gt;&lt;/svg&gt;" rel="icon"/>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>THE 2025 MENDOZA STAKES</title>
-<meta content="The 2nd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking" name="description"/>
-<meta content="Dud Lawson" name="author"/>
-<style>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐎</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE 2025 MENDOZA STAKES</title>
+    <meta name="description" content="The 2nd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
+    <meta name="author" content="Dud Lawson">
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -434,58 +433,23 @@
 </style>
 </head>
 <body>
-<div class="container">
-<div class="header">
-<h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br/>MENDOZA STAKES</strong></h1>
-<p class="race-title"><em>The 2nd Annual Running of the<br/>Bob Uecker Memorial Race to .200</em></p>
-</div>
-<div id="content">
-<div class="loading">Hold yer horses...</div>
-</div>
-<div class="live-standings">
-<p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> standings updated <span id="last-updated">loading...</span><br/>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br/>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&amp;body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
-</div>
-<div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
-</div>
-<script>
-// Normalize to nearest .001 and use +/- to indicate above/below Mendoza Line
-function getGroupKey(player) {
-    const roundedBA = player.battingAverage.toFixed(3);
-    const distance = Math.abs(player.battingAverage - 0.200).toFixed(3);
-    const side = Math.sign(player.battingAverage - 0.200); // -1 = below, 1 = above, 0 = on the line
+    <div class="container">
+        <div class="header">
+            <h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
+            <p class="race-title"><em>The 2nd Annual Running of the<br>Bob Uecker Memorial Race to .200</em></p>
+        </div>
+        
+        <div id="content">
+            <div class="loading">Hold yer horses...</div>
+        </div>
+        
+        <div class="live-standings">
+            <p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+        </div>
+        <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
+    </div>
 
-    return `${distance}_${side}`;
-}
-
-// Group players by normalized groupKey
-const groups = {};
-playerData.forEach(player => {
-    const key = getGroupKey(player);
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(player);
-});
-
-// Sort group keys by proximity to .200
-const sortedGroupKeys = Object.keys(groups).sort((a, b) => {
-    const aDist = parseFloat(a.split('_')[0]);
-    const bDist = parseFloat(b.split('_')[0]);
-    return aDist - bDist;
-});
-
-// Assign row classes
-const groupClasses = ['first-place', 'second-place', 'odd-place', 'even-place'];
-let rowClasses = [];
-let toggle = 0;
-sortedGroupKeys.forEach((key, groupIndex) => {
-    const group = groups[key];
-    const groupClass =
-        groupIndex < 2 ? groupClasses[groupIndex] : groupClasses[2 + (toggle++ % 2)];
-    group.forEach(player => {
-        rowClasses[player.id] = groupClass;
-    });
-});
-
-
+    <script>
         const randomPhrases = [
             'Hits are for Squares!',
             'Stakes is Mid',
