@@ -922,7 +922,7 @@ playerData.forEach((player, index) => {
         rowClasses.push('first-place');
         lastRoundedAvg = roundedAvg;
         firstGroupAssigned = true;
-    } else if (roundedAvg === lastRoundedAvg) {
+    } else if (roundedAvg === lastRoundedAvg || (player.isMirrored && playerData[index - 1]?.isMirrored)) {
         rowClasses.push(rowClasses[index - 1]);
     } else if (!secondGroupAssigned) {
         rowClasses.push('second-place');
