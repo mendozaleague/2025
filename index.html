@@ -793,6 +793,25 @@ const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
                 
                 playerData = processedPlayers.sort((a, b) => a.distanceTo200 - b.distanceTo200);
 
+// Find closest player to .200 with >= 200 AB
+let closestQualified = null;
+let minDistance = Infinity;
+
+for (const player of playerData) {
+    if (player.atBats >= 200 && player.distanceTo200 < minDistance) {
+        minDistance = player.distanceTo200;
+        closestQualified = player;
+    }
+}
+
+if (closestQualified) {
+    playerData = playerData.map(p => ({
+        ...p,
+        showFlag: p.id === closestQualified.id
+    }));
+}
+
+
 // Detect mirrored pair: same distance, opposite sides
 const mirroredPairs = [];
 for (let i = 0; i < playerData.length; i++) {
@@ -968,7 +987,7 @@ if (leaderboard) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
+                                            <span style="font-style: normal;">${player.showFlag ? \'🏁 \' : \'\'}${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
                                         </div>
                                     </div>
                                 </div>
