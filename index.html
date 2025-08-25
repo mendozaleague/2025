@@ -646,18 +646,6 @@ function checkMinorLeagueStatus(player) {
 }
 
 function checkILStatus(player) {
-}
-
-
-function checkDFAStatus(player) {
-    // DFA or free agent if no current team, not in minors, and not IL
-    const hasNoTeam = !player.currentTeam;
-    const rosterEmpty = !player.rosterEntries || player.rosterEntries.length === 0;
-    const isReleased = player.currentTeam?.name === 'Free Agent';
-
-    return hasNoTeam || rosterEmpty || isReleased;
-}
-
             let isOnIL = false;
             
             if (player.rosterEntries && player.rosterEntries.length > 0) {
@@ -751,7 +739,6 @@ async function fetchPlayerStats() {
                     
                     const isOnIL = checkILStatus(player);
                     const isInMinors = checkMinorLeagueStatus(player);
-                    const isDFA = checkDFAStatus(player);
                     
 const isInGame = await checkGameStatus(player);
 const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
@@ -800,8 +787,7 @@ const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
                         isInGame: isInGame,
                         statChange: statChange,
                         isActive: isInLineup,
-                        isInMinors: isInMinors,
-                        isDFA: isDFA
+                        isInMinors: isInMinors
                     };
                 }));
                 
@@ -982,7 +968,7 @@ if (leaderboard) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.isDFA ? '🦤 ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
+                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
                                         </div>
                                     </div>
                                 </div>
