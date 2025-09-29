@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐎</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE 2025 MENDOZA STAKES</title>
@@ -318,8 +318,9 @@
             margin-left: 4px;
         }
         
-        .live-blink {
-            animation: liveBlink 2s ease-in-out infinite;
+        /* Strikethrough for under 200 AB player names (but not numbers) */
+        .player-name .under-200ab-name {
+            text-decoration: line-through;
         }
         
         @keyframes liveBlink {
@@ -383,54 +384,51 @@
             }
         }
     
-/* Additional game status dot colors */
-.game-status-dot.walk {
-    color: white;
-}
-.game-status-dot.sacrifice {
-    color: pink;
-}
-.game-status-dot.hbp {
-    color: #cc99cc;
-}
+        /* Additional game status dot colors */
+        .game-status-dot.walk {
+            color: white;
+        }
+        .game-status-dot.sacrifice {
+            color: pink;
+        }
+        .game-status-dot.hbp {
+            color: #cc99cc;
+        }
 
-@keyframes slowBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
-}
+        @keyframes slowBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
 
-#live-dot.blink {
-    animation: slowBlink 2s infinite;
-}
+        #live-dot.blink {
+            animation: slowBlink 2s infinite;
+        }
 
+        /* Override color to match bar background if player is on IL */
+        .player-row.first-place .game-status-dot.il-dot,
+        .player-row.odd-place .game-status-dot.il-dot {
+            color: black; /* matches black bar */
+        }
 
-/* Override color to match bar background if player is on IL */
-.player-row.first-place .game-status-dot.il-dot,
-.player-row.odd-place .game-status-dot.il-dot {
-    color: black; /* matches black bar */
-}
+        .player-row.second-place .game-status-dot.il-dot,
+        .player-row.even-place .game-status-dot.il-dot {
+            color: #feed85; /* matches yellow bar */
+        }
 
-.player-row.second-place .game-status-dot.il-dot,
-.player-row.even-place .game-status-dot.il-dot {
-    color: #feed85; /* matches yellow bar */
-}
+        @keyframes pulseDot {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.3); }
+            100% { opacity: 1; transform: scale(1); }
+        }
 
+        .game-status-dot.at-bat-dot {
+            animation: pulseDot 1s infinite;
+        }
 
-@keyframes pulseDot {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.3; transform: scale(1.3); }
-    100% { opacity: 1; transform: scale(1); }
-}
-
-.game-status-dot.at-bat-dot {
-    animation: pulseDot 1s infinite;
-}
-
-.game-status-dot.smiley-flash {
-    animation: pulseDot 1s infinite;
-}
-
-</style>
+        .game-status-dot.smiley-flash {
+            animation: pulseDot 1s infinite;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -444,54 +442,13 @@
         </div>
         
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+            <p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> <span id="last-updated">loading...</span><br><span id="race-status" style="display: none;">Race completed: September 28, 2025</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
         </div>
         <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
 
     <script>
-        const randomPhrases = [
-            'Hits are for Squares!',
-            'Stakes is Mid',
-            'As Above | So Below',
-            'Your Perfect Fantasy',
-            'This is My Fantasy',
-            'Best we can do is our Worst',
-            'Do your Worst!',
-            'Not so Good ain\'t so Bad',
-            'Not so Bad ain\'t so Good',
-            'It\'s a Shame!',
-            'It\'s Good to be Okay',
-            'So it Goes!',
-            'Batting & Nothingness',
-            'Root for Nothing!',
-            'Greetings from the Middle West',
-            '...& They\'re Off!!!',
-            'No one can give more than 100% by definition that is the most anyone can give',
-            'Hang the D.H.',
-            'Put Manny in the Hall',
-            'Congratulations to 2025 Kentucky Derby winner Sovereignity',
-            'Congratulations to 2025 Preakness Stakes winner Journalism',
-            'Congratulations to 2025 Belmont Stakes winner Sovereignity',
-            'So... Big Gulps, huh?',
-            'Put Barry in the Hall',
-            '...& Here Come the Pretzels!',
-            'Trim those sideburns!',
-            'Strikeouts are Fascist',
-            'You guys are guests in my Corn.'
-        ];
-
-        function getRandomPhrase() {
-            const random = Math.random();
-            if (random < 0.2) {
-                return 'Hits are for Squares!';
-            } else {
-                const otherPhrases = randomPhrases.slice(1);
-                return otherPhrases[Math.floor(Math.random() * otherPhrases.length)];
-            }
-        }
-
-        const currentPhrase = getRandomPhrase();
+        const currentPhrase = '"Congratulations" to 2025 "Champion" ㉕ D. MOORE';
         let isInitialLoad = true;
 
         const players = {
@@ -502,10 +459,10 @@
             'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', league: 'AL' },
             'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', league: 'NL' },
             'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', league: 'AL' },
-            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', league: 'NL' },
-            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', league: 'NL' },
+            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉔ K. BRYANT', league: 'NL' },
+            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉑ J. SIRI', league: 'NL' },
             'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ KOREY L.', league: 'AL' },
-            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', league: 'AL' }
+            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE 🏆', league: 'AL' }
         };
 
         let playerData = [];
@@ -513,7 +470,7 @@
         let refreshInterval;
         let isRefreshActive = false;
         let isUpdatingContent = false;
-    updateLiveDotBasedOnPlayers();
+        updateLiveDotBasedOnPlayers();
 
         function updateLiveIndicator(hasActiveGames) {
             const liveIndicator = document.getElementById('live-indicator');
@@ -554,13 +511,31 @@
                 });
                 
             } catch (error) {
-    console.error('❌ fetchPlayerStats failed:', error);
+                console.error('⛔ fetchPlayerStats failed:', error);
                 console.error('Error checking game status for player:', error);
                 return false;
             }
         }
 
         async function shouldRefresh() {
+            // Check if it's after September 29, 2025 (regular season ended)
+            const today = new Date();
+            const seasonEnd = new Date('2025-09-29');
+            
+            if (today > seasonEnd) {
+                // Season is over - show race completed message
+                const liveIndicator = document.getElementById('live-indicator');
+                const lastUpdated = document.getElementById('last-updated');
+                const raceStatus = document.getElementById('race-status');
+                
+                if (liveIndicator) liveIndicator.style.display = 'none';
+                if (lastUpdated) lastUpdated.style.display = 'none';
+                if (raceStatus) raceStatus.style.display = 'inline';
+                
+                updateLiveIndicator(false);
+                return false; // Don't refresh during off-season
+            }
+            
             try {
                 const today = new Date().toISOString().split('T')[0];
                 const scheduleResponse = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}`);
@@ -596,7 +571,7 @@
                 return hasActiveGames;
                 
             } catch (error) {
-    console.error('❌ fetchPlayerStats failed:', error);
+                console.error('⛔ fetchPlayerStats failed:', error);
                 console.error('Error checking game schedule:', error);
                 updateLiveIndicator(false);
                 return true;
@@ -624,28 +599,27 @@
             }, 30000);
         }
 
-        
-const MLB_TEAM_NAMES = [
-  "Yankees", "Red Sox", "Blue Jays", "Orioles", "Rays",
-  "White Sox", "Guardians", "Tigers", "Royals", "Twins",
-  "Astros", "Mariners", "Rangers", "Athletics", "Angels",
-  "Braves", "Phillies", "Mets", "Marlins", "Nationals",
-  "Cubs", "Cardinals", "Brewers", "Pirates", "Reds",
-  "Dodgers", "Giants", "Padres", "Rockies", "Diamondbacks"
-];
+        const MLB_TEAM_NAMES = [
+            "Yankees", "Red Sox", "Blue Jays", "Orioles", "Rays",
+            "White Sox", "Guardians", "Tigers", "Royals", "Twins",
+            "Astros", "Mariners", "Rangers", "Athletics", "Angels",
+            "Braves", "Phillies", "Mets", "Marlins", "Nationals",
+            "Cubs", "Cardinals", "Brewers", "Pirates", "Reds",
+            "Dodgers", "Giants", "Padres", "Rockies", "Diamondbacks"
+        ];
 
-function checkMinorLeagueStatus(player) {
-    const teamName = player.currentTeam?.name || '';
-    const isInMajorLeague = MLB_TEAM_NAMES.some(name => teamName.includes(name));
+        function checkMinorLeagueStatus(player) {
+            const teamName = player.currentTeam?.name || '';
+            const isInMajorLeague = MLB_TEAM_NAMES.some(name => teamName.includes(name));
 
-    return (
-        player.currentTeam == null ||
-        !isInMajorLeague ||
-        (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'))
-    );
-}
+            return (
+                player.currentTeam == null ||
+                !isInMajorLeague ||
+                (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'))
+            );
+        }
 
-function checkILStatus(player) {
+        function checkILStatus(player) {
             let isOnIL = false;
             
             if (player.rosterEntries && player.rosterEntries.length > 0) {
@@ -680,45 +654,43 @@ function checkILStatus(player) {
             }
         }
 
-        
-async function checkLineupStatus(playerId, teamId) {
-    try {
-        const today = new Date().toISOString().split('T')[0];
-        const scheduleRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
-        if (!scheduleRes.ok) return false;
+        async function checkLineupStatus(playerId, teamId) {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const scheduleRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
+                if (!scheduleRes.ok) return false;
 
-        const scheduleData = await scheduleRes.json();
-        if (!scheduleData.dates || scheduleData.dates.length === 0) return false;
+                const scheduleData = await scheduleRes.json();
+                if (!scheduleData.dates || scheduleData.dates.length === 0) return false;
 
-        const game = scheduleData.dates[0].games.find(g => g.teams.home.team.id === teamId || g.teams.away.team.id === teamId);
-        if (!game) return false;
+                const game = scheduleData.dates[0].games.find(g => g.teams.home.team.id === teamId || g.teams.away.team.id === teamId);
+                if (!game) return false;
 
-        const gamePk = game.gamePk;
-        const boxscoreRes = await fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`);
-        if (!boxscoreRes.ok) return false;
+                const gamePk = game.gamePk;
+                const boxscoreRes = await fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`);
+                if (!boxscoreRes.ok) return false;
 
-        const boxscoreData = await boxscoreRes.json();
-        const allPlayers = { ...boxscoreData.teams.home.players, ...boxscoreData.teams.away.players };
+                const boxscoreData = await boxscoreRes.json();
+                const allPlayers = { ...boxscoreData.teams.home.players, ...boxscoreData.teams.away.players };
 
-        for (const key in allPlayers) {
-            const player = allPlayers[key];
-            if (player.person.id === playerId) {
-                if (player.status?.code === 'EJECTED') return false;
-                if (player.gameStatus?.isInGame === true) return true;
-                if (player.battingOrder) return true;
+                for (const key in allPlayers) {
+                    const player = allPlayers[key];
+                    if (player.person.id === playerId) {
+                        if (player.status?.code === 'EJECTED') return false;
+                        if (player.gameStatus?.isInGame === true) return true;
+                        if (player.battingOrder) return true;
+                    }
+                }
+
+                return false;
+            } catch (e) {
+                console.error('Lineup check failed', e);
+                return false;
             }
         }
 
-        return false;
-    } catch (e) {
-        console.error('Lineup check failed', e);
-        return false;
-    }
-}
-
-
-async function fetchPlayerStats() {
-    console.log('⚾ fetchPlayerStats called');
+        async function fetchPlayerStats() {
+            console.log('⚾ fetchPlayerStats called');
             try {
                 const currentYear = new Date().getFullYear();
                 const playerIds = Object.values(players).map(p => p.id).join(',');
@@ -740,11 +712,9 @@ async function fetchPlayerStats() {
                     const isOnIL = checkILStatus(player);
                     const isInMinors = checkMinorLeagueStatus(player);
                     
-const isInGame = await checkGameStatus(player);
-const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
+                    const isInGame = await checkGameStatus(player);
+                    const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
 
-
- // Now properly awaited
                     const playerInfo = Object.values(players).find(p => p.id === player.id);
                     let displayName = playerInfo ? playerInfo.displayName : player.fullName;
                     
@@ -793,28 +763,28 @@ const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
                 
                 playerData = processedPlayers.sort((a, b) => a.distanceTo200 - b.distanceTo200);
 
-// Detect mirrored pair: same distance, opposite sides
-const mirroredPairs = [];
-for (let i = 0; i < playerData.length; i++) {
-    for (let j = i + 1; j < playerData.length; j++) {
-        const p1 = playerData[i];
-        const p2 = playerData[j];
+                // Detect mirrored pair: same distance, opposite sides
+                const mirroredPairs = [];
+                for (let i = 0; i < playerData.length; i++) {
+                    for (let j = i + 1; j < playerData.length; j++) {
+                        const p1 = playerData[i];
+                        const p2 = playerData[j];
 
-        if (p1.distanceTo200 === p2.distanceTo200 &&
-            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
-            mirroredPairs.push(p1.id, p2.id);
-            break;
-        }
-    }
-    if (mirroredPairs.length > 0) break;
-}
+                        if (p1.distanceTo200 === p2.distanceTo200 &&
+                            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
+                            mirroredPairs.push(p1.id, p2.id);
+                            break;
+                        }
+                    }
+                    if (mirroredPairs.length > 0) break;
+                }
 
-playerData.forEach(player => {
-    player.isMirrored = mirroredPairs.includes(player.id);
-});
+                playerData.forEach(player => {
+                    player.isMirrored = mirroredPairs.includes(player.id);
+                });
 
                 renderLeaderboard();
-    console.log('✅ fetchPlayerStats success');
+                console.log('✅ fetchPlayerStats success');
                 updateTimestamp();
                 
                 if (isInitialLoad) {
@@ -822,7 +792,7 @@ playerData.forEach(player => {
                 }
                 
             } catch (error) {
-    console.error('❌ fetchPlayerStats failed:', error);
+                console.error('⛔ fetchPlayerStats failed:', error);
                 console.error('Error fetching player stats:', error);
                 const content = document.getElementById('content');
                 if (content) {
@@ -836,16 +806,7 @@ playerData.forEach(player => {
             }
         }
 
-        
-function getMirroredFooterPhrase() {
-    const lastWasAbove = localStorage.getItem('lastMirroredPhraseWasAbove') === 'true';
-    const nextPhrase = lastWasAbove ? 'So Below | As Above' : 'As Above | So Below';
-    localStorage.setItem('lastMirroredPhraseWasAbove', (!lastWasAbove).toString());
-    return nextPhrase;
-}
-
-
-function renderLeaderboard() {
+        function renderLeaderboard() {
             const content = document.getElementById('content');
             
             if (!content) return;
@@ -868,82 +829,58 @@ function renderLeaderboard() {
             }
             
             if (!leaderboard) {
-                
-let mirroredFooter = null;
-
-// Detect mirrored pair
-for (let i = 0; i < playerData.length; i++) {
-    for (let j = i + 1; j < playerData.length; j++) {
-        const p1 = playerData[i];
-        const p2 = playerData[j];
-
-        if (p1.distanceTo200 === p2.distanceTo200 &&
-            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
-            mirroredFooter = getMirroredFooterPhrase();
-            break;
-        }
-    }
-    if (mirroredFooter) break;
-}
-
-const footerPhrase = mirroredFooter || currentPhrase;
-
-content.innerHTML = `
-    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
-    <div class="leaderboard"></div>
-    <div class="hits-squares-text">${footerPhrase}</div>
-`;
+                content.innerHTML = `
+                    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
+                    <div class="leaderboard"></div>
+                    <div class="hits-squares-text">${currentPhrase}</div>
+                `;
 
                 leaderboard = content.querySelector('.leaderboard');
             }
             
-            
+            let rowClasses = [];
+            let lastRoundedAvg = null;
+            let firstGroupAssigned = false;
+            let secondGroupAssigned = false;
+            let colorToggle = false;
 
+            const topAvg = playerData[0].battingAverage.toFixed(3);
+            const topCount = playerData.filter(p => p.battingAverage.toFixed(3) === topAvg).length;
+            const hasSoleFirstPlace = topCount === 1;
 
+            playerData.forEach((player, index) => {
+                const isFirstPlace = index === 0 && hasSoleFirstPlace;
 
+                const roundedAvg = player.battingAverage.toFixed(3);
 
-let rowClasses = [];
-let lastRoundedAvg = null;
-let firstGroupAssigned = false;
-let secondGroupAssigned = false;
-let colorToggle = false;
+                if (!firstGroupAssigned) {
+                    rowClasses.push('first-place');
+                    lastRoundedAvg = roundedAvg;
+                    firstGroupAssigned = true;
+                } else if (roundedAvg === lastRoundedAvg || (player.isMirrored && playerData[index - 1]?.isMirrored)) {
+                    rowClasses.push(rowClasses[index - 1]);
+                } else if (!secondGroupAssigned) {
+                    rowClasses.push('second-place');
+                    lastRoundedAvg = roundedAvg;
+                    secondGroupAssigned = true;
+                } else {
+                    const nextClass = colorToggle ? 'even-place' : 'odd-place';
+                    rowClasses.push(nextClass);
+                    colorToggle = !colorToggle;
+                    lastRoundedAvg = roundedAvg;
+                }
+            });
 
-
-const topAvg = playerData[0].battingAverage.toFixed(3);
-const topCount = playerData.filter(p => p.battingAverage.toFixed(3) === topAvg).length;
-const hasSoleFirstPlace = topCount === 1;
-
-playerData.forEach((player, index) => {
-    const isFirstPlace = index === 0 && hasSoleFirstPlace;
-
-    const roundedAvg = player.battingAverage.toFixed(3);
-
-    if (!firstGroupAssigned) {
-        rowClasses.push('first-place');
-        lastRoundedAvg = roundedAvg;
-        firstGroupAssigned = true;
-    } else if (roundedAvg === lastRoundedAvg || (player.isMirrored && playerData[index - 1]?.isMirrored)) {
-        rowClasses.push(rowClasses[index - 1]);
-    } else if (!secondGroupAssigned) {
-        rowClasses.push('second-place');
-        lastRoundedAvg = roundedAvg;
-        secondGroupAssigned = true;
-    } else {
-        const nextClass = colorToggle ? 'even-place' : 'odd-place';
-        rowClasses.push(nextClass);
-        colorToggle = !colorToggle;
-        lastRoundedAvg = roundedAvg;
-    }
-});
-
-
-
-
-
-if (leaderboard) {
+            if (leaderboard) {
                 leaderboard.innerHTML = playerData.map((player, index) => {
                     let rowClass = rowClasses[index];
                     
+                    // Add under-200ab class for players who didn't reach 200 at-bats
+                    const hasUnder200AB = player.atBats < 200;
+                    if (hasUnder200AB) {
+                        rowClass += ' under-200ab';
+                        console.log(`Player ${player.displayName} has ${player.atBats} AB - adding under-200ab class`);
+                    }
                     
                     const isAtMendozaLine = player.battingAverage === 0.200;
                     const isFirstPlace = index === 0;
@@ -953,13 +890,15 @@ if (leaderboard) {
                             <div class="player-info">
                                 <div>
                                     <div class="player-name">
-                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}
+                                        ${player.atBats < 200 && [668670, 592178, 686676, 642350].includes(player.id) ? 
+                                            player.displayName.replace(/^(\S+\s)(.+)/, '$1<span class="under-200ab-name">$2</span>') : 
+                                            player.displayName}${player.isMirrored ? " ↕" : ""}
                                         ${player.isInGame && player.isActive && !player.isOnIL ? 
-    (isAtMendozaLine ? 
-        `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
-        `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
-    ) : 
-    (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
+                                            (isAtMendozaLine ? 
+                                                `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
+                                                `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
+                                            ) : 
+                                            (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
                                     </div>
                                 </div>
                                 <div class="batting-stats">
@@ -968,7 +907,7 @@ if (leaderboard) {
                                             <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
                                         <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
+                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏆 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1018,31 +957,29 @@ if (leaderboard) {
                 setTimeout(() => {
                     window.scrollTo(0, currentScrollY);
                     isUpdatingContent = false;
-    updateLiveDotBasedOnPlayers();
+                    updateLiveDotBasedOnPlayers();
                 }, 0);
             } else {
                 isUpdatingContent = false;
-    updateLiveDotBasedOnPlayers();
+                updateLiveDotBasedOnPlayers();
             }
         }
 
-        
-function updateLiveDotBasedOnPlayers() {
-    const anyInGame = playerData.some(p => p.isInGame);
-    const liveDot = document.getElementById('live-dot');
-    if (liveDot) {
-        if (anyInGame) {
-        liveDot.style.display = 'inline';
-        liveDot.classList.add('blink');
-    } else {
-        liveDot.style.display = 'none';
-        liveDot.classList.remove('blink');
-    }
-    }
-}
+        function updateLiveDotBasedOnPlayers() {
+            const anyInGame = playerData.some(p => p.isInGame);
+            const liveDot = document.getElementById('live-dot');
+            if (liveDot) {
+                if (anyInGame) {
+                    liveDot.style.display = 'inline';
+                    liveDot.classList.add('blink');
+                } else {
+                    liveDot.style.display = 'none';
+                    liveDot.classList.remove('blink');
+                }
+            }
+        }
 
-
-// Initialize
+        // Initialize
         fetchPlayerStats();
         startRefreshInterval();
         
