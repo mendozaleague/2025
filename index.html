@@ -448,7 +448,24 @@
     </div>
 
     <script>
-        const currentPhrase = '"Congratulations" to 2025 "Champion" ㉕ D. MOORE';
+        const phrases = [
+        '"Congratulations" to 2025 "Champion" Dylan Moore',
+        'Hits are still for Squares!',
+        'This was my fantasy',
+        'Next Race: March 25, 2026'
+    ];
+
+    // Load phrase index from localStorage so it persists between refreshes
+    let phraseIndex = parseInt(localStorage.getItem('phraseIndex') || '0', 10);
+
+    function getCurrentPhrase() {
+        const phrase = phrases[phraseIndex];
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        localStorage.setItem('phraseIndex', phraseIndex); // save for next reload
+        return phrase;
+    }
+
+    const currentPhrase = getCurrentPhrase();
         let isInitialLoad = true;
 
         const players = {
