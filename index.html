@@ -4,8 +4,8 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE 2025 MENDOZA STAKES</title>
-    <meta name="description" content="The 2nd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
+    <title>THE 2026 MENDOZA STAKES</title>
+    <meta name="description" content="The 3rd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
     <meta name="author" content="Dud Lawson">
     <style>
         * {
@@ -43,7 +43,7 @@
         }
         
         .header .race-title {
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: black;
             line-height: 1.3;
             font-weight: normal;
@@ -261,74 +261,6 @@
             visibility: visible;
         }
         
-        .error {
-            text-align: center;
-            color: black;
-            font-size: 1rem;
-            margin: 30px 0;
-            padding: 15px;
-            background: #feed85;
-            border: 1px solid #feed89;
-        }
-        
-        .game-status-dot {
-            font-size: 1.5rem;
-            margin-left: 4px;
-            font-weight: normal;
-        }
-        
-        /* Game status dot colors based on bar color */
-        .player-row.first-place .game-status-dot,
-        .player-row.odd-place .game-status-dot {
-            color: #feed85; /* Yellow dot on black bars */
-        }
-        
-        .player-row.second-place .game-status-dot,
-        .player-row.even-place .game-status-dot {
-            color: black; /* Black dot on yellow bars */
-        }
-        
-        .flash-dot-red {
-            animation: flashDotRed 2s ease-out;
-        }
-        
-        .flash-dot-green {
-            animation: flashDotGreen 2s ease-out;
-        }
-        
-        @keyframes flashDotRed {
-            0% { color: inherit; }
-            20% { color: #ff4444; }
-            100% { color: inherit; }
-        }
-        
-        @keyframes flashDotGreen {
-            0% { color: inherit; }
-            20% { color: #44ff44; }
-            100% { color: inherit; }
-        }
-        
-        .mendoza-line-emoji {
-            font-size: 1.5rem;
-            margin-left: 4px;
-        }
-        
-        .first-place-emoji {
-            font-size: 1.5rem;
-            margin-left: 4px;
-        }
-        
-        /* Strikethrough for under 200 AB player names (but not numbers) */
-        .player-name .under-200ab-name {
-            text-decoration: line-through;
-        }
-        
-        @keyframes liveBlink {
-            0%, 50% { opacity: 1; }
-            75% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-        
         @media (max-width: 768px) {
             body {
                 padding: 8px;
@@ -374,644 +306,243 @@
                 font-size: 1.25rem;
                 padding: 0;
             }
-            
-            .mendoza-line-emoji {
-                font-size: 1.25rem;
-            }
-            
-            .game-status-dot {
-                font-size: 1.25rem;
-            }
-        }
-    
-        /* Additional game status dot colors */
-        .game-status-dot.walk {
-            color: white;
-        }
-        .game-status-dot.sacrifice {
-            color: pink;
-        }
-        .game-status-dot.hbp {
-            color: #cc99cc;
-        }
-
-        @keyframes slowBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
-        }
-
-        #live-dot.blink {
-            animation: slowBlink 2s infinite;
-        }
-
-        /* Override color to match bar background if player is on IL */
-        .player-row.first-place .game-status-dot.il-dot,
-        .player-row.odd-place .game-status-dot.il-dot {
-            color: black; /* matches black bar */
-        }
-
-        .player-row.second-place .game-status-dot.il-dot,
-        .player-row.even-place .game-status-dot.il-dot {
-            color: #feed85; /* matches yellow bar */
-        }
-
-        @keyframes pulseDot {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(1.3); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .game-status-dot.at-bat-dot {
-            animation: pulseDot 1s infinite;
-        }
-
-        .game-status-dot.smiley-flash {
-            animation: pulseDot 1s infinite;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
-            <p class="race-title"><em>The 2nd Annual Running of the<br>Bob Uecker Memorial Race to .200</em></p>
+            <h1><strong><span>🏇⚾💸</span> 2026 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
+            <p class="race-title"><em>Our Eleventh "Glorious" Season</em></p>
         </div>
         
         <div id="content">
-            <div class="loading">Hold yer horses...</div>
-        </div>
-        
-        <div class="live-standings">
-            <p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> <span id="last-updated">loading...</span><br><span id="race-status" style="display: none;">Race completed: September 28, 2025</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
-        </div>
-        <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
-    </div>
-
-    <script>
-        const phrases = [
-        '"Congratulations" to 2025 "Champion" Dylan Moore',
-        'Hits are still for Squares!',
-        'This was my fantasy',
-        'Next Race: March 25, 2026'
-    ];
-
-    // Load phrase index from localStorage so it persists between refreshes
-    let phraseIndex = parseInt(localStorage.getItem('phraseIndex') || '0', 10);
-
-    function getCurrentPhrase() {
-        const phrase = phrases[phraseIndex];
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        localStorage.setItem('phraseIndex', phraseIndex); // save for next reload
-        return phrase;
-    }
-
-    const currentPhrase = getCurrentPhrase();
-        let isInitialLoad = true;
-
-        const players = {
-            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', league: 'NL' },
-            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', league: 'AL' },
-            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', league: 'AL' },
-            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', league: 'NL' },
-            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', league: 'AL' },
-            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', league: 'NL' },
-            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', league: 'AL' },
-            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉔ K. BRYANT', league: 'NL' },
-            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉑ J. SIRI', league: 'NL' },
-            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ KOREY L.', league: 'AL' },
-            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE 🏆', league: 'AL' }
-        };
-
-        let playerData = [];
-        let previousPlayerStats = {};
-        let refreshInterval;
-        let isRefreshActive = false;
-        let isUpdatingContent = false;
-        updateLiveDotBasedOnPlayers();
-
-        function updateLiveIndicator(hasActiveGames) {
-            const liveIndicator = document.getElementById('live-indicator');
-            if (liveIndicator) {
-                if (hasActiveGames) {
-                    // liveIndicator.classList.add('live-blink');
-                } else {
-                    // liveIndicator.classList.remove('live-blink');
-                }
-            }
-        }
-
-        async function checkGameStatus(player) {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const teamId = player.currentTeam?.id;
-                
-                if (!teamId) return false;
-                
-                const scheduleResponse = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
-                
-                if (!scheduleResponse.ok) return false;
-                
-                const schedule = await scheduleResponse.json();
-                
-                if (!schedule.dates || schedule.dates.length === 0) return false;
-                
-                const games = schedule.dates[0].games;
-                
-                // Check if team has an active game today
-                return games.some(game => {
-                    const statusCode = game.status.statusCode;
-                    return statusCode === 'P' ||  // Pre-Game
-                           statusCode === 'I' ||  // In Progress  
-                           statusCode === 'W' ||  // Warmup
-                           statusCode === 'D' ||  // Delayed
-                           statusCode === 'T';    // Suspended
-                });
-                
-            } catch (error) {
-                console.error('⛔ fetchPlayerStats failed:', error);
-                console.error('Error checking game status for player:', error);
-                return false;
-            }
-        }
-
-        async function shouldRefresh() {
-            // Check if it's after September 29, 2025 (regular season ended)
-            const today = new Date();
-            const seasonEnd = new Date('2025-09-29');
-            
-            if (today > seasonEnd) {
-                // Season is over - show race completed message
-                const liveIndicator = document.getElementById('live-indicator');
-                const lastUpdated = document.getElementById('last-updated');
-                const raceStatus = document.getElementById('race-status');
-                
-                if (liveIndicator) liveIndicator.style.display = 'none';
-                if (lastUpdated) lastUpdated.style.display = 'none';
-                if (raceStatus) raceStatus.style.display = 'inline';
-                
-                updateLiveIndicator(false);
-                return false; // Don't refresh during off-season
-            }
-            
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const scheduleResponse = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}`);
-                
-                if (!scheduleResponse.ok) {
-                    console.warn('Could not fetch schedule, defaulting to refresh');
-                    return true;
-                }
-                
-                const schedule = await scheduleResponse.json();
-                
-                if (!schedule.dates || schedule.dates.length === 0) {
-                    console.log('No games scheduled for today');
-                    return false;
-                }
-                
-                const games = schedule.dates[0].games;
-                
-                // Check if any games are actually live/in progress
-                const hasActiveGames = games.some(game => {
-                    const statusCode = game.status.statusCode;
-                    return statusCode === 'P' ||  // Pre-Game (starting soon)
-                           statusCode === 'I' ||  // In Progress
-                           statusCode === 'W' ||  // Warmup (just before start)
-                           statusCode === 'D' ||  // Delayed
-                           statusCode === 'T';    // Suspended
-                });
-                
-                console.log(`Games active: ${hasActiveGames}, Total games today: ${games.length}`);
-                
-                updateLiveIndicator(hasActiveGames);
-                
-                return hasActiveGames;
-                
-            } catch (error) {
-                console.error('⛔ fetchPlayerStats failed:', error);
-                console.error('Error checking game schedule:', error);
-                updateLiveIndicator(false);
-                return true;
-            }
-        }
-
-        function startRefreshInterval() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-            
-            refreshInterval = setInterval(async () => {
-                const shouldDoRefresh = await shouldRefresh();
-                
-                if (shouldDoRefresh && !isRefreshActive) {
-                    console.log('Games are active - starting refresh');
-                    isRefreshActive = true;
-                    fetchPlayerStats();
-                } else if (!shouldDoRefresh && isRefreshActive) {
-                    console.log('No games active - stopping refresh');
-                    isRefreshActive = false;
-                } else if (shouldDoRefresh && isRefreshActive) {
-                    fetchPlayerStats();
-                }
-            }, 30000);
-        }
-
-        const MLB_TEAM_NAMES = [
-            "Yankees", "Red Sox", "Blue Jays", "Orioles", "Rays",
-            "White Sox", "Guardians", "Tigers", "Royals", "Twins",
-            "Astros", "Mariners", "Rangers", "Athletics", "Angels",
-            "Braves", "Phillies", "Mets", "Marlins", "Nationals",
-            "Cubs", "Cardinals", "Brewers", "Pirates", "Reds",
-            "Dodgers", "Giants", "Padres", "Rockies", "Diamondbacks"
-        ];
-
-        function checkMinorLeagueStatus(player) {
-            const teamName = player.currentTeam?.name || '';
-            const isInMajorLeague = MLB_TEAM_NAMES.some(name => teamName.includes(name));
-
-            return (
-                player.currentTeam == null ||
-                !isInMajorLeague ||
-                (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'))
-            );
-        }
-
-        function checkILStatus(player) {
-            let isOnIL = false;
-            
-            if (player.rosterEntries && player.rosterEntries.length > 0) {
-                for (const entry of player.rosterEntries) {
-                    const status = entry.status;
-                    if (status) {
-                        const statusCode = status.code || status.statusCode || '';
-                        if (statusCode.includes('IL') || statusCode.includes('DL') || 
-                            statusCode === 'D10' || statusCode === 'D15' || statusCode === 'D60') {
-                            isOnIL = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            return isOnIL;
-        }
-
-        function updateTimestamp() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-            
-            const timestampElement = document.getElementById('last-updated');
-            if (timestampElement) {
-                timestampElement.textContent = timeString;
-            }
-        }
-
-        async function checkLineupStatus(playerId, teamId) {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const scheduleRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
-                if (!scheduleRes.ok) return false;
-
-                const scheduleData = await scheduleRes.json();
-                if (!scheduleData.dates || scheduleData.dates.length === 0) return false;
-
-                const game = scheduleData.dates[0].games.find(g => g.teams.home.team.id === teamId || g.teams.away.team.id === teamId);
-                if (!game) return false;
-
-                const gamePk = game.gamePk;
-                const boxscoreRes = await fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`);
-                if (!boxscoreRes.ok) return false;
-
-                const boxscoreData = await boxscoreRes.json();
-                const allPlayers = { ...boxscoreData.teams.home.players, ...boxscoreData.teams.away.players };
-
-                for (const key in allPlayers) {
-                    const player = allPlayers[key];
-                    if (player.person.id === playerId) {
-                        if (player.status?.code === 'EJECTED') return false;
-                        if (player.gameStatus?.isInGame === true) return true;
-                        if (player.battingOrder) return true;
-                    }
-                }
-
-                return false;
-            } catch (e) {
-                console.error('Lineup check failed', e);
-                return false;
-            }
-        }
-
-        async function fetchPlayerStats() {
-            console.log('⚾ fetchPlayerStats called');
-            try {
-                const currentYear = new Date().getFullYear();
-                const playerIds = Object.values(players).map(p => p.id).join(',');
-                
-                const response = await fetch(`https://statsapi.mlb.com/api/v1/people?personIds=${playerIds}&hydrate=stats(group=[hitting],type=[season],season=${currentYear}),currentTeam,rosterEntries`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Process players with async game status checks
-                const processedPlayers = await Promise.all(data.people.map(async (player) => {
-                    const hittingStats = player.stats?.[0]?.splits?.[0]?.stat;
-                    const battingAvg = hittingStats?.avg ? parseFloat(hittingStats.avg) : 0;
-                    const distanceTo200 = Math.abs(battingAvg - 0.200);
-                    
-                    const isOnIL = checkILStatus(player);
-                    const isInMinors = checkMinorLeagueStatus(player);
-                    
-                    const isInGame = await checkGameStatus(player);
-                    const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
-
-                    const playerInfo = Object.values(players).find(p => p.id === player.id);
-                    let displayName = playerInfo ? playerInfo.displayName : player.fullName;
-                    
-                    const league = playerInfo ? playerInfo.league : 'Unknown';
-                    
-                    const playerId = player.id;
-                    const previousStats = previousPlayerStats[playerId];
-                    let statChange = null;
-                    
-                    if (previousStats && !isInitialLoad) {
-                        const previousDistance = previousStats.distanceTo200;
-                        
-                        if (distanceTo200 < previousDistance) {
-                            statChange = 'closer';
-                        } else if (distanceTo200 > previousDistance) {
-                            statChange = 'farther';
-                        }
-                    }
-                    
-                    previousPlayerStats[playerId] = {
-                        battingAverage: battingAvg,
-                        distanceTo200: distanceTo200,
-                        atBats: hittingStats?.atBats || 0,
-                        hits: hittingStats?.hits || 0,
-                        homeRuns: hittingStats?.homeRuns || 0,
-                        strikeOuts: hittingStats?.strikeOuts || 0
-                    };
-                    
-                    return {
-                        id: player.id,
-                        name: player.fullName,
-                        displayName: displayName,
-                        team: player.currentTeam?.name || 'Unknown',
-                        league: league,
-                        battingAverage: battingAvg,
-                        distanceTo200: distanceTo200,
-                        atBats: hittingStats?.atBats || 0,
-                        hits: hittingStats?.hits || 0,
-                        isOnIL: isOnIL,
-                        isInGame: isInGame,
-                        statChange: statChange,
-                        isActive: isInLineup,
-                        isInMinors: isInMinors
-                    };
-                }));
-                
-                playerData = processedPlayers.sort((a, b) => a.distanceTo200 - b.distanceTo200);
-
-                // Detect mirrored pair: same distance, opposite sides
-                const mirroredPairs = [];
-                for (let i = 0; i < playerData.length; i++) {
-                    for (let j = i + 1; j < playerData.length; j++) {
-                        const p1 = playerData[i];
-                        const p2 = playerData[j];
-
-                        if (p1.distanceTo200 === p2.distanceTo200 &&
-                            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
-                            mirroredPairs.push(p1.id, p2.id);
-                            break;
-                        }
-                    }
-                    if (mirroredPairs.length > 0) break;
-                }
-
-                playerData.forEach(player => {
-                    player.isMirrored = mirroredPairs.includes(player.id);
-                });
-
-                renderLeaderboard();
-                console.log('✅ fetchPlayerStats success');
-                updateTimestamp();
-                
-                if (isInitialLoad) {
-                    isInitialLoad = false;
-                }
-                
-            } catch (error) {
-                console.error('⛔ fetchPlayerStats failed:', error);
-                console.error('Error fetching player stats:', error);
-                const content = document.getElementById('content');
-                if (content) {
-                    content.innerHTML = `
-                        <div class="error">
-                            You gotta be online for that...
-                            <br><small>Error: ${error.message}</small>
+            <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
+            <div class="leaderboard">
+                <div class="player-row first-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">㉕ D. MOORE 🏆</div>
                         </div>
-                    `;
-                }
-            }
-        }
-
-        function renderLeaderboard() {
-            const content = document.getElementById('content');
-            
-            if (!content) return;
-            
-            if (playerData.length === 0) {
-                content.innerHTML = '<div class="error">I don\'t know her...</div>';
-                return;
-            }
-            
-            isUpdatingContent = true;
-            
-            let shouldPreserveScroll = false;
-            let currentScrollY = 0;
-            
-            let leaderboard = content.querySelector('.leaderboard');
-            
-            if (leaderboard && !isInitialLoad) {
-                shouldPreserveScroll = true;
-                currentScrollY = window.scrollY;
-            }
-            
-            if (!leaderboard) {
-                content.innerHTML = `
-                    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
-                    <div class="leaderboard"></div>
-                    <div class="hits-squares-text">${currentPhrase}</div>
-                `;
-
-                leaderboard = content.querySelector('.leaderboard');
-            }
-            
-            let rowClasses = [];
-            let lastRoundedAvg = null;
-            let firstGroupAssigned = false;
-            let secondGroupAssigned = false;
-            let colorToggle = false;
-
-            const topAvg = playerData[0].battingAverage.toFixed(3);
-            const topCount = playerData.filter(p => p.battingAverage.toFixed(3) === topAvg).length;
-            const hasSoleFirstPlace = topCount === 1;
-
-            playerData.forEach((player, index) => {
-                const isFirstPlace = index === 0 && hasSoleFirstPlace;
-
-                const roundedAvg = player.battingAverage.toFixed(3);
-
-                if (!firstGroupAssigned) {
-                    rowClasses.push('first-place');
-                    lastRoundedAvg = roundedAvg;
-                    firstGroupAssigned = true;
-                } else if (roundedAvg === lastRoundedAvg || (player.isMirrored && playerData[index - 1]?.isMirrored)) {
-                    rowClasses.push(rowClasses[index - 1]);
-                } else if (!secondGroupAssigned) {
-                    rowClasses.push('second-place');
-                    lastRoundedAvg = roundedAvg;
-                    secondGroupAssigned = true;
-                } else {
-                    const nextClass = colorToggle ? 'even-place' : 'odd-place';
-                    rowClasses.push(nextClass);
-                    colorToggle = !colorToggle;
-                    lastRoundedAvg = roundedAvg;
-                }
-            });
-
-            if (leaderboard) {
-                leaderboard.innerHTML = playerData.map((player, index) => {
-                    let rowClass = rowClasses[index];
-                    
-                    // Add under-200ab class for players who didn't reach 200 at-bats
-                    const hasUnder200AB = player.atBats < 200;
-                    if (hasUnder200AB) {
-                        rowClass += ' under-200ab';
-                        console.log(`Player ${player.displayName} has ${player.atBats} AB - adding under-200ab class`);
-                    }
-                    
-                    const isAtMendozaLine = player.battingAverage === 0.200;
-                    const isFirstPlace = index === 0;
-                    
-                    return `
-                        <div class="player-row ${rowClass}">
-                            <div class="player-info">
-                                <div>
-                                    <div class="player-name">
-                                        ${player.atBats < 200 && [668670, 592178, 686676, 642350].includes(player.id) ? 
-                                            player.displayName.replace(/^(\S+\s)(.+)/, '$1<span class="under-200ab-name">$2</span>') : 
-                                            player.displayName}${player.isMirrored ? " ↕" : ""}
-                                        ${player.isInGame && player.isActive && !player.isOnIL ? 
-                                            (isAtMendozaLine ? 
-                                                `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
-                                                `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
-                                            ) : 
-                                            (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
-                                    </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.201</span>
                                 </div>
-                                <div class="batting-stats">
-                                    <div class="batting-display" data-player-id="${player.id}">
-                                        <div class="batting-average">
-                                            <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
-                                        </div>
-                                        <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏆 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
-                                        </div>
-                                    </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">219AB</span>
                                 </div>
                             </div>
                         </div>
-                    `;
-                }).join('');
-                
-                const battingDisplays = leaderboard.querySelectorAll('.batting-display');
-                battingDisplays.forEach(display => {
-                    display.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        battingDisplays.forEach(other => {
-                            if (other !== display) {
-                                other.classList.remove('active');
-                            }
-                        });
-                        
-                        display.classList.toggle('active');
-                    });
-                    
-                    display.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
-                        
-                        battingDisplays.forEach(other => {
-                            if (other !== display) {
-                                other.classList.remove('active');
-                            }
-                        });
-                        
-                        display.classList.toggle('active');
-                    });
-                });
-                
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.batting-display')) {
-                        battingDisplays.forEach(display => {
-                            display.classList.remove('active');
-                        });
-                    }
-                });
+                    </div>
+                </div>
+                <div class="player-row second-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">② SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row odd-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">③ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row even-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">④ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row odd-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑤ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row even-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑥ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row odd-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑦ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row even-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑧ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row odd-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑨ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row even-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑩ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="player-row odd-place">
+                    <div class="player-info">
+                        <div>
+                            <div class="player-name">⑪ SOON COME</div>
+                        </div>
+                        <div class="batting-stats">
+                            <div class="batting-display">
+                                <div class="batting-average">
+                                    <span style="font-style: normal;">.000</span>
+                                </div>
+                                <div class="tap-tooltip">
+                                    <span style="font-style: normal;">---AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hits-squares-text">Next Race: March 25, 2026</div>
+        </div>
+        
+        <div class="live-standings">
+            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+        </div>
+        <div class="copyright">mendozaleague.com © 2026 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
+    </div>
+
+    <script>
+        function updateCountdown() {
+            const postTime = new Date('2026-03-25T00:00:00').getTime();
+            const now = new Date().getTime();
+            const distance = postTime - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown-timer').textContent = '00:00:00:00';
+                return;
             }
-            
-            if (shouldPreserveScroll && currentScrollY > 50) {
-                setTimeout(() => {
-                    window.scrollTo(0, currentScrollY);
-                    isUpdatingContent = false;
-                    updateLiveDotBasedOnPlayers();
-                }, 0);
-            } else {
-                isUpdatingContent = false;
-                updateLiveDotBasedOnPlayers();
-            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            const formatted = 
+                String(days).padStart(2, '0') + ':' +
+                String(hours).padStart(2, '0') + ':' +
+                String(minutes).padStart(2, '0') + ':' +
+                String(seconds).padStart(2, '0');
+
+            document.getElementById('countdown-timer').textContent = formatted;
         }
 
-        function updateLiveDotBasedOnPlayers() {
-            const anyInGame = playerData.some(p => p.isInGame);
-            const liveDot = document.getElementById('live-dot');
-            if (liveDot) {
-                if (anyInGame) {
-                    liveDot.style.display = 'inline';
-                    liveDot.classList.add('blink');
-                } else {
-                    liveDot.style.display = 'none';
-                    liveDot.classList.remove('blink');
-                }
-            }
-        }
-
-        // Initialize
-        fetchPlayerStats();
-        startRefreshInterval();
-        
-        shouldRefresh().then(active => {
-            isRefreshActive = active;
-            console.log(`Initial game status check: ${active ? 'Games active' : 'No games active'}`);
-        });
-        
-        // Manual refresh with 'r' key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'r' || event.key === 'R') {
-                console.log('Manual refresh triggered');
-                fetchPlayerStats();
-            }
-        });
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
     </script>
 </body>
 </html>
