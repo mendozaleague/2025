@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE 2026 MENDOZA STAKES</title>
     <meta name="description" content="The 3rd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
     <meta name="author" content="Dud Lawson">
+    <script>
+        // Cycle through favicons on each page load
+        const favicons = ['🏇', '⚾', '💸'];
+        const randomFavicon = favicons[Math.floor(Math.random() * favicons.length)];
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${randomFavicon}</text></svg>`;
+        document.head.appendChild(link);
+    </script>
     <style>
         * {
             margin: 0;
@@ -33,14 +41,6 @@
             padding: 15px;
             background: #feed89;
             border: 2px solid #feed89;
-        }
-        
-        .header-image {
-            max-width: 400px;
-            width: 100%;
-            height: auto;
-            display: block;
-            margin: 0 auto 10px auto;
         }
         
         .header h1 {
@@ -320,7 +320,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="2026-mendoza-stakes-header.png" alt="2026 Mendoza Stakes" class="header-image">
+            <h1><strong><span>🏇⚾💸</span> 2026 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
             <p class="race-title"><em>Our Eleventh "Glorious" Season</em></p>
         </div>
         
