@@ -28,11 +28,13 @@
             min-height: 100vh;
             padding: 10px;
             color: #2c2c2c;
+            overflow-x: hidden;
         }
         
         .container {
             max-width: 100%;
             margin: 0 auto;
+            padding-bottom: 20px;
         }
         
         .header {
@@ -69,6 +71,7 @@
         .live-standings a {
             color: #2c2c2c;
             text-decoration: underline;
+            cursor: pointer;
         }
         
         .info-box {
@@ -133,6 +136,18 @@
             justify-content: center;
         }
         
+        .rules-link {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        .rules-link a {
+            color: #2c2c2c;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        
         .copyright {
             text-align: center;
             margin-top: 15px;
@@ -144,6 +159,47 @@
         .copyright a {
             color: #cc99cc;
             text-decoration: underline;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #feed89;
+            margin: 10% auto;
+            padding: 30px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+        }
+        
+        .close {
+            color: #2c2c2c;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            line-height: 20px;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+        
+        .modal-content p {
+            color: #2c2c2c;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: center;
         }
         
         .loading {
@@ -519,12 +575,55 @@
         </div>
         
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>For more info, consult our <a id="rules-trigger"><strong>RULES</strong></a> or<br>contact <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter."><strong>your loyal COMMISSIONER</strong></a></p>
         </div>
         <div class="copyright">mendozaleague.com © 2026 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
 
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #2c2c2c; text-align: center;">RULES</h2>
+            <p>Pick the batter from our field of 11 contestants who will finish the 2026 season closest* to The MENDOZA LINE!</p>
+            <p><strong>WAGERING</strong><br>
+            <strong>Pre-Race Tickets: $25</strong> - Available during Spring Training<br>
+            <strong>Mid-Race Tickets: $30</strong> - Available during All-Star Break</p>
+            <p style="font-size: 0.85rem;">Managers may purchase as many tickets for as many batters as they like. Go Nuts!!</p>
+            <p><strong>ENTRY/FEES</strong><br>
+            Please send picks ad payments to your loyal Commissioner via VENMO to @DUDLAWSON</p>
+            <p><strong>PAYOUTS</strong><br>
+            Prizing amounts will be determined by the Pari-Mutuel method method invented in 1873 by Josep Oller, co-founder of Moulin Rouge Cabaret.</p>
+            <p>Shares of the total purse will be evenly distributed amongst winning ticket holders TWICE during the 2026 season:</p>
+            <p><strong>ALL-STAR BREAK:</strong> July 10, 2026</p>
+            <p style="font-size: 0.85rem;">20% of total purse evenly distributed to ticket holders of the first batter to reach 200 At Bats (or closest)</p>
+            <p><strong>FINISH LINE:</strong> September 27, 2026</p>
+            <p style="font-size: 0.85rem;">Remaining purse + all Mid-Race funds to ticket holders of the eligible batter (MIN 200AB) closest to The Mendoza Line.*</p>
+            <p style="font-size: 0.85rem;">*Above or below a .200 Batting Average</p>
+        </div>
+    </div>
+
     <script>
+        // Rules modal functionality
+        const modal = document.getElementById('rules-modal');
+        const trigger = document.getElementById('rules-trigger');
+        const closeBtn = document.getElementsByClassName('close')[0];
+
+        trigger.onclick = function() {
+            modal.style.display = 'block';
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Countdown timer
         function updateCountdown() {
             const postTime = new Date('2026-03-25T00:00:00').getTime();
             const now = new Date().getTime();
