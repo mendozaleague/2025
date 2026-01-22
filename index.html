@@ -597,7 +597,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 style="margin-bottom: 15px; color: #2c2c2c; text-align: center; font-size: 1.4rem;">🏇⚾💸 RULES 🏇⚾💸</h2>
-            <p style="font-size: 0.95rem;">Pick which of our 11 batters will finish<br>closest to The Mendoza Line!*</p>
+            <p style="font-size: 0.95rem;">Pick which of our 11 batters will finish closest<br>to The Mendoza Line.* Hits are for Squares!!</p>
             <p><strong>WAGERING</strong><br>
             <strong>Pre-Race Tickets: $25</strong><br>Available during Spring Training</p>
             <p><strong>Mid-Race Tickets: $30</strong><br>Available during All-Star Break</p>
@@ -607,7 +607,7 @@
             <p><strong>ALL-STAR BREAK: July 10, 2026</strong></p>
             <p style="font-size: 0.8rem;">20% of purse split between ticket holders<br>of FIRST batter to reach 200 At Bats</p>
             <p><strong>FINISH LINE: September 27, 2026</strong></p>
-            <p style="font-size: 0.8rem;">Remaining purse + all Mid-Race funds split between ticket holders<br>of eligible batter (MIN 200 AB) closest to The Mendoza Line.*</p>
+            <p style="font-size: 0.8rem;">Remaining purse + all Mid-Race ticket funds split<br>between ticket holders of eligible batter (MIN 200 AB)<br>closest to The Mendoza Line* at end of 2026 season.</p>
             <p style="font-size: 0.8rem;">*Above or below a .200 Batting Average</p>
         </div>
     </div>
@@ -624,13 +624,15 @@
             document.body.style.overflow = 'hidden';
         }
 
-        closeBtn.onclick = function() {
+        closeBtn.onclick = function(e) {
+            e.preventDefault();
             modal.style.display = 'none';
             document.body.style.overflow = '';
         }
 
         window.onclick = function(event) {
             if (event.target == modal) {
+                event.preventDefault();
                 modal.style.display = 'none';
                 document.body.style.overflow = '';
             }
