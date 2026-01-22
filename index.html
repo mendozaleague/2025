@@ -620,21 +620,27 @@
 
         trigger.onclick = function(e) {
             e.preventDefault();
+            e.stopPropagation();
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+            return false;
         }
 
         closeBtn.onclick = function(e) {
             e.preventDefault();
+            e.stopPropagation();
             modal.style.display = 'none';
             document.body.style.overflow = '';
+            return false;
         }
 
         window.onclick = function(event) {
             if (event.target == modal) {
                 event.preventDefault();
+                event.stopPropagation();
                 modal.style.display = 'none';
                 document.body.style.overflow = '';
+                return false;
             }
         }
 
