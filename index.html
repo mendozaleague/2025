@@ -170,15 +170,19 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .modal-content {
             background-color: #feed89;
-            margin: 10% auto;
+            margin: 20px auto;
             padding: 30px;
             width: 80%;
             max-width: 500px;
             position: relative;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
         }
         
         .close {
@@ -200,6 +204,7 @@
             line-height: 1.6;
             margin-bottom: 15px;
             text-align: center;
+            font-size: 1rem;
         }
         
         .loading {
@@ -330,6 +335,13 @@
                 padding: 8px;
             }
             
+            .modal-content {
+                width: 90%;
+                margin: 10px auto;
+                padding: 20px;
+                max-height: calc(100vh - 20px);
+            }
+            
             .header h1 {
                 font-size: 1.75rem;
             }
@@ -386,7 +398,7 @@
                 <div class="player-row first-place">
                     <div class="player-info">
                         <div>
-                            <div class="player-name">㉕ D. MOORE 🏆</div>
+                            <div class="player-name">① D. MOORE 🏆</div>
                         </div>
                         <div class="batting-stats">
                             <div class="batting-display">
@@ -585,17 +597,17 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 style="margin-bottom: 20px; color: #2c2c2c; text-align: center;">RULES</h2>
-            <p>Pick the batter from our field of 11 contestants who will finish the 2026 season closest to The Mendoza Line*!</p>
+            <p style="font-size: 1.3rem;">Pick which of our 11 batters will finish<br>closest to The Mendoza Line!*</p>
             <p><strong>WAGERING</strong><br>
             <strong>Pre-Race Tickets: $25</strong> - Available during Spring Training<br>
             <strong>Mid-Race Tickets: $30</strong> - Available during All-Star Break</p>
             <p><strong>ENTRY/FEES</strong><br>
-            Please send picks ad payments to your loyal Commissioner via VENMO to @DUDLAWSON</p>
+            Please send picks and payments to your loyal<br>Commissioner via VENMO to <a href="https://account.venmo.com/u/dudlawson" target="_blank" style="color: #2c2c2c; text-decoration: underline;">@DUDLAWSON</a></p>
             <p><strong>PAYOUTS</strong></p>
             <p><strong>ALL-STAR BREAK:</strong> July 10, 2026</p>
-            <p style="font-size: 0.85rem;">20% of total purse evenly distributed to ticket holders of the FIRST batter to reach 200 At Bats</p>
+            <p style="font-size: 0.85rem;">20% of total purse evenly distributed to ticket holders<br>of the FIRST batter to reach 200 At Bats</p>
             <p><strong>FINISH LINE:</strong> September 27, 2026</p>
-            <p style="font-size: 0.85rem;">Remaining purse + all Mid-Race funds to ticket holders of the eligible batter (MIN 200 AB) closest to The Mendoza Line.*</p>
+            <p style="font-size: 0.85rem;">Remaining purse + all Mid-Race funds to ticket holders of the<br>eligible batter (MIN 200 AB) closest to The Mendoza Line.*</p>
             <p style="font-size: 0.85rem;">*Above or below a .200 Batting Average</p>
         </div>
     </div>
@@ -606,17 +618,21 @@
         const trigger = document.getElementById('rules-trigger');
         const closeBtn = document.getElementsByClassName('close')[0];
 
-        trigger.onclick = function() {
+        trigger.onclick = function(e) {
+            e.preventDefault();
             modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
         closeBtn.onclick = function() {
             modal.style.display = 'none';
+            document.body.style.overflow = '';
         }
 
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = 'none';
+                document.body.style.overflow = '';
             }
         }
 
