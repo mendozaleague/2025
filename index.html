@@ -742,18 +742,19 @@
                 height: "6'0\"",
                 weight: "205lbs",
                 stats2025: ".201/219AB",
-                stats2026: ".XXX/---AB"
+                stats2026: ".XXX/---AB",
+                bio: "Our 2025 Mendoza Stakes \"Champion\" finished last year on \"top\" after ending the season one single point above the Mendoza Line. This year's contest introduces \"The Race to 200AB\" challenge for the first half of the season and, coincidentally, Moore was <i>also</i> the first batter to reach the 200 At Bat threshold. The 2024 Gold Love-winning Utility Man spent the entirety of his seven-year professional career with Seattle until August 23, 2025, when he was released to make room for Victor Robles. Three days later, Moore was picked up by the team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes champion playing for 2 of the 3 teams Mario Mendoza suited up for in the same season! Whether or not \"D-Mo\" starts on or even makes it to a Major League roster this year remains to be told, but his stellar performance last year was enough to secure a spot in the 3rd annual Bob Uecker Memorial Race to .200!"
             },
-            2: { name: "② SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            3: { name: "③ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            4: { name: "④ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            5: { name: "⑤ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            6: { name: "⑥ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            7: { name: "⑦ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            8: { name: "⑧ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            9: { name: "⑨ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            10: { name: "⑩ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" },
-            11: { name: "⑪ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB" }
+            2: { name: "② SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            3: { name: "③ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            4: { name: "④ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            5: { name: "⑤ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            6: { name: "⑥ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            7: { name: "⑦ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            8: { name: "⑧ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            9: { name: "⑨ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            10: { name: "⑩ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" },
+            11: { name: "⑪ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".000/0AB", stats2026: ".XXX/---AB", bio: "" }
         };
 
         // Wait for DOM to be ready
@@ -838,9 +839,13 @@
                             document.getElementById('player-modal-2026-stats').textContent = 
                                 `Proj. 2026 Stats: ${player.stats2026}`;
                             
-                            // Generate SCREW FLANDERS text
-                            const screwText = 'SCREW FLANDERS '.repeat(42);
-                            document.getElementById('player-modal-screw').textContent = screwText;
+                            // Set bio text or SCREW FLANDERS
+                            const screwDiv = document.getElementById('player-modal-screw');
+                            if (player.bio && player.bio.trim() !== '') {
+                                screwDiv.innerHTML = player.bio;
+                            } else {
+                                screwDiv.textContent = 'SCREW FLANDERS '.repeat(42);
+                            }
                             
                             console.log('Opening player modal');
                             playerModal.classList.add('open');
