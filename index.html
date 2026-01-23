@@ -6,558 +6,79 @@
     <title>THE 2026 MENDOZA STAKES</title>
     <meta name="description" content="The 3rd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
     <meta name="author" content="Dud Lawson">
-    <script>
-        // Cycle through favicons on each page load
-        const favicons = ['🏇', '⚾', '💸'];
-        const randomFavicon = favicons[Math.floor(Math.random() * favicons.length)];
-        const link = document.createElement('link');
-        link.rel = 'icon';
-        link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${randomFavicon}</text></svg>`;
-        document.head.appendChild(link);
-    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html {
-            overflow-y: scroll;
-            overflow-x: hidden;
-            height: 100%;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: white;
-            min-height: 100%;
-            padding: 10px;
-            padding-bottom: 30px;
-            color: #2c2c2c;
-            overflow-x: hidden;
-            overflow-y: auto;
-            position: relative;
-        }
-        
-        @keyframes wave {
-            0%, 9%, 100% { transform: translateY(0); }
-            4.5% { transform: translateY(-10px); }
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { overflow-y: scroll; overflow-x: hidden; height: 100%; -webkit-overflow-scrolling: touch; }
+        body { font-family: 'Arial', sans-serif; background: white; min-height: 100%; padding: 10px; padding-bottom: 30px; color: #2c2c2c; overflow-x: hidden; overflow-y: auto; position: relative; }
+        @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         .wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
         .wave-emoji-2 { animation: wave 11s ease-in-out 10.15s infinite; }
         .wave-emoji-3 { animation: wave 11s ease-in-out 10.3s infinite; }
         .wave-emoji-4 { animation: wave 11s ease-in-out 10.45s infinite; }
         .wave-emoji-5 { animation: wave 11s ease-in-out 10.6s infinite; }
         .wave-emoji-6 { animation: wave 11s ease-in-out 10.75s infinite; }
-        
-        .wave-emoji-1, .wave-emoji-2, .wave-emoji-3, .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 {
-            display: inline-block;
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding-bottom: 20px;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #feed89;
-            border: 2px solid #feed89;
-        }
-        
-        .header h1 {
-            font-size: 2.0rem;
-            margin-bottom: 8px;
-            color: black;
-            line-height: 1.2;
-        }
-        
-        .header .race-title {
-            font-size: 1.2rem;
-            color: black;
-            line-height: 1.3;
-            font-weight: normal;
-            font-style: italic;
-            margin-bottom: 0;
-        }
-        
-        .live-standings {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #2c2c2c;
-        }
-        
-        .live-standings a {
-            color: #2c2c2c;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        
-        .info-box {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: white;
-        }
-        
-        .info-box p {
-            font-size: 0.9rem;
-            color: #2c2c2c;
-            line-height: 1.4;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .info-box a {
-            color: #2c2c2c;
-            text-decoration: underline;
-        }
-        
-        .mendoza-line-divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: #2c2c2c;
-            font-weight: bold;
-            font-size: 1.4rem;
-        }
-        
-        .mendoza-line-divider::before,
-        .mendoza-line-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: calc(50% - 140px);
-            height: 2px;
-            background-color: #2c2c2c;
-        }
-        
-        .mendoza-line-divider::before {
-            left: 0;
-        }
-        
-        .mendoza-line-divider::after {
-            right: 0;
-        }
-        
-        .hits-squares-text {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.8rem;
-            font-weight: normal;
-            font-style: normal;
-            font-family: 'Brush Script MT', cursive, 'Arial', sans-serif;
-            color: #2c2c2c;
-            line-height: 1.3;
-            min-height: 2.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .rules-link {
-            text-align: center;
-            margin: 15px 0;
-            font-size: 0.9rem;
-        }
-        
-        .rules-link a {
-            color: #2c2c2c;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        
-        .copyright {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.8rem;
-            opacity: 0.8;
-            color: #cc99cc;
-        }
-        
-        .copyright a {
-            color: #cc99cc;
-            text-decoration: underline;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .modal.open {
-            display: block;
-        }
-        
-        .modal-content {
-            background-color: #feed89;
-            margin: 20px auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 500px;
-            position: relative;
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-        }
-        
-        .close {
-            color: #2c2c2c;
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 28px;
-            font-weight: bold;
-            line-height: 20px;
-            cursor: pointer;
-            z-index: 10;
-        }
-        
-        .close:hover,
-        .close:focus {
-            color: #000;
-        }
-        
-        .rules-symbol-top {
-            display: none;
-        }
-        
-        .rules-symbol-bottom {
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: normal;
-            color: #2c2c2c;
-            letter-spacing: -0.15rem;
-            overflow: hidden;
-            white-space: nowrap;
-            margin-top: 15px;
-        }
-        
-        .rules-divider {
-            text-align: center;
-            margin: 20px 0;
-            color: #feed89;
-            background: black;
-            font-weight: bold;
-            font-size: 1rem;
-            padding: 10px;
-        }
-        
-        .rules-section-title {
-            text-align: center;
-            color: #2c2c2c;
-            font-weight: bold;
-            font-size: 1rem;
-            margin: 10px 0;
-        }
-        
-        .close:hover,
-        .close:focus {
-            color: #000;
-        }
-        
-        .modal-content p {
-            color: #2c2c2c;
-            line-height: 1.5;
-            margin-bottom: 12px;
-            text-align: center;
-            font-size: 0.95rem;
-        }
-        
-        .loading {
-            text-align: center;
-            font-size: 1.1rem;
-            margin: 30px 0;
-        }
-        
-        .player-row {
-            display: flex;
-            align-items: center;
-            padding: 15px 12px;
-            border-bottom: 1px solid #ddd;
-            position: relative;
-        }
-        
-        .player-row.first-place {
-            background: black;
-            color: #feed89;
-        }
-        
-        .player-row.second-place {
-            background: #feed89;
-            color: black;
-        }
-        
-        .player-row.odd-place {
-            background: black;
-            color: #feed89;
-        }
-        
-        .player-row.even-place {
-            background: #feed89;
-            color: black;
-        }
-        
-        .player-row:last-child {
-            border-bottom: none;
-        }
-        
-        .player-info {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-width: 0;
-            width: 100%;
-        }
-        
-        .player-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            line-height: 1.2;
-            position: relative;
-            padding-left: 0;
-            cursor: pointer;
-        }
-        
-        .batting-stats {
-            text-align: right;
-            flex-shrink: 0;
-            position: relative;
-            min-width: 0;
-        }
-        
-        .batting-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            line-height: 1.2;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            text-align: right;
-        }
-        
-        .batting-average {
-            position: relative;
-            z-index: 1;
-            text-align: right;
-        }
-        
-        .tap-tooltip {
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 0;
-            font-size: 1.5rem;
-            font-weight: bold;
-            z-index: 2;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s, visibility 0.2s;
-            pointer-events: none;
-            text-align: right;
-            white-space: nowrap;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            border-radius: 4px;
-            width: 100%;
-        }
-        
-        .player-row.first-place .tap-tooltip,
-        .player-row.odd-place .tap-tooltip {
-            color: #feed89;
-            background-color: black;
-        }
-        
-        .player-row.second-place .tap-tooltip,
-        .player-row.even-place .tap-tooltip {
-            color: black;
-            background-color: #feed89;
-        }
-        
-        .batting-display:hover .tap-tooltip,
-        .batting-display.active .tap-tooltip {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        /* Player Info Modal Styles */
-        .player-modal-content {
-            background-color: #feed89;
-            margin: 20px auto;
-            padding: 30px 20px;
-            width: 80%;
-            max-width: 500px;
-            position: relative;
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-        }
-        
-        .bio-symbol-top {
-            display: none;
-        }
-        
-        .player-modal-header {
-            text-align: center;
-            margin-bottom: 20px;
-            margin-top: 20px;
-        }
-        
-        .player-modal-header h2 {
-            font-size: 2rem;
-            color: #feed89;
-            background: black;
-            margin-bottom: 10px;
-            padding: 10px;
-            font-weight: bold;
-        }
-        
-        .player-modal-stats {
-            text-align: center;
-            color: #2c2c2c;
-            margin-bottom: 15px;
-        }
-        
-        .player-modal-stats p {
-            font-size: 1rem;
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-        
-        .player-modal-stats strong {
-            font-weight: bold;
-        }
-        
-        .screw-flanders {
-            text-align: center;
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #2c2c2c;
-            word-wrap: break-word;
-            margin-top: 20px;
-            margin-bottom: 15px;
-        }
-        
-        .bio-symbol {
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: normal;
-            color: #2c2c2c;
-            margin-top: 15px;
-            letter-spacing: -0.15rem;
-            overflow: hidden;
-            white-space: nowrap;
-        }
-        
+        .wave-emoji-1, .wave-emoji-2, .wave-emoji-3, .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
+        .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
+        .header { text-align: center; margin-bottom: 20px; padding: 15px; background: #feed89; border: 2px solid #feed89; }
+        .header h1 { font-size: 2.0rem; margin-bottom: 8px; color: black; line-height: 1.2; }
+        .header .race-title { font-size: 1.2rem; color: black; line-height: 1.3; font-weight: normal; font-style: italic; margin-bottom: 0; }
+        .live-standings { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: #2c2c2c; }
+        .live-standings a { color: #2c2c2c; text-decoration: underline; cursor: pointer; }
+        .mendoza-line-divider { text-align: center; margin: 20px 0; position: relative; color: #2c2c2c; font-weight: bold; font-size: 1.4rem; }
+        .mendoza-line-divider::before, .mendoza-line-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 140px); height: 2px; background-color: #2c2c2c; }
+        .mendoza-line-divider::before { left: 0; }
+        .mendoza-line-divider::after { right: 0; }
+        .hits-squares-text { text-align: center; margin: 20px 0; font-size: 1.8rem; font-weight: normal; font-style: normal; font-family: 'Brush Script MT', cursive, 'Arial', sans-serif; color: #2c2c2c; line-height: 1.3; min-height: 2.6rem; display: flex; align-items: center; justify-content: center; }
+        .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: #cc99cc; }
+        .copyright a { color: #cc99cc; text-decoration: underline; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .modal.open { display: block; }
+        .modal-content { background-color: #feed89; margin: 20px auto; padding: 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+        .close { color: #2c2c2c; position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; line-height: 20px; cursor: pointer; z-index: 10; }
+        .close:hover, .close:focus { color: #000; }
+        .rules-symbol-bottom { display: none; }
+        .rules-divider { text-align: center; margin: 20px 0; color: #feed89; background: black; font-weight: bold; font-size: 1rem; padding: 10px; }
+        .modal-content p { color: #2c2c2c; line-height: 1.5; margin-bottom: 12px; text-align: center; font-size: 0.95rem; }
+        .player-row { display: flex; align-items: center; padding: 15px 12px; border-bottom: 1px solid #ddd; position: relative; }
+        .player-row.first-place { background: black; color: #feed89; }
+        .player-row.second-place { background: #feed89; color: black; }
+        .player-row.odd-place { background: black; color: #feed89; }
+        .player-row.even-place { background: #feed89; color: black; }
+        .player-row:last-child { border-bottom: none; }
+        .player-info { flex: 1; display: flex; justify-content: space-between; align-items: center; min-width: 0; width: 100%; }
+        .player-name { font-size: 1.5rem; font-weight: bold; line-height: 1.2; position: relative; padding-left: 0; cursor: pointer; }
+        .batting-stats { text-align: right; flex-shrink: 0; position: relative; min-width: 0; }
+        .batting-display { font-size: 1.5rem; font-weight: bold; line-height: 1.2; cursor: pointer; position: relative; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; text-align: right; }
+        .batting-average { position: relative; z-index: 1; text-align: right; }
+        .tap-tooltip { position: absolute; top: 0; right: 0; padding: 0; font-size: 1.5rem; font-weight: bold; z-index: 2; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; pointer-events: none; text-align: right; white-space: nowrap; height: 100%; display: flex; align-items: center; justify-content: flex-end; border-radius: 4px; width: 100%; }
+        .player-row.first-place .tap-tooltip, .player-row.odd-place .tap-tooltip { color: #feed89; background-color: black; }
+        .player-row.second-place .tap-tooltip, .player-row.even-place .tap-tooltip { color: black; background-color: #feed89; }
+        .batting-display:hover .tap-tooltip, .batting-display.active .tap-tooltip { opacity: 1; visibility: visible; }
+        .player-modal-content { background-color: #feed89; margin: 20px auto; padding: 30px 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+        .player-modal-header { text-align: center; margin-bottom: 20px; margin-top: 20px; }
+        .player-modal-header h2 { font-size: 2rem; color: #feed89; background: black; margin-bottom: 10px; padding: 10px; font-weight: bold; }
+        .player-modal-stats { text-align: center; color: #2c2c2c; margin-bottom: 15px; }
+        .player-modal-stats p { font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
+        .player-modal-stats strong { font-weight: bold; }
+        .screw-flanders { text-align: center; font-size: 1rem; line-height: 1.6; color: #2c2c2c; word-wrap: break-word; margin-top: 20px; margin-bottom: 15px; }
+        .bio-symbol { display: none; }
         @media (max-width: 768px) {
-            body {
-                padding: 8px;
-                padding-bottom: 30px;
-            }
-            
-            .modal-content {
-                width: 90%;
-                margin: 10px auto;
-                padding: 20px;
-                max-height: calc(100vh - 20px);
-            }
-            
-            .player-modal-content {
-                width: 90%;
-                padding: 25px 15px;
-            }
-            
-            .player-modal-header h2 {
-                font-size: 1.5rem;
-            }
-            
-            .player-modal-stats p {
-                font-size: 0.9rem;
-            }
-            
-            .screw-flanders {
-                font-size: 0.9rem;
-            }
-            
-            .bio-symbol-top {
-                display: none;
-            }
-            
-            .bio-symbol {
-                font-size: 1rem;
-            }
-            
-            .rules-symbol-top {
-                display: none;
-            }
-            
-            .rules-symbol-bottom {
-                font-size: 1rem;
-            }
-            
-            .rules-divider {
-                font-size: 1rem;
-            }
-            
-            .header h1 {
-                font-size: 1.75rem;
-            }
-            
-            .header p {
-                font-size: 0.85rem;
-            }
-            
-            .mendoza-line-divider {
-                font-size: 1.2rem;
-            }
-            
-            .mendoza-line-divider::before,
-            .mendoza-line-divider::after {
-                width: calc(50% - 110px);
-            }
-            
-            .hits-squares-text {
-                font-size: 1.8rem;
-                min-height: 2.3rem;
-                font-style: normal;
-                font-weight: normal;
-            }
-            
-            .player-row {
-                padding: 12px 10px;
-            }
-            
-            .player-name {
-                font-size: 1.25rem;
-            }
-            
-            .batting-display {
-                font-size: 1.25rem;
-            }
-            
-            .tap-tooltip {
-                font-size: 1.25rem;
-                padding: 0;
-            }
+            body { padding: 8px; padding-bottom: 30px; }
+            .modal-content { width: 90%; margin: 10px auto; padding: 20px; max-height: calc(100vh - 20px); }
+            .player-modal-content { width: 90%; padding: 25px 15px; }
+            .player-modal-header h2 { font-size: 1.5rem; }
+            .player-modal-stats p { font-size: 0.9rem; }
+            .screw-flanders { font-size: 0.9rem; }
+            .rules-divider { font-size: 1rem; }
+            .header h1 { font-size: 1.75rem; }
+            .header p { font-size: 0.85rem; }
+            .mendoza-line-divider { font-size: 1.2rem; }
+            .mendoza-line-divider::before, .mendoza-line-divider::after { width: calc(50% - 110px); }
+            .hits-squares-text { font-size: 1.8rem; min-height: 2.3rem; font-style: normal; font-weight: normal; }
+            .player-row { padding: 12px 10px; }
+            .player-name { font-size: 1.25rem; }
+            .batting-display { font-size: 1.25rem; }
+            .tap-tooltip { font-size: 1.25rem; padding: 0; }
         }
     </style>
 </head>
@@ -567,442 +88,82 @@
             <h1><strong><span class="wave-emoji-1">🏇</span><span class="wave-emoji-2">⚾</span><span class="wave-emoji-3">💸</span> 2026 <span class="wave-emoji-4">🏇</span><span class="wave-emoji-5">⚾</span><span class="wave-emoji-6">💸</span><br>MENDOZA STAKES</strong></h1>
             <p class="race-title"><em>It's the Race for Two Hundred!</em></p>
         </div>
-        
         <div id="content">
             <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
             <div class="leaderboard">
-                <div class="player-row first-place" data-player="1">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">㉕ D. MOORE</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row second-place" data-player="2">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">② SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row odd-place" data-player="3">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">③ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row even-place" data-player="4">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">④ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row odd-place" data-player="5">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑤ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row even-place" data-player="6">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑥ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row odd-place" data-player="7">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑦ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row even-place" data-player="8">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑧ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row odd-place" data-player="9">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑨ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row even-place" data-player="10">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑩ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="player-row odd-place" data-player="11">
-                    <div class="player-info">
-                        <div>
-                            <div class="player-name">⑪ SOON COME</div>
-                        </div>
-                        <div class="batting-stats">
-                            <div class="batting-display">
-                                <div class="batting-average">
-                                    <span style="font-style: normal;">.---</span>
-                                </div>
-                                <div class="tap-tooltip">
-                                    <span style="font-style: normal;">---AB</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="player-row first-place" data-player="1"><div class="player-info"><div><div class="player-name">㉕ D. MOORE</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row second-place" data-player="2"><div class="player-info"><div><div class="player-name">② SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row odd-place" data-player="3"><div class="player-info"><div><div class="player-name">③ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row even-place" data-player="4"><div class="player-info"><div><div class="player-name">④ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row odd-place" data-player="5"><div class="player-info"><div><div class="player-name">⑤ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row even-place" data-player="6"><div class="player-info"><div><div class="player-name">⑥ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row odd-place" data-player="7"><div class="player-info"><div><div class="player-name">⑦ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row even-place" data-player="8"><div class="player-info"><div><div class="player-name">⑧ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row odd-place" data-player="9"><div class="player-info"><div><div class="player-name">⑨ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row even-place" data-player="10"><div class="player-info"><div><div class="player-name">⑩ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
+                <div class="player-row odd-place" data-player="11"><div class="player-info"><div><div class="player-name">⑪ SOON COME</div></div><div class="batting-stats"><div class="batting-display"><div class="batting-average"><span style="font-style: normal;">.---</span></div><div class="tap-tooltip"><span style="font-style: normal;">---AB</span></div></div></div></div></div>
             </div>
             <div class="hits-squares-text">Next Race: Mar 25 – Sept 27</div>
         </div>
-        
         <div class="live-standings">
             <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br>Contact <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter."><strong>your loyal COMMISSIONER</strong></a></p>
         </div>
         <div class="copyright">mendozaleague.com © 2026 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
-
-    <!-- Rules Modal -->
     <div id="rules-modal" class="modal">
         <div class="modal-content">
             <span class="close" data-modal="rules">&times;</span>
-            
-            <p style="font-size: 1.4rem; font-weight: bold; margin-top: 15px;">Pick which of our 11 batters will<br>finish closest* to The Mendoza Line!</p>
-            
+            <p style="font-size: 1.1rem; font-weight: bold; margin-top: 15px;">Pick which of our 11 batters will<br>finish closest* to The Mendoza Line!</p>
             <div class="rules-divider">WAGERING</div>
-            
             <p><strong>Pre-Race Tickets: $25</strong><br><span style="font-size: 0.85rem;">Available during Spring Training</span></p>
-            
             <p><strong>Mid-Race Tickets: $45</strong><br><span style="font-size: 0.85rem;">Available during All-Star Break</span></p>
-            
             <div class="rules-divider">ENTRY/FEES</div>
-            
             <p>Please send picks & payments to<br>your loyal Commissioner via <a href="https://account.venmo.com/u/dudlawson" target="_blank" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">VENMO</a><br>before Monday, May 25, 2026</p>
-            
             <div class="rules-divider">PAYOUTS</div>
-            
             <p><strong>ALL-STAR BREAK: July 10, 2026</strong></p>
             <p style="font-size: 0.8rem;">20% of purse split between ticket holders<br>of FIRST batter to reach 200 At Bats</p>
-            
             <p><strong>FINISH LINE: September 27, 2026</strong></p>
             <p style="font-size: 0.8rem;">Remaining purse + all Mid-Race ticket funds<br>split between ticket holders of eligible batter<br>(MIN 200 AB) closest* to The Mendoza Line</p>
-            
             <p style="font-size: 0.8rem; font-style: italic; margin-top: 20px;">*Above or below a .200 Batting Average</p>
-            <div class="rules-symbol-bottom">⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧</div>
+            <div class="rules-symbol-bottom"></div>
         </div>
     </div>
-
-    <!-- Player Info Modal -->
     <div id="player-modal" class="modal">
         <div class="player-modal-content">
             <span class="close" data-modal="player">&times;</span>
-            <div class="player-modal-header">
-                <h2 id="player-modal-name"></h2>
-            </div>
+            <div class="player-modal-header"><h2 id="player-modal-name"></h2></div>
             <div class="player-modal-stats">
                 <p id="player-modal-details"></p>
                 <p><strong id="player-modal-2025-stats"></strong></p>
                 <p><strong id="player-modal-2026-stats"></strong></p>
             </div>
             <div class="screw-flanders" id="player-modal-screw"></div>
-            <div class="bio-symbol">⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧</div>
+            <div class="bio-symbol"></div>
         </div>
     </div>
-
     <script>
-        // Player data
-        const playerData = {
-            1: {
-                name: "㉕ DYLAN MOORE",
-                age: 32,
-                height: "6'0\"",
-                weight: "205lbs",
-                stats2025: ".201/219AB",
-                stats2026: ".---/---AB",
-                bio: "Our 2025 Mendoza Stakes \"Champion\" finished last season one single point above the Mendoza Line. This year's contest introduces the first half \"The Race to 200AB\" challenge, & coincidentally Moore was also our first contestant to reach 200AB. The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year professional career with Seattle until being released on August 23, 2025. Three days later, Moore was picked up by the team that drafted him: the Texas Rangers. What a coincidence: a Mendoza Stakes champion playing for 2/3 of Mario Mendoza's teams in one season! Whether or not \"D-Mo\" starts on or even makes it to a Major League roster in 2026 remains to be told, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to .200. Giddyup!!"
-            },
-            2: { name: "② SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            3: { name: "③ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            4: { name: "④ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            5: { name: "⑤ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            6: { name: "⑥ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            7: { name: "⑦ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            8: { name: "⑧ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            9: { name: "⑨ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            10: { name: "⑩ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
-            11: { name: "⑪ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" }
-        };
-
-        // Wait for DOM to be ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
-            
-            // Get modal elements
-            const rulesModal = document.getElementById('rules-modal');
-            const playerModal = document.getElementById('player-modal');
-            const rulesTrigger = document.getElementById('rules-trigger');
-            
-            console.log('Rules modal:', rulesModal);
-            console.log('Player modal:', playerModal);
-            console.log('Rules trigger:', rulesTrigger);
-            
-            // Rules modal trigger
-            if (rulesTrigger) {
-                rulesTrigger.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.log('Opening rules modal');
-                    rulesModal.classList.add('open');
-                    document.body.style.overflow = 'hidden';
-                });
-            }
-            
-            // Close buttons
-            const closeBtns = document.querySelectorAll('.close');
-            closeBtns.forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const modalType = this.getAttribute('data-modal');
-                    console.log('Closing modal:', modalType);
-                    if (modalType === 'rules') {
-                        rulesModal.classList.remove('open');
-                    } else if (modalType === 'player') {
-                        playerModal.classList.remove('open');
-                    }
-                    document.body.style.overflow = '';
-                });
-            });
-            
-            // Click outside to close
-            window.addEventListener('click', function(event) {
-                if (event.target == rulesModal) {
-                    rulesModal.classList.remove('open');
-                    document.body.style.overflow = '';
-                }
-                if (event.target == playerModal) {
-                    playerModal.classList.remove('open');
-                    document.body.style.overflow = '';
-                }
-            });
-            
-            // Player name click functionality
-            const playerRows = document.querySelectorAll('.player-row');
-            console.log('Found player rows:', playerRows.length);
-            
-            playerRows.forEach(row => {
-                const playerName = row.querySelector('.player-name');
-                const playerId = row.getAttribute('data-player');
-                
-                console.log('Setting up player:', playerId, playerName);
-                
-                if (playerName && playerId) {
-                    playerName.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        console.log('Player clicked:', playerId);
-                        
-                        const player = playerData[playerId];
-                        if (player) {
-                            console.log('Player data:', player);
-                            
-                            document.getElementById('player-modal-name').textContent = player.name;
-                            document.getElementById('player-modal-details').innerHTML = 
-                                `Age: ${player.age} | Height: ${player.height} | Weight: ${player.weight}`;
-                            document.getElementById('player-modal-2025-stats').textContent = 
-                                `2025 Stats: ${player.stats2025}`;
-                            document.getElementById('player-modal-2026-stats').textContent = 
-                                `Proj. 2026 Stats: ${player.stats2026}`;
-                            
-                            // Set bio text or SOON COME
-                            const screwDiv = document.getElementById('player-modal-screw');
-                            if (player.bio && player.bio.trim() !== '') {
-                                screwDiv.innerHTML = player.bio;
-                            } else {
-                                screwDiv.textContent = 'SOON COME '.repeat(84);
-                            }
-                            
-                            console.log('Opening player modal');
-                            playerModal.classList.add('open');
-                            document.body.style.overflow = 'hidden';
-                        }
-                    });
-                }
-            });
-            
-            // Batting average toggle
-            const battingDisplays = document.querySelectorAll('.batting-display');
-            console.log('Found batting displays:', battingDisplays.length);
-            
-            battingDisplays.forEach(display => {
-                display.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.classList.toggle('active');
-                });
-                
-                display.addEventListener('touchend', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.classList.toggle('active');
-                });
-            });
-            
-            // Close tooltips when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.batting-display')) {
-                    battingDisplays.forEach(display => {
-                        display.classList.remove('active');
-                    });
-                }
-            });
-            
-            document.addEventListener('touchend', function(e) {
-                if (!e.target.closest('.batting-display')) {
-                    battingDisplays.forEach(display => {
-                        display.classList.remove('active');
-                    });
-                }
-            });
-            
-            console.log('All event listeners initialized');
-        });
-        
-        // Countdown timer
-        function updateCountdown() {
-            const postTime = new Date('2026-03-25T00:00:00').getTime();
-            const now = new Date().getTime();
-            const distance = postTime - now;
-
-            if (distance < 0) {
-                document.getElementById('countdown-timer').textContent = '00:00:00:00';
-                return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            const formatted = 
-                String(days).padStart(2, '0') + ':' +
-                String(hours).padStart(2, '0') + ':' +
-                String(minutes).padStart(2, '0') + ':' +
-                String(seconds).padStart(2, '0');
-
-            document.getElementById('countdown-timer').textContent = formatted;
-        }
-
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+const playerData={1:{name:"㉕ DYLAN MOORE",age:32,height:"6'0\"",weight:"205lbs",stats2025:".201/219AB",stats2026:".---/---AB",bio:"Our 2025 Mendoza Stakes \"Champion\" finished last season one single point above the Mendoza Line. This year's contest introduces the first half \"Race to 200AB\" challenge, & coincidentally Moore was also our first contestant to reach 200AB. The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year professional career with Seattle until being released on August 23, 2025. Three days later, Moore was picked up by the team that drafted him: the Texas Rangers. What a coincidence: a Mendoza Stakes champion playing for 2/3 of Mario Mendoza's teams in one season! Whether or not \"D-Mo\" starts on or even makes it to a Major League roster in 2026 remains to be told, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to .200. Giddyup!!"},2:{name:"② SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},3:{name:"③ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},4:{name:"④ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},5:{name:"⑤ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},6:{name:"⑥ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},7:{name:"⑦ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},8:{name:"⑧ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},9:{name:"⑨ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},10:{name:"⑩ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""},11:{name:"⑪ SOON COME",age:"TBD",height:"TBD",weight:"TBD",stats2025:".---/---AB",stats2026:".---/---AB",bio:""}};
+const favicons=['🏇','⚾','💸'];
+const randomFavicon=favicons[Math.floor(Math.random()*favicons.length)];
+const link=document.createElement('link');
+link.rel='icon';
+link.href='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>'+randomFavicon+'</text></svg>';
+document.head.appendChild(link);
+document.addEventListener('DOMContentLoaded',function(){
+const rulesModal=document.getElementById('rules-modal');
+const playerModal=document.getElementById('player-modal');
+const rulesTrigger=document.getElementById('rules-trigger');
+rulesTrigger.addEventListener('click',function(e){e.preventDefault();rulesModal.classList.add('open');document.body.style.overflow='hidden';});
+document.querySelectorAll('.close').forEach(btn=>{btn.addEventListener('click',function(){const modalType=this.getAttribute('data-modal');if(modalType==='rules'){rulesModal.classList.remove('open');}else if(modalType==='player'){playerModal.classList.remove('open');}document.body.style.overflow='';});});
+window.addEventListener('click',function(event){if(event.target==rulesModal){rulesModal.classList.remove('open');document.body.style.overflow='';}if(event.target==playerModal){playerModal.classList.remove('open');document.body.style.overflow='';}});
+document.querySelectorAll('.player-row').forEach(row=>{const playerName=row.querySelector('.player-name');const playerId=row.getAttribute('data-player');if(playerName&&playerId){playerName.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();const player=playerData[playerId];if(player){document.getElementById('player-modal-name').textContent=player.name;document.getElementById('player-modal-details').innerHTML='Age: '+player.age+' | Height: '+player.height+' | Weight: '+player.weight;document.getElementById('player-modal-2025-stats').textContent='2025 Stats: '+player.stats2025;document.getElementById('player-modal-2026-stats').textContent='Proj. 2026 Stats: '+player.stats2026;const screwDiv=document.getElementById('player-modal-screw');if(player.bio&&player.bio.trim()!==''){screwDiv.innerHTML=player.bio;}else{screwDiv.textContent='SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME';}playerModal.classList.add('open');document.body.style.overflow='hidden';}});}});
+document.querySelectorAll('.batting-display').forEach(display=>{display.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();this.classList.toggle('active');});display.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation();this.classList.toggle('active');});});
+document.addEventListener('click',function(e){if(!e.target.closest('.batting-display')){document.querySelectorAll('.batting-display').forEach(display=>{display.classList.remove('active');});}});
+document.addEventListener('touchend',function(e){if(!e.target.closest('.batting-display')){document.querySelectorAll('.batting-display').forEach(display=>{display.classList.remove('active');});}});
+});
+function updateCountdown(){const postTime=new Date('2026-03-25T00:00:00').getTime();const now=new Date().getTime();const distance=postTime-now;if(distance<0){document.getElementById('countdown-timer').textContent='00:00:00:00';return;}const days=Math.floor(distance/(1000*60*60*24));const hours=Math.floor((distance%(1000*60*60*24))/(1000*60*60));const minutes=Math.floor((distance%(1000*60*60))/(1000*60));const seconds=Math.floor((distance%(1000*60))/1000);const formatted=String(days).padStart(2,'0')+':'+String(hours).padStart(2,'0')+':'+String(minutes).padStart(2,'0')+':'+String(seconds).padStart(2,'0');document.getElementById('countdown-timer').textContent=formatted;}
+updateCountdown();
+setInterval(updateCountdown,1000);
     </script>
 </body>
 </html>
-            
