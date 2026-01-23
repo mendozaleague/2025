@@ -217,11 +217,14 @@
         
         .close {
             color: #2c2c2c;
-            float: right;
+            position: absolute;
+            top: 10px;
+            right: 15px;
             font-size: 28px;
             font-weight: bold;
             line-height: 20px;
             cursor: pointer;
+            z-index: 10;
         }
         
         .close:hover,
@@ -382,6 +385,18 @@
             margin-bottom: 10px;
         }
         
+        .bio-symbol-top {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: normal;
+            color: #2c2c2c;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            letter-spacing: -0.15rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        
         .player-modal-stats {
             text-align: center;
             color: #2c2c2c;
@@ -450,6 +465,10 @@
             }
             
             .bio-symbol {
+                font-size: 1rem;
+            }
+            
+            .bio-symbol-top {
                 font-size: 1rem;
             }
             
@@ -737,6 +756,7 @@
     <div id="player-modal" class="modal">
         <div class="player-modal-content">
             <span class="close" data-modal="player">&times;</span>
+            <div class="bio-symbol-top">⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧</div>
             <div class="player-modal-header">
                 <h2 id="player-modal-name"></h2>
             </div>
