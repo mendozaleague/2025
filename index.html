@@ -8,7 +8,7 @@
     <meta name="author" content="Dud Lawson">
     <script>
         // Cycle through favicons on each page load
-        const favicons = ['🏇', '⚾', '💸'];
+        const favicons = ['🐇', '⚾', '💸'];
         const randomFavicon = favicons[Math.floor(Math.random() * favicons.length)];
         const link = document.createElement('link');
         link.rel = 'icon';
@@ -250,6 +250,48 @@
         
         .rules-symbol-bottom {
             margin-top: 15px;
+        }
+        
+        .rules-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #2c2c2c;
+            font-weight: bold;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .rules-divider::before,
+        .rules-divider::after {
+            content: '⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧';
+            color: #2c2c2c;
+            font-size: 1rem;
+            font-weight: normal;
+            letter-spacing: -0.15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            flex: 1;
+        }
+        
+        .rules-divider::before {
+            margin-right: 5px;
+            text-align: left;
+        }
+        
+        .rules-divider::after {
+            margin-left: 5px;
+            text-align: right;
+        }
+        
+        .rules-section-title {
+            text-align: center;
+            color: #2c2c2c;
+            font-weight: bold;
+            font-size: 1rem;
+            margin: 10px 0;
         }
         
         .close:hover,
@@ -502,6 +544,16 @@
                 font-size: 1rem;
             }
             
+            .rules-divider {
+                font-size: 0.85rem;
+            }
+            
+            .rules-divider::before,
+            .rules-divider::after {
+                font-size: 0.85rem;
+                content: '⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧';
+            }
+            
             .header h1 {
                 font-size: 1.75rem;
             }
@@ -548,7 +600,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><strong><span class="wave-emoji-1">🏇</span><span class="wave-emoji-2">⚾</span><span class="wave-emoji-3">💸</span> 2026 <span class="wave-emoji-4">🏇</span><span class="wave-emoji-5">⚾</span><span class="wave-emoji-6">💸</span><br>MENDOZA STAKES</strong></h1>
+            <h1><strong><span class="wave-emoji-1">🐇</span><span class="wave-emoji-2">⚾</span><span class="wave-emoji-3">💸</span> 2026 <span class="wave-emoji-4">🐇</span><span class="wave-emoji-5">⚾</span><span class="wave-emoji-6">💸</span><br>MENDOZA STAKES</strong></h1>
             <p class="race-title"><em>It's the Race for Two Hundred!</em></p>
         </div>
         
@@ -558,7 +610,7 @@
                 <div class="player-row first-place" data-player="1">
                     <div class="player-info">
                         <div>
-                            <div class="player-name">㉕ D. MOORE</div>
+                            <div class="player-name">① D. MOORE</div>
                         </div>
                         <div class="batting-stats">
                             <div class="batting-display">
@@ -757,21 +809,21 @@
         <div class="modal-content">
             <span class="close" data-modal="rules">&times;</span>
             <div class="rules-symbol-top">⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧ ⬧</div>
-            <h2 style="margin-bottom: 15px; color: #2c2c2c; text-align: center; font-size: 1.4rem;"><span class="wave-emoji-1">🏇</span><span class="wave-emoji-2">⚾</span><span class="wave-emoji-3">💸</span> RULES <span class="wave-emoji-4">🏇</span><span class="wave-emoji-5">⚾</span><span class="wave-emoji-6">💸</span></h2>
+            <h2 style="margin-bottom: 15px; color: #2c2c2c; text-align: center; font-size: 1.4rem;">RULES</h2>
             
             <p style="font-size: 0.95rem;">Pick which of our 11 batters will<br>finish closest* to The Mendoza Line!</p>
             
-            <p><strong>WAGERING</strong></p>
+            <div class="rules-divider">WAGERING</div>
             
             <p><strong>Pre-Race Tickets: $25</strong><br><span style="font-size: 0.85rem;">Available during Spring Training</span></p>
             
             <p><strong>Mid-Race Tickets: $45</strong><br><span style="font-size: 0.85rem;">Available during All-Star Break</span></p>
             
-            <p><strong>ENTRY/FEES</strong></p>
+            <div class="rules-divider">ENTRY/FEES</div>
             
             <p>Please send picks and payments to<br>your loyal Commissioner via <a href="https://account.venmo.com/u/dudlawson" target="_blank" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">VENMO</a><br>before Monday, May 25, 2026</p>
             
-            <p><strong>PAYOUTS</strong></p>
+            <div class="rules-divider">PAYOUTS</div>
             
             <p><strong>ALL-STAR BREAK: July 10, 2026</strong></p>
             <p style="font-size: 0.8rem;">20% of purse split between ticket holders<br>of FIRST batter to reach 200 At Bats</p>
@@ -806,13 +858,13 @@
         // Player data
         const playerData = {
             1: {
-                name: "㉕ D. MOORE",
+                name: "① D. MOORE",
                 age: 32,
                 height: "6'0\"",
                 weight: "205lbs",
                 stats2025: ".201/219AB",
                 stats2026: ".---/---AB",
-                bio: "Our 2025 Mendoza Stakes \"Champion\" finished last year on \"top\" after ending the season one single point above the Mendoza Line. This year's contest introduces bthe first half \"Race to 200AB\" challenge and, coincidentally, Moore was also the first batter to reach the 200 At Bat threshold last season. The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year professional career with Seattle until August 23, 2025, when he was released to make room for Victor Robles. Three days later, Moore was picked up by the team that drafted him from college: the Texas Rangers. How about that — a Mendoza Stakes champion playing for 2 of the 3 teams Mario Mendoza suited up for in the same season! Whether or not \"D-Mo\" starts on or even makes it to a Major League roster in 2026 remains to be told, but his \"stellar\" performance last year was enough to secure a spot in the 3rd annual Bob Uecker Memorial Race to .200. Giddyup!!"
+                bio: "Our 2025 Mendoza Stakes \"Champion\" finished last year on \"top\" after ending the season one single point above the Mendoza Line. This year's contest introduces bthe first half \"Race to 200AB\" challenge and, coincidentally, Moore was also the first batter to reach the 200 At Bat threshold last season. The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year professional career with Seattle until August 23, 2025, when he was released to make room for Victor Robles. Three days later, Moore was picked up by the team that drafted him from college: the Texas Rangers. How about that – a Mendoza Stakes champion playing for 2 of the 3 teams Mario Mendoza suited up for in the same season! Whether or not \"D-Mo\" starts on or even makes it to a Major League roster in 2026 remains to be told, but his \"stellar\" performance last year was enough to secure a spot in the 3rd annual Bob Uecker Memorial Race to .200. Giddyup!!"
             },
             2: { name: "② SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
             3: { name: "③ SOON COME", age: "TBD", height: "TBD", weight: "TBD", stats2025: ".---/---AB", stats2026: ".---/---AB", bio: "" },
@@ -992,3 +1044,4 @@
     </script>
 </body>
 </html>
+            
