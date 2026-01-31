@@ -55,9 +55,9 @@
         .player-row.second-place .tap-tooltip, .player-row.even-place .tap-tooltip { color: black; background-color: #feed89; }
         .batting-display:hover .tap-tooltip, .batting-display.active .tap-tooltip { opacity: 1; visibility: visible; }
         .player-modal-content { background-color: #feed89; margin: 20px auto; padding: 30px 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
-        .player-modal-header { text-align: center; margin-bottom: 20px; margin-top: 20px; }
-        .player-modal-header h2 { font-size: 2rem; color: #feed89; background: black; margin-bottom: 10px; padding: 10px; font-weight: bold; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; position: relative; }
-        .player-modal-header h2 .player-number { background-color: #feed89; color: black; font-size: 1rem; width: 1.5rem; height: 1.5rem; position: absolute; left: 10px; margin-right: 0; top: 50%; transform: translate(0, -50%) rotate(45deg); }
+        .player-modal-header { text-align: center; margin-bottom: 20px; margin-top: 20px; position: relative; }
+        .player-modal-header h2 { font-size: 2rem; color: #feed89; background: black; margin-bottom: 10px; padding: 10px 60px 10px 60px; font-weight: bold; transition: opacity 0.2s; display: block; text-align: center; word-wrap: break-word; overflow-wrap: break-word; }
+        .player-modal-header .player-number { background-color: #feed89; color: black; font-size: 1rem; width: 1.5rem; height: 1.5rem; position: absolute; left: 10px; top: 50%; transform: translateY(-50%) rotate(45deg); margin-right: 0; z-index: 10; }
         .player-modal-header h2:hover { opacity: 0.8; }
         .player-modal-stats { text-align: center; color: #2c2c2c; margin-bottom: 15px; }
         .player-modal-stats p { font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
@@ -138,7 +138,10 @@
     <div id="player-modal" class="modal">
         <div class="player-modal-content">
             <span class="close" data-modal="player">&times;</span>
-            <div class="player-modal-header"><h2 id="player-modal-name"></h2></div>
+            <div class="player-modal-header">
+                <span id="player-modal-number"></span>
+                <h2 id="player-modal-name"></h2>
+            </div>
             <div class="player-modal-stats">
                 <p id="player-modal-details"></p>
                 <p id="player-modal-2025-stats"></p>
@@ -391,21 +394,23 @@ function openPlayerModal(playerId) {
     
     const modal = document.getElementById('player-modal');
     const nameEl = document.getElementById('player-modal-name');
+    const numberEl = document.getElementById('player-modal-number');
     
     // Use fullName for modal
     const displayName = player.fullName || player.name;
     
-    // Build display as: number in diamond + NAME (uppercase)
-    let htmlContent = '';
-    
+    // Populate the diamond number separately
     if (player.number) {
-        htmlContent += '<span class="player-number"><span>' + player.number + '</span></span>';
+        numberEl.innerHTML = '<span class="player-number"><span>' + player.number + '</span></span>';
     } else {
-        htmlContent += '<span class="player-number"><span></span></span>';
+        numberEl.innerHTML = '<span class="player-number"><span></span></span>';
     }
     
     // Convert name to uppercase
     const upperDisplayName = displayName.toUpperCase();
+    
+    // Build name content (no diamond here)
+    let htmlContent = '';
     
     if (player.url && player.url !== '') {
         nameEl.style.cursor = 'pointer';
