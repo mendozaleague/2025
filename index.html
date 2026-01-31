@@ -56,14 +56,16 @@
         .batting-display:hover .tap-tooltip, .batting-display.active .tap-tooltip { opacity: 1; visibility: visible; }
         .player-modal-content { background-color: #feed89; margin: 20px auto; padding: 30px 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
         .player-modal-header { text-align: center; margin-bottom: 20px; margin-top: 20px; }
-        .player-modal-header h2 { font-size: 2rem; color: #feed89; background: black; margin-bottom: 10px; padding: 10px; font-weight: bold; transition: opacity 0.2s; }
+        .player-modal-header h2 { font-size: 2rem; color: #feed89; background: black; margin-bottom: 10px; padding: 10px; font-weight: bold; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; position: relative; }
+        .player-modal-header h2 .player-number { background-color: #feed89; color: black; font-size: 1rem; width: 1.5rem; height: 1.5rem; position: absolute; left: 10px; margin-right: 0; top: 50%; transform: translate(0, -50%) rotate(45deg); }
         .player-modal-header h2:hover { opacity: 0.8; }
         .player-modal-stats { text-align: center; color: #2c2c2c; margin-bottom: 15px; }
         .player-modal-stats p { font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
         .player-modal-stats strong { font-weight: bold; }
         .screw-flanders { text-align: center; font-size: 1rem; line-height: 1.6; color: #2c2c2c; word-wrap: break-word; margin-top: 20px; margin-bottom: 15px; }
         .bio-symbol { color: #feed89; margin-top: 15px; font-size: 0.75rem; font-weight: bold; background-color: black; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
-        .player-number { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; font-size: 0.8rem; font-weight: bold; margin-right: 0.4rem; vertical-align: middle; flex-shrink: 0; }
+        .player-number { display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; font-size: 0.8rem; font-weight: bold; margin-right: 0.6rem; flex-shrink: 0; transform: rotate(45deg); }
+        .player-number span { display: block; transform: rotate(-45deg); }
         .player-row.first-place .player-number, .player-row.odd-place .player-number { background-color: #feed89; color: black; }
         .player-row.second-place .player-number, .player-row.even-place .player-number { background-color: black; color: #feed89; }
         .contact-modal-content { background-color: #feed89; margin: 20px auto; padding: 30px 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
@@ -300,9 +302,11 @@ function renderPlayers() {
         // Build the display name with number circle
         let displayName = '';
         
-        // Add number circle if player has a number
+        // Add number diamond if player has a number, or empty diamond if no number
         if (player.number) {
-            displayName += `<span class="player-number">${player.number}</span>`;
+            displayName += `<span class="player-number"><span>${player.number}</span></span>`;
+        } else {
+            displayName += `<span class="player-number"><span></span></span>`;
         }
         
         // Add player name
@@ -391,12 +395,17 @@ function openPlayerModal(playerId) {
     // Use fullName for modal
     const displayName = player.fullName || player.name;
     
-    // Build display as: number⬩NAME
+    // Build display as: number in diamond + NAME (uppercase)
     let htmlContent = '';
     
     if (player.number) {
-        htmlContent += player.number + '⬩';
+        htmlContent += '<span class="player-number"><span>' + player.number + '</span></span>';
+    } else {
+        htmlContent += '<span class="player-number"><span></span></span>';
     }
+    
+    // Convert name to uppercase
+    const upperDisplayName = displayName.toUpperCase();
     
     if (player.url && player.url !== '') {
         nameEl.style.cursor = 'pointer';
@@ -405,16 +414,16 @@ function openPlayerModal(playerId) {
         // Parse out suffixes like (AL) or , Jr.
         const match = displayName.match(/^(.+?)(,\s*Jr\.|,\s*Sr\.|,\s*III|,\s*IV|\s+\(.+\))?$/);
         if (match) {
-            const name = match[1];  // Main name without suffix
-            const suffix = match[2] || '';  // Suffix like ", Jr." or " (AL)"
+            const name = match[1].toUpperCase();  // Main name without suffix (uppercase)
+            const suffix = match[2] ? match[2].toUpperCase() : '';  // Suffix like ", Jr." or " (AL)" (uppercase)
             htmlContent += '<u>' + name + '</u>' + suffix;
         } else {
-            htmlContent += '<u>' + displayName + '</u>';
+            htmlContent += '<u>' + upperDisplayName + '</u>';
         }
     } else {
         nameEl.style.cursor = 'default';
         nameEl.onclick = null;
-        htmlContent += displayName;
+        htmlContent += upperDisplayName;
     }
     
     nameEl.innerHTML = htmlContent;
