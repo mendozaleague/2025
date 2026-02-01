@@ -22,7 +22,7 @@
         .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
         .header { text-align: center; margin-bottom: 20px; padding: 15px; background: #feed89; border: 2px solid #feed89; }
         .header h1 { font-size: 2.0rem; margin-bottom: 8px; color: black; line-height: 1.2; }
-        .header-diamond { display: inline-block; width: 1.2rem; height: 1.2rem; background-color: black; margin: 0 0.4rem; vertical-align: middle; }
+        .header-diamond { display: inline-block; width: 1.2rem; height: 1.2rem; background-color: black; transform: rotate(45deg); margin: 0 0.4rem; vertical-align: middle; }
         .header-diamond.wave-emoji-1 { animation: wave-diamond 11s ease-in-out 10s infinite; }
         .header-diamond.wave-emoji-2 { animation: wave-diamond 11s ease-in-out 10.15s infinite; }
         .header-diamond.wave-emoji-3 { animation: wave-diamond 11s ease-in-out 10.3s infinite; }
@@ -606,7 +606,7 @@ function updateCountdown(){
 updateCountdown();
 setInterval(updateCountdown,1000);
 
-const staticMessages=['Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Our Eleventh "Glorious" Season','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','"Congratulations" to 2025 Champ D. Moore','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','It\'s the Race for Two Hundred!!','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','R.I.P. Bob "Mr. Baseball" Uecker'];
+const staticMessages=['Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Our Eleventh "Glorious" Season','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','"Congratulations" to 2025 Champ D. Moore','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','It\'s the Race for Two Hundred!!','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','R.I.P. Bob "Mr. Baseball" Uecker','Diamond Life!'];
 
 let lastMessage=localStorage.getItem('lastMessage')||'';
 let randomIndex;
