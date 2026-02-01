@@ -1,1077 +1,622 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐎</text></svg>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE 2025 MENDOZA STAKES</title>
-    <meta name="description" content="The 2nd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
+    <title>THE 2026 MENDOZA STAKES</title>
+    <meta name="description" content="The 3rd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
     <meta name="author" content="Dud Lawson">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Arial', sans-serif;
-            background: white;
-            min-height: 100vh;
-            padding: 10px;
-            color: #2c2c2c;
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #feed85;
-            border: 2px solid #feed85;
-        }
-        
-        .header h1 {
-            font-size: 2.0rem;
-            margin-bottom: 8px;
-            color: black;
-            line-height: 1.2;
-        }
-        
-        .header .race-title {
-            font-size: 1rem;
-            color: black;
-            line-height: 1.3;
-            font-weight: normal;
-            font-style: italic;
-            margin-bottom: 0;
-        }
-        
-        .live-standings {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #2c2c2c;
-        }
-        
-        .live-standings a {
-            color: #2c2c2c;
-            text-decoration: underline;
-        }
-        
-        .info-box {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: white;
-        }
-        
-        .info-box p {
-            font-size: 0.9rem;
-            color: #2c2c2c;
-            line-height: 1.4;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .info-box a {
-            color: #2c2c2c;
-            text-decoration: underline;
-        }
-        
-        .mendoza-line-divider {
-            text-align: center;
-            margin: 20px 0;
-            position: relative;
-            color: #2c2c2c;
-            font-weight: bold;
-            font-size: 1.4rem;
-        }
-        
-        .mendoza-line-divider::before,
-        .mendoza-line-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: calc(50% - 140px);
-            height: 2px;
-            background-color: #2c2c2c;
-        }
-        
-        .mendoza-line-divider::before {
-            left: 0;
-        }
-        
-        .mendoza-line-divider::after {
-            right: 0;
-        }
-        
-        .hits-squares-text {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 2rem;
-            font-weight: normal;
-            font-style: normal;
-            font-family: 'Brush Script MT', cursive, 'Arial', sans-serif;
-            color: #2c2c2c;
-            line-height: 1.3;
-            min-height: 2.6rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .copyright {
-            text-align: center;
-            margin-top: 15px;
-            font-size: 0.8rem;
-            opacity: 0.8;
-            color: #cc99cc;
-        }
-        
-        .copyright a {
-            color: #cc99cc;
-            text-decoration: underline;
-        }
-        
-        .loading {
-            text-align: center;
-            font-size: 1.1rem;
-            margin: 30px 0;
-        }
-        
-        .player-row {
-            display: flex;
-            align-items: center;
-            padding: 15px 12px;
-            border-bottom: 1px solid #ddd;
-            position: relative;
-        }
-        
-        .player-row.first-place {
-            background: black;
-            color: #feed89;
-        }
-        
-        .player-row.second-place {
-            background: #feed89;
-            color: black;
-        }
-        
-        .player-row.odd-place {
-            background: black;
-            color: #feed89;
-        }
-        
-        .player-row.even-place {
-            background: #feed89;
-            color: black;
-        }
-        
-        .player-row:last-child {
-            border-bottom: none;
-        }
-        
-        .player-info {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            min-width: 0;
-            width: 100%;
-        }
-        
-        .player-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            line-height: 1.2;
-            position: relative;
-            padding-left: 0;
-        }
-        
-        .batting-stats {
-            text-align: right;
-            flex-shrink: 0;
-            position: relative;
-            min-width: 0;
-        }
-        
-        .batting-display {
-            font-size: 1.5rem;
-            font-weight: bold;
-            line-height: 1.2;
-            cursor: pointer;
-            position: relative;
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            text-align: right;
-        }
-        
-        .batting-average {
-            position: relative;
-            z-index: 1;
-            text-align: right;
-        }
-        
-        .tap-tooltip {
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 0;
-            font-size: 1.5rem;
-            font-weight: bold;
-            z-index: 2;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.2s, visibility 0.2s;
-            pointer-events: none;
-            text-align: right;
-            white-space: nowrap;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            border-radius: 4px;
-            width: 100%;
-        }
-        
-        /* Background styling for tooltips on black bars */
-        .player-row.first-place .tap-tooltip,
-        .player-row.odd-place .tap-tooltip {
-            color: #feed85;
-            background-color: black;
-        }
-        
-        /* Background styling for tooltips on yellow bars */
-        .player-row.second-place .tap-tooltip,
-        .player-row.even-place .tap-tooltip {
-            color: black;
-            background-color: #feed85;
-        }
-        
-        .batting-display:hover .tap-tooltip,
-        .batting-display.active .tap-tooltip {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .error {
-            text-align: center;
-            color: black;
-            font-size: 1rem;
-            margin: 30px 0;
-            padding: 15px;
-            background: #feed85;
-            border: 1px solid #feed89;
-        }
-        
-        .game-status-dot {
-            font-size: 1.5rem;
-            margin-left: 4px;
-            font-weight: normal;
-        }
-        
-        /* Game status dot colors based on bar color */
-        .player-row.first-place .game-status-dot,
-        .player-row.odd-place .game-status-dot {
-            color: #feed85; /* Yellow dot on black bars */
-        }
-        
-        .player-row.second-place .game-status-dot,
-        .player-row.even-place .game-status-dot {
-            color: black; /* Black dot on yellow bars */
-        }
-        
-        .flash-dot-red {
-            animation: flashDotRed 2s ease-out;
-        }
-        
-        .flash-dot-green {
-            animation: flashDotGreen 2s ease-out;
-        }
-        
-        @keyframes flashDotRed {
-            0% { color: inherit; }
-            20% { color: #ff4444; }
-            100% { color: inherit; }
-        }
-        
-        @keyframes flashDotGreen {
-            0% { color: inherit; }
-            20% { color: #44ff44; }
-            100% { color: inherit; }
-        }
-        
-        .mendoza-line-emoji {
-            font-size: 1.5rem;
-            margin-left: 4px;
-        }
-        
-        .first-place-emoji {
-            font-size: 1.5rem;
-            margin-left: 4px;
-        }
-        
-        .live-blink {
-            animation: liveBlink 2s ease-in-out infinite;
-        }
-        
-        @keyframes liveBlink {
-            0%, 50% { opacity: 1; }
-            75% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { overflow-y: scroll; overflow-x: hidden; height: 100%; -webkit-overflow-scrolling: touch; }
+        body { font-family: 'Arial', sans-serif; background: white; min-height: 100%; padding: 10px; padding-bottom: 30px; color: #2c2c2c; overflow-x: hidden; overflow-y: auto; position: relative; }
+        @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
+        @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
+        .wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
+        .wave-emoji-2 { animation: wave 11s ease-in-out 10.15s infinite; }
+        .wave-emoji-3 { animation: wave 11s ease-in-out 10.3s infinite; }
+        .wave-emoji-4 { animation: wave 11s ease-in-out 10.45s infinite; }
+        .wave-emoji-5 { animation: wave 11s ease-in-out 10.6s infinite; }
+        .wave-emoji-6 { animation: wave 11s ease-in-out 10.75s infinite; }
+        .wave-emoji-1, .wave-emoji-2, .wave-emoji-3, .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
+        .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
+        .header { text-align: center; margin-bottom: 20px; padding: 15px; background: #feed89; border: 2px solid #feed89; }
+        .header h1 { font-size: 2.0rem; margin-bottom: 8px; color: black; line-height: 1.2; }
+        .header-diamond { display: inline-block; width: 1.2rem; height: 1.2rem; background-color: black; transform: rotate(45deg); margin: 0 0.4rem; vertical-align: middle; }
+        .header-diamond.wave-emoji-1 { animation: wave-diamond 11s ease-in-out 10s infinite; }
+        .header-diamond.wave-emoji-2 { animation: wave-diamond 11s ease-in-out 10.15s infinite; }
+        .header-diamond.wave-emoji-3 { animation: wave-diamond 11s ease-in-out 10.3s infinite; }
+        .header-diamond.wave-emoji-4 { animation: wave-diamond 11s ease-in-out 10.45s infinite; }
+        .header-diamond.wave-emoji-5 { animation: wave-diamond 11s ease-in-out 10.6s infinite; }
+        .header-diamond.wave-emoji-6 { animation: wave-diamond 11s ease-in-out 10.75s infinite; }
+        .header .race-title { font-size: 1.1rem; color: black; line-height: 1.3; font-weight: normal; font-style: normal; margin-bottom: 0; }
+        .live-standings { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: #2c2c2c; }
+        .live-standings a { color: #2c2c2c; text-decoration: underline; cursor: pointer; }
+        .mendoza-line-divider { text-align: center; margin: 20px 0; position: relative; color: #2c2c2c; font-weight: bold; font-size: 1.4rem; }
+        .mendoza-line-divider::before, .mendoza-line-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 140px); height: 2px; background-color: #2c2c2c; }
+        .mendoza-line-divider::before { left: 0; }
+        .mendoza-line-divider::after { right: 0; }
+        .hits-squares-text { text-align: center; margin: 20px 0; font-size: 1.8rem; font-weight: normal; font-style: normal; font-family: 'Brush Script MT', cursive, 'Arial', sans-serif; color: #2c2c2c; line-height: 1.3; min-height: 2.6rem; display: flex; align-items: center; justify-content: center; }
+        .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: #cc99cc; }
+        .copyright a { color: #cc99cc; text-decoration: underline; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .modal.open { display: block; }
+        .modal-content { background-color: #feed89; margin: 20px auto; padding: 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+        .close { color: #2c2c2c; position: absolute; top: 10px; right: 15px; font-size: 28px; font-weight: bold; line-height: 20px; cursor: pointer; z-index: 10; }
+        .close:hover, .close:focus { color: #000; }
+        .rules-symbol-bottom { text-align: center; color: #2c2c2c; margin-top: 15px; font-size: 1rem; letter-spacing: -0.25rem; }
+        .rules-divider { text-align: center; margin: 20px 0; color: #feed89; background: black; font-weight: bold; font-size: 1rem; padding: 10px; }
+        .modal-content p { color: #2c2c2c; line-height: 1.5; margin-bottom: 12px; text-align: center; font-size: 0.95rem; }
+        .player-row { display: flex; align-items: center; padding: 15px 12px; border-bottom: 1px solid #ddd; position: relative; }
+        .player-row.first-place { background: black; color: #feed89; }
+        .player-row.second-place { background: #feed89; color: black; }
+        .player-row.odd-place { background: black; color: #feed89; }
+        .player-row.even-place { background: #feed89; color: black; }
+        .player-row:last-child { border-bottom: none; }
+        .player-info { flex: 1; display: flex; justify-content: space-between; align-items: center; min-width: 0; width: 100%; }
+        .player-name { font-size: 1.5rem; font-weight: bold; line-height: 1.2; position: relative; padding-left: 0; cursor: pointer; display: flex; align-items: center; }
+        .batting-stats { text-align: right; flex-shrink: 0; position: relative; min-width: 0; }
+        .batting-display { font-size: 1.5rem; font-weight: bold; line-height: 1.2; cursor: pointer; position: relative; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; text-align: right; }
+        .batting-average { position: relative; z-index: 1; text-align: right; }
+        .tap-tooltip { position: absolute; top: 0; right: 0; padding: 0; font-size: 1.5rem; font-weight: bold; z-index: 2; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; pointer-events: none; text-align: right; white-space: nowrap; height: 100%; display: flex; align-items: center; justify-content: flex-end; border-radius: 4px; width: 100%; }
+        .player-row.first-place .tap-tooltip, .player-row.odd-place .tap-tooltip { color: #feed89; background-color: black; }
+        .player-row.second-place .tap-tooltip, .player-row.even-place .tap-tooltip { color: black; background-color: #feed89; }
+        .batting-display:hover .tap-tooltip, .batting-display.active .tap-tooltip { opacity: 1; visibility: visible; }
+        .player-modal-content { background-color: #feed89; margin: 20px auto; padding: 30px 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+        .player-modal-header { text-align: center; margin-bottom: 20px; margin-top: 20px; position: relative; }
+        .player-modal-header h2 { font-size: 2rem; color: #feed89; background: black; margin-bottom: 10px; padding: 10px 60px 10px 60px; font-weight: bold; transition: opacity 0.2s; display: block; text-align: center; word-wrap: break-word; overflow-wrap: break-word; }
+        .player-modal-header .player-number { background-color: #feed89; color: black; font-size: 1rem; width: 1.5rem; height: 1.5rem; position: absolute; left: 10px; top: 50%; transform: translateY(-50%) rotate(45deg); margin-right: 0; z-index: 10; }
+        .player-modal-header h2:hover { opacity: 0.8; }
+        .player-modal-stats { text-align: center; color: #2c2c2c; margin-bottom: 15px; }
+        .player-modal-stats p { font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
+        .player-modal-stats strong { font-weight: bold; }
+        .screw-flanders { text-align: center; font-size: 1rem; line-height: 1.6; color: #2c2c2c; word-wrap: break-word; margin-top: 20px; margin-bottom: 15px; }
+        .bio-symbol { color: #feed89; margin-top: 15px; font-size: 0.75rem; font-weight: bold; background-color: black; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+        .player-number { display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; font-size: 0.8rem; font-weight: bold; margin-right: 0.6rem; flex-shrink: 0; transform: rotate(45deg); }
+        .player-number span { display: block; transform: rotate(-45deg); }
+        .player-row.first-place .player-number, .player-row.odd-place .player-number { background-color: #feed89; color: black; }
+        .player-row.second-place .player-number, .player-row.even-place .player-number { background-color: black; color: #feed89; }
+        .contact-modal-content { background-color: #feed89; margin: 20px auto; padding: 30px 20px; width: 80%; max-width: 500px; position: relative; max-height: calc(100vh - 40px); overflow-y: auto; }
+        .contact-modal-header { text-align: center; margin-bottom: 20px; }
+        .contact-modal-header h2 { font-size: 1.5rem; color: #2c2c2c; margin-bottom: 20px; font-weight: bold; }
+        .contact-form-group { margin-bottom: 20px; }
+        .contact-form-group label { display: block; color: #2c2c2c; font-weight: bold; margin-bottom: 8px; font-size: 0.9rem; }
+        .contact-form-group input, .contact-form-group textarea { width: 100%; padding: 10px; border: none; background: white; color: #2c2c2c; font-family: 'Arial', sans-serif; font-size: 0.95rem; border-radius: 0; outline: none; }
+        .contact-form-group input:focus, .contact-form-group textarea:focus { border: 2px solid black; padding: 8px; }
+        .contact-form-group textarea { min-height: 150px; resize: vertical; }
+        .contact-form-group input::placeholder, .contact-form-group textarea::placeholder { color: #555; opacity: 0.7; }
+        .contact-submit-btn { background: black; color: #feed89; border: none; padding: 12px 30px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; transition: opacity 0.2s; }
+        .contact-submit-btn:hover { opacity: 0.8; }
         @media (max-width: 768px) {
-            body {
-                padding: 8px;
-            }
-            
-            .header h1 {
-                font-size: 1.75rem;
-            }
-            
-            .header p {
-                font-size: 0.85rem;
-            }
-            
-            .mendoza-line-divider {
-                font-size: 1.2rem;
-            }
-            
-            .mendoza-line-divider::before,
-            .mendoza-line-divider::after {
-                width: calc(50% - 110px);
-            }
-            
-            .hits-squares-text {
-                font-size: 1.8rem;
-                min-height: 2.3rem;
-                font-style: normal;
-                font-weight: normal;
-            }
-            
-            .player-row {
-                padding: 12px 10px;
-            }
-            
-            .player-name {
-                font-size: 1.25rem;
-            }
-            
-            .batting-display {
-                font-size: 1.25rem;
-            }
-            
-            .tap-tooltip {
-                font-size: 1.25rem;
-                padding: 0;
-            }
-            
-            .mendoza-line-emoji {
-                font-size: 1.25rem;
-            }
-            
-            .game-status-dot {
-                font-size: 1.25rem;
-            }
+            body { padding: 8px; padding-bottom: 30px; }
+            .modal-content { width: 90%; margin: 10px auto; padding: 20px; max-height: calc(100vh - 20px); }
+            .player-modal-content { width: 90%; padding: 25px 15px; }
+            .player-modal-header h2 { font-size: 1.5rem; }
+            .player-modal-stats p { font-size: 0.9rem; }
+            .screw-flanders { font-size: 0.9rem; }
+            .rules-divider { font-size: 1rem; }
+            .header h1 { font-size: 1.75rem; }
+            .header-diamond { width: 1.05rem; height: 1.05rem; margin: 0 0.35rem; }
+            .header p { font-size: 0.85rem; }
+            .mendoza-line-divider { font-size: 1.2rem; }
+            .mendoza-line-divider::before, .mendoza-line-divider::after { width: calc(50% - 110px); }
+            .hits-squares-text { font-size: 1.8rem; min-height: 2.3rem; font-style: normal; font-weight: normal; }
+            .player-row { padding: 12px 10px; }
+            .player-name { font-size: 1.25rem; }
+            .batting-display { font-size: 1.25rem; }
+            .tap-tooltip { font-size: 1.25rem; padding: 0; }
         }
-    
-/* Additional game status dot colors */
-.game-status-dot.walk {
-    color: white;
-}
-.game-status-dot.sacrifice {
-    color: pink;
-}
-.game-status-dot.hbp {
-    color: #cc99cc;
-}
-
-@keyframes slowBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
-}
-
-#live-dot.blink {
-    animation: slowBlink 2s infinite;
-}
-
-
-/* Override color to match bar background if player is on IL */
-.player-row.first-place .game-status-dot.il-dot,
-.player-row.odd-place .game-status-dot.il-dot {
-    color: black; /* matches black bar */
-}
-
-.player-row.second-place .game-status-dot.il-dot,
-.player-row.even-place .game-status-dot.il-dot {
-    color: #feed85; /* matches yellow bar */
-}
-
-
-@keyframes pulseDot {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.3; transform: scale(1.3); }
-    100% { opacity: 1; transform: scale(1); }
-}
-
-.game-status-dot.at-bat-dot {
-    animation: pulseDot 1s infinite;
-}
-
-.game-status-dot.smiley-flash {
-    animation: pulseDot 1s infinite;
-}
-
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
-            <p class="race-title"><em>The 2nd Annual Running of the<br>Bob Uecker Memorial Race to .200</em></p>
+            <h1><strong><span class="header-diamond wave-emoji-1"></span><span class="header-diamond wave-emoji-2"></span><span class="header-diamond wave-emoji-3"></span> 2026 <span class="header-diamond wave-emoji-4"></span><span class="header-diamond wave-emoji-5"></span><span class="header-diamond wave-emoji-6"></span><br>MENDOZA STAKES</strong></h1>
+            <p class="race-title">Hits are for Squares⬩Since 2015</p>
         </div>
-        
-        <div id="content">
-            <div class="loading">Hold yer horses...</div>
+        <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
+        <div id="standings-container">
+            <!-- Player rows will be dynamically inserted here -->
         </div>
-        
+        <div style="text-align: center; margin: 15px 0;">
+            <div class="hits-squares-text">Next Race: Mar 25 – Sept 27</div>
+        </div>
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="live-dot" style="display: none;">• </span>LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner</p>
         </div>
-        <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
+        <div class="copyright">mendozaleague.com © 2026 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
+    </div>
+    <div id="rules-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" data-modal="rules">&times;</span>
+            <p style="font-size: 1.1rem; font-weight: bold; margin-top: 15px;">Pick which of our 11 batters will<br>finish closest* to The Mendoza Line!</p>
+            <div class="rules-divider">WAGERING</div>
+            <p><strong>Pre-Race Tickets: $25</strong><br><span style="font-size: 0.85rem;">Available during Spring Training</span></p>
+            <p><strong>Mid-Race Tickets: $45</strong><br><span style="font-size: 0.85rem;">Available during All-Star Break</span></p>
+            <div class="rules-divider">ENTRY/FEES</div>
+            <p>Please send picks & payments to<br>your loyal Commissioner via <a href="https://account.venmo.com/u/dudlawson" target="_blank" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">VENMO</a><br>before Monday, May 25, 2026</p>
+            <div class="rules-divider">PAYOUTS</div>
+            <p><strong>ALL-STAR BREAK: July 10, 2026</strong></p>
+            <p style="font-size: 0.8rem;">20% of purse split between ticket holders<br>of FIRST batter to reach 200 At Bats</p>
+            <p><strong>FINISH LINE: September 27, 2026</strong></p>
+            <p style="font-size: 0.8rem;">Remaining purse + all Mid-Race ticket funds<br>split between ticket holders of eligible batter<br>(MIN 200 AB) closest* to The Mendoza Line</p>
+            <p style="font-size: 0.8rem; font-style: italic; margin-top: 20px;">*Above or below a .200 Batting Average</p>
+            <div class="rules-symbol-bottom">⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩</div>
+        </div>
+    </div>
+    <div id="player-modal" class="modal">
+        <div class="player-modal-content">
+            <span class="close" data-modal="player">&times;</span>
+            <div class="player-modal-header">
+                <span id="player-modal-number"></span>
+                <h2 id="player-modal-name"></h2>
+            </div>
+            <div class="player-modal-stats">
+                <p id="player-modal-details"></p>
+                <p id="player-modal-2025-stats"></p>
+                <p id="player-modal-2026-stats"></p>
+                <p id="player-modal-games" style="font-size: 0.9rem; margin-top: 5px;"></p>
+            </div>
+            <div style="width: 100%; height: 6px; background-color: #2c2c2c; margin-bottom: 15px;"></div>
+            <div class="screw-flanders" id="player-modal-screw"></div>
+        </div>
+    </div>
+    <div id="contact-modal" class="modal">
+        <div class="contact-modal-content">
+            <span class="close" data-modal="contact">&times;</span>
+            <div class="contact-modal-header">
+                <h2>CONTACT YOUR LOYAL COMMISSIONER</h2>
+            </div>
+            <form id="contact-form" action="https://formspree.io/f/xnjpgbpj" method="POST">
+                <div class="contact-form-group">
+                    <label for="contact-email">YOUR EMAIL:</label>
+                    <input type="email" id="contact-email" name="email" required>
+                </div>
+                <div class="contact-form-group">
+                    <label for="contact-message">YOUR MESSAGE:</label>
+                    <textarea id="contact-message" name="message" placeholder="Qué tal, Commish??" required></textarea>
+                </div>
+                <button type="submit" class="contact-submit-btn">SEND MESSAGE</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        const randomPhrases = [
-            'Hits are for Squares!',
-            'Stakes is Mid',
-            'As Above | So Below',
-            'Your Perfect Fantasy',
-            'This is My Fantasy',
-            'Best we can do is our Worst',
-            'Do your Worst!',
-            'Not so Good ain\'t so Bad',
-            'Not so Bad ain\'t so Good',
-            'It\'s a Shame!',
-            'It\'s Good to be Okay',
-            'So it Goes!',
-            'Batting & Nothingness',
-            'Root for Nothing!',
-            'Greetings from the Middle West',
-            '...& They\'re Off!!!',
-            'No one can give more than 100% by definition that is the most anyone can give',
-            'Hang the D.H.',
-            'Put Manny in the Hall',
-            'Congratulations to 2025 Kentucky Derby winner Sovereignity',
-            'Congratulations to 2025 Preakness Stakes winner Journalism',
-            'Congratulations to 2025 Belmont Stakes winner Sovereignity',
-            'So... Big Gulps, huh?',
-            'Put Barry in the Hall',
-            '...& Here Come the Pretzels!',
-            'Trim those sideburns!',
-            'Strikeouts are Fascist',
-            'You guys are guests in my Corn.'
-        ];
+const playerData={
+    1:{name:"P.C.A.",number:"4",fullName:"Pete Crow-Armstrong",wbcFlag:"🇺🇸",mlbId:691718,age:23,height:"6'0\"",weight:"184lbs",battingAvg2025:".247/591AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/crowape01.shtml",bio:"<i>Technically</i> their mascot is a pantsless bear named Clark, but the <i>real</i> face of the Cubs is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats, hit a Khris Davis-approved .247 & smacked 31 home runs… but only 7 of those came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"},
+    2:{name:"M. MURAKAMI",number:"5",fullName:"Munetaka Murakami",wbcFlag:"🇯🇵",mlbId:null,age:25,height:"6'2\"",weight:"213lbs",battingAvg2025:"*",battingAvgValue:".273/187AB",games:"",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muraka000mun",bio:"One of the biggest bats in Japanese baseball history is bringing his talent (& 30% strikeout rate) to the south side of Chicago! Murakami hit a Nippon Professional Baseball record 56 hōmurans in 2022. He most recently missed about half of last season with an oblique injury, but still hit .273 with 187 At Bats *in 56 games. That was against Japanese pitching, though… & the only MLB front office willing to take the risk was none other than Chicago's American League ballclub. Never change, Jerry!!"},
+    3:{name:"M. MUNCY",number:"10",fullName:"Max Muncy (AL)",wbcFlag:null,mlbId:null,age:23,height:"6'1\"",weight:"180lbs",battingAvg2025:".214/206AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muncy-002max",bio:"In 2025, Max Muncy finished his rookie season 14 points above The Mendoza Line in 208 At Bats. Let's be clear this Max Muncy is NOT the Max Muncy who competed in last year's Mendoza Stakes. THAT Max Muncy is a 10-year veteran infielder for the Los Angeles National League ballclub. THIS Max Muncy is an infielder for the SACRAMENTO American League ballclub. The wildest part is you can't even say this Max Muncy is \"the one born on August 25\" because BOTH Maxes Muncy were born on August 25th. How about that!"},
+    4:{name:"B. NAYLOR",number:"14",fullName:"Noah-Gibson \"Bo\" Naylor",wbcFlag:null,mlbId:647304,age:25,height:"6'0\"",weight:"205lbs",battingAvg2025:".195/359AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/n/naylobo01.shtml",bio:"If Noah-Gibson Naylor, better known as Bo, sounds vaguely familiar it's probably because his older brother Josh plays for the Mariners. Bo only hit .195 last season, yet still seems to be Cleveland's guy behind the plate in the foreseeable future. At the time of this writing, the other two catchers on their roster are David Fry (.171/146AB) and journeyman Austin Hedges (.161/155) so it seems like his job is safe? You can only go up from here, Bo! Unless you go down, of course. That's still a very real possibility."},
+    5:{name:"O. CRUZ",number:"15",fullName:"Oneil Cruz",wbcFlag:"🇩🇴",mlbId:665833,age:25,height:"6'7\"",weight:"240lbs",battingAvg2025:".200/514AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/cruzon01.shtml",bio:"Holy cow, could Oneil Cruz be the true heir to the Mendoza Crown? Not only does he play Mario Mendoza's position on the team Mario Mendoza spent most of his career playing for — he also hit EXACTLY .200 last year. Not even Mario Mendoza himself ever did that!!"},
+    6:{name:"C. MOREL",number:"24",fullName:"Christopher Morel",wbcFlag:null,mlbId:666624,age:26,height:"6'0\"",weight:"200lbs",battingAvg2025:".219/278AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/morelch01.shtml",bio:"Christopher Morel paints two lines of eye black on his cheeks like Peter Criss from Kiss. Maybe it's more Hello Kitty? Either way, it's pretty goofy. Morel dipped below The Mendoza Line in 2024, & getting back on top last season wasn't enough to keep him from getting DFAd by Tampa Bay last December. He signed a one-year deal to play first base for Miami — a position he has never played before in his life. It's <i>Moneyball</i>, y'all! Chris Morel is Chris Pratt!!"},
+    7:{name:"D. MOORE",number:"25",fullName:"Dylan Moore",wbcFlag:null,mlbId:664238,age:32,height:"6'0\"",weight:"205lbs",battingAvg2025:".201/219AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/mooredy01.shtml",bio:"Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"},
+    8:{name:"L. ROBERT Jr.",number:"88",fullName:"Luis Robert, Jr.",wbcFlag:null,mlbId:673357,age:28,height:"6'3\"",weight:"225lbs",battingAvg2025:".224/395AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/r/roberlu01.shtml",bio:"SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME"},
+    9:{name:"-------------------",number:"",fullName:"-------------------",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
+    10:{name:"-------------------",number:"",fullName:"-------------------",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
+    11:{name:"-------------------",number:"",fullName:"-------------------",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""}
+};
 
-        function getRandomPhrase() {
-            const random = Math.random();
-            if (random < 0.2) {
-                return 'Hits are for Squares!';
-            } else {
-                const otherPhrases = randomPhrases.slice(1);
-                return otherPhrases[Math.floor(Math.random() * otherPhrases.length)];
-            }
-        }
+let playersArray = [];
 
-        const currentPhrase = getRandomPhrase();
-        let isInitialLoad = true;
-
-        const players = {
-            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', league: 'NL' },
-            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', league: 'AL' },
-            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', league: 'AL' },
-            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', league: 'NL' },
-            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', league: 'AL' },
-            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', league: 'NL' },
-            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', league: 'AL' },
-            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', league: 'NL' },
-            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', league: 'NL' },
-            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ KOREY L.', league: 'AL' },
-            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', league: 'AL' }
-        };
-
-        let playerData = [];
-        let previousPlayerStats = {};
-        let refreshInterval;
-        let isRefreshActive = false;
-        let isUpdatingContent = false;
-    updateLiveDotBasedOnPlayers();
-
-        function updateLiveIndicator(hasActiveGames) {
-            const liveIndicator = document.getElementById('live-indicator');
-            if (liveIndicator) {
-                if (hasActiveGames) {
-                    // liveIndicator.classList.add('live-blink');
-                } else {
-                    // liveIndicator.classList.remove('live-blink');
-                }
-            }
-        }
-
-        async function checkGameStatus(player) {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const teamId = player.currentTeam?.id;
-                
-                if (!teamId) return false;
-                
-                const scheduleResponse = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
-                
-                if (!scheduleResponse.ok) return false;
-                
-                const schedule = await scheduleResponse.json();
-                
-                if (!schedule.dates || schedule.dates.length === 0) return false;
-                
-                const games = schedule.dates[0].games;
-                
-                // Check if team has an active game today
-                return games.some(game => {
-                    const statusCode = game.status.statusCode;
-                    return statusCode === 'P' ||  // Pre-Game
-                           statusCode === 'I' ||  // In Progress  
-                           statusCode === 'W' ||  // Warmup
-                           statusCode === 'D' ||  // Delayed
-                           statusCode === 'T';    // Suspended
-                });
-                
-            } catch (error) {
-    console.error('❌ fetchPlayerStats failed:', error);
-                console.error('Error checking game status for player:', error);
-                return false;
-            }
-        }
-
-        async function shouldRefresh() {
-            try {
-                const today = new Date().toISOString().split('T')[0];
-                const scheduleResponse = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}`);
-                
-                if (!scheduleResponse.ok) {
-                    console.warn('Could not fetch schedule, defaulting to refresh');
-                    return true;
-                }
-                
-                const schedule = await scheduleResponse.json();
-                
-                if (!schedule.dates || schedule.dates.length === 0) {
-                    console.log('No games scheduled for today');
-                    return false;
-                }
-                
-                const games = schedule.dates[0].games;
-                
-                // Check if any games are actually live/in progress
-                const hasActiveGames = games.some(game => {
-                    const statusCode = game.status.statusCode;
-                    return statusCode === 'P' ||  // Pre-Game (starting soon)
-                           statusCode === 'I' ||  // In Progress
-                           statusCode === 'W' ||  // Warmup (just before start)
-                           statusCode === 'D' ||  // Delayed
-                           statusCode === 'T';    // Suspended
-                });
-                
-                console.log(`Games active: ${hasActiveGames}, Total games today: ${games.length}`);
-                
-                updateLiveIndicator(hasActiveGames);
-                
-                return hasActiveGames;
-                
-            } catch (error) {
-    console.error('❌ fetchPlayerStats failed:', error);
-                console.error('Error checking game schedule:', error);
-                updateLiveIndicator(false);
-                return true;
-            }
-        }
-
-        function startRefreshInterval() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-            
-            refreshInterval = setInterval(async () => {
-                const shouldDoRefresh = await shouldRefresh();
-                
-                if (shouldDoRefresh && !isRefreshActive) {
-                    console.log('Games are active - starting refresh');
-                    isRefreshActive = true;
-                    fetchPlayerStats();
-                } else if (!shouldDoRefresh && isRefreshActive) {
-                    console.log('No games active - stopping refresh');
-                    isRefreshActive = false;
-                } else if (shouldDoRefresh && isRefreshActive) {
-                    fetchPlayerStats();
-                }
-            }, 30000);
-        }
-
-        
-const MLB_TEAM_NAMES = [
-  "Yankees", "Red Sox", "Blue Jays", "Orioles", "Rays",
-  "White Sox", "Guardians", "Tigers", "Royals", "Twins",
-  "Astros", "Mariners", "Rangers", "Athletics", "Angels",
-  "Braves", "Phillies", "Mets", "Marlins", "Nationals",
-  "Cubs", "Cardinals", "Brewers", "Pirates", "Reds",
-  "Dodgers", "Giants", "Padres", "Rockies", "Diamondbacks"
-];
-
-function checkMinorLeagueStatus(player) {
-    const teamName = player.currentTeam?.name || '';
-    const isInMajorLeague = MLB_TEAM_NAMES.some(name => teamName.includes(name));
-
-    return (
-        player.currentTeam == null ||
-        !isInMajorLeague ||
-        (player.rosterEntries && player.rosterEntries.some(e => e.roster?.rosterType === 'minors'))
-    );
+function initializePlayers() {
+    playersArray = Object.keys(playerData).map((id, index) => ({
+        id: parseInt(id),
+        originalOrder: index,
+        ...playerData[id],
+        currentAvg: null,
+        liveAtBats: null,
+        liveHits: null,
+        distanceFrom200: 1000
+    }));
+    renderPlayers();
 }
 
-function checkILStatus(player) {
+function calculateDistanceFrom200(avg) {
+    if (avg === null || avg === undefined || isNaN(avg)) return 1000;
+    return Math.abs(avg - 0.200);
 }
 
-
-function checkDFAStatus(player) {
-    // DFA or free agent if no current team, not in minors, and not IL
-    const hasNoTeam = !player.currentTeam;
-    const rosterEmpty = !player.rosterEntries || player.rosterEntries.length === 0;
-    const isReleased = player.currentTeam?.name === 'Free Agent';
-
-    return hasNoTeam || rosterEmpty || isReleased;
+function rankPlayers() {
+    playersArray.sort((a, b) => {
+        const distA = a.distanceFrom200;
+        const distB = b.distanceFrom200;
+        if (distA !== distB) return distA - distB;
+        return a.originalOrder - b.originalOrder;
+    });
 }
 
-            let isOnIL = false;
-            
-            if (player.rosterEntries && player.rosterEntries.length > 0) {
-                for (const entry of player.rosterEntries) {
-                    const status = entry.status;
-                    if (status) {
-                        const statusCode = status.code || status.statusCode || '';
-                        if (statusCode.includes('IL') || statusCode.includes('DL') || 
-                            statusCode === 'D10' || statusCode === 'D15' || statusCode === 'D60') {
-                            isOnIL = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            return isOnIL;
-        }
-
-        function updateTimestamp() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            });
-            
-            const timestampElement = document.getElementById('last-updated');
-            if (timestampElement) {
-                timestampElement.textContent = timeString;
-            }
-        }
-
-        
-async function checkLineupStatus(playerId, teamId) {
-    try {
-        const today = new Date().toISOString().split('T')[0];
-        const scheduleRes = await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&teamId=${teamId}`);
-        if (!scheduleRes.ok) return false;
-
-        const scheduleData = await scheduleRes.json();
-        if (!scheduleData.dates || scheduleData.dates.length === 0) return false;
-
-        const game = scheduleData.dates[0].games.find(g => g.teams.home.team.id === teamId || g.teams.away.team.id === teamId);
-        if (!game) return false;
-
-        const gamePk = game.gamePk;
-        const boxscoreRes = await fetch(`https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`);
-        if (!boxscoreRes.ok) return false;
-
-        const boxscoreData = await boxscoreRes.json();
-        const allPlayers = { ...boxscoreData.teams.home.players, ...boxscoreData.teams.away.players };
-
-        for (const key in allPlayers) {
-            const player = allPlayers[key];
-            if (player.person.id === playerId) {
-                if (player.status?.code === 'EJECTED') return false;
-                if (player.gameStatus?.isInGame === true) return true;
-                if (player.battingOrder) return true;
-            }
-        }
-
-        return false;
-    } catch (e) {
-        console.error('Lineup check failed', e);
-        return false;
+function getRowClass(index, playersArray) {
+    // Check if we have any live data
+    const hasLiveData = playersArray.some(p => p.currentAvg !== null && !isNaN(p.currentAvg));
+    
+    // If no live data yet, just alternate black/yellow
+    if (!hasLiveData) {
+        return index % 2 === 0 ? 'first-place' : 'second-place';
     }
+    
+    // With live data, use ranking logic
+    if (index === 0) return 'first-place';
+    
+    const currentDist = playersArray[index].distanceFrom200;
+    const prevDist = playersArray[index - 1].distanceFrom200;
+    
+    if (Math.abs(currentDist - prevDist) < 0.0001) {
+        return getRowClass(index - 1, playersArray);
+    }
+    
+    let rank = 1;
+    for (let i = 1; i < index; i++) {
+        const dist1 = playersArray[i].distanceFrom200;
+        const dist2 = playersArray[i - 1].distanceFrom200;
+        if (Math.abs(dist1 - dist2) >= 0.0001) {
+            rank++;
+        }
+    }
+    
+    if (rank === 1) return 'second-place';
+    return rank % 2 === 0 ? 'even-place' : 'odd-place';
 }
 
-
-async function fetchPlayerStats() {
-    console.log('⚾ fetchPlayerStats called');
-            try {
-                const currentYear = new Date().getFullYear();
-                const playerIds = Object.values(players).map(p => p.id).join(',');
-                
-                const response = await fetch(`https://statsapi.mlb.com/api/v1/people?personIds=${playerIds}&hydrate=stats(group=[hitting],type=[season],season=${currentYear}),currentTeam,rosterEntries`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+function renderPlayers() {
+    const container = document.getElementById('standings-container');
+    container.innerHTML = '';
+    
+    // Check if we're during World Baseball Classic (March 5-17, 2026)
+    const now = new Date();
+    const wbcStart = new Date('2026-03-05T00:00:00');
+    const wbcEnd = new Date('2026-03-17T23:59:59');
+    const isWBC = now >= wbcStart && now <= wbcEnd;
+    
+    // Determine who gets the diamond (⬥)
+    let diamondPlayerId = null;
+    const playersWithData = playersArray.filter(p => p.liveAtBats !== null && p.liveAtBats > 0);
+    
+    if (playersWithData.length > 0) {
+        // Check if any player has reached 200 at-bats
+        const playersOver200 = playersWithData.filter(p => p.liveAtBats >= 200);
+        
+        if (playersOver200.length > 0) {
+            // At least one player has 200+ AB: give diamond to closest to .200
+            let closestPlayer = playersOver200[0];
+            let closestDistance = calculateDistanceFrom200(closestPlayer.currentAvg);
+            
+            for (let player of playersOver200) {
+                const distance = calculateDistanceFrom200(player.currentAvg);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestPlayer = player;
                 }
+            }
+            diamondPlayerId = closestPlayer.id;
+        } else {
+            // No one has 200 AB yet: give diamond to player with most at-bats
+            let mostABPlayer = playersWithData[0];
+            for (let player of playersWithData) {
+                if (player.liveAtBats > mostABPlayer.liveAtBats) {
+                    mostABPlayer = player;
+                }
+            }
+            diamondPlayerId = mostABPlayer.id;
+        }
+    }
+    
+    playersArray.forEach((player, index) => {
+        const rowClass = getRowClass(index, playersArray);
+        
+        let avgDisplay = '.---';
+        let atBatsDisplay = '---AB';
+        
+        if (player.currentAvg !== null && !isNaN(player.currentAvg)) {
+            avgDisplay = player.currentAvg.toFixed(3);
+            atBatsDisplay = `${player.liveAtBats || 0}AB`;
+        }
+        
+        // Build the display name with number circle
+        let displayName = '';
+        
+        // Add number diamond if player has a number, or empty diamond if no number
+        if (player.number) {
+            displayName += `<span class="player-number"><span>${player.number}</span></span>`;
+        } else {
+            displayName += `<span class="player-number"><span></span></span>`;
+        }
+        
+        // Add player name
+        displayName += player.name;
+        
+        // Add WBC flag if during WBC and player has a flag
+        if (isWBC && player.wbcFlag) {
+            displayName += ' ' + player.wbcFlag;
+        }
+        
+        // Add diamond if this player should have it
+        if (player.id === diamondPlayerId) {
+            displayName += '⬥';
+        }
+        
+        const row = document.createElement('div');
+        row.className = `player-row ${rowClass}`;
+        row.setAttribute('data-player-id', player.id);
+        
+        row.innerHTML = `
+            <div class="player-info">
+                <div class="player-name">${displayName}</div>
+                <div class="batting-stats">
+                    <div class="batting-display">
+                        <div class="batting-average">${avgDisplay}</div>
+                        <div class="tap-tooltip">${atBatsDisplay}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(row);
+    });
+    
+    attachEventListeners();
+}
+
+function attachEventListeners() {
+    document.querySelectorAll('.player-name').forEach(el => {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const playerId = parseInt(this.closest('.player-row').getAttribute('data-player-id'));
+            openPlayerModal(playerId);
+        });
+    });
+    
+    document.querySelectorAll('.batting-display').forEach(display => {
+        display.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.toggle('active');
+        });
+        
+        display.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.classList.toggle('active');
+        });
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.batting-display')) {
+            document.querySelectorAll('.batting-display').forEach(display => {
+                display.classList.remove('active');
+            });
+        }
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        if (!e.target.closest('.batting-display')) {
+            document.querySelectorAll('.batting-display').forEach(display => {
+                display.classList.remove('active');
+            });
+        }
+    });
+}
+
+function openPlayerModal(playerId) {
+    const player = playerData[playerId];
+    if (!player) return;
+    
+    const modal = document.getElementById('player-modal');
+    const nameEl = document.getElementById('player-modal-name');
+    const numberEl = document.getElementById('player-modal-number');
+    
+    // Use fullName for modal
+    const displayName = player.fullName || player.name;
+    
+    // Populate the diamond number separately
+    if (player.number) {
+        numberEl.innerHTML = '<span class="player-number"><span>' + player.number + '</span></span>';
+    } else {
+        numberEl.innerHTML = '<span class="player-number"><span></span></span>';
+    }
+    
+    // Convert name to uppercase
+    const upperDisplayName = displayName.toUpperCase();
+    
+    // Build name content (no diamond here)
+    let htmlContent = '';
+    
+    if (player.url && player.url !== '') {
+        nameEl.style.cursor = 'pointer';
+        nameEl.onclick = function() { window.open(player.url, '_blank'); };
+        
+        // Parse out suffixes like (AL) or , Jr.
+        const match = displayName.match(/^(.+?)(,\s*Jr\.|,\s*Sr\.|,\s*III|,\s*IV|\s+\(.+\))?$/);
+        if (match) {
+            const name = match[1].toUpperCase();  // Main name without suffix (uppercase)
+            const suffix = match[2] ? match[2].toUpperCase() : '';  // Suffix like ", Jr." or " (AL)" (uppercase)
+            htmlContent += '<u>' + name + '</u>' + suffix;
+        } else {
+            htmlContent += '<u>' + upperDisplayName + '</u>';
+        }
+    } else {
+        nameEl.style.cursor = 'default';
+        nameEl.onclick = null;
+        htmlContent += upperDisplayName;
+    }
+    
+    nameEl.innerHTML = htmlContent;
+    
+    document.getElementById('player-modal-details').innerHTML = 
+        'Age: ' + player.age + ' | Height: ' + player.height + ' | Weight: ' + player.weight;
+    
+    if (player.battingAvg2025 === '*') {
+        document.getElementById('player-modal-2025-stats').innerHTML = 
+            '<strong>2025* Batting Avg./At Bats: ' + player.battingAvgValue + '</strong>';
+    } else {
+        document.getElementById('player-modal-2025-stats').innerHTML = 
+            '<strong>2025 Batting Avg./At Bats: ' + player.battingAvg2025 + '</strong>';
+    }
+    
+    document.getElementById('player-modal-2026-stats').innerHTML = 
+        '<strong>2026 PECOTA Projection: ' + player.pecota2026 + '</strong>';
+    
+    if (player.games) {
+        document.getElementById('player-modal-games').textContent = '*' + player.games;
+    } else {
+        document.getElementById('player-modal-games').textContent = '';
+    }
+    
+    const screwDiv = document.getElementById('player-modal-screw');
+    if (player.bio && player.bio.trim() !== '') {
+        screwDiv.innerHTML = player.bio;
+    } else {
+        screwDiv.textContent = 'SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME';
+    }
+    
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+async function fetchMLBStats() {
+    try {
+        for (let player of playersArray) {
+            if (!player.mlbId) continue;
+            
+            try {
+                const response = await fetch(
+                    `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=stats(group=[hitting],type=[season],season=2026)`
+                );
+                
+                if (!response.ok) continue;
                 
                 const data = await response.json();
+                const person = data.people[0];
                 
-                // Process players with async game status checks
-                const processedPlayers = await Promise.all(data.people.map(async (player) => {
-                    const hittingStats = player.stats?.[0]?.splits?.[0]?.stat;
-                    const battingAvg = hittingStats?.avg ? parseFloat(hittingStats.avg) : 0;
-                    const distanceTo200 = Math.abs(battingAvg - 0.200);
+                if (person.stats && person.stats.length > 0) {
+                    const hittingStats = person.stats.find(s => 
+                        s.group.displayName === 'hitting' && s.type.displayName === 'season'
+                    );
                     
-                    const isOnIL = checkILStatus(player);
-                    const isInMinors = checkMinorLeagueStatus(player);
-                    const isDFA = checkDFAStatus(player);
-                    
-const isInGame = await checkGameStatus(player);
-const isInLineup = await checkLineupStatus(player.id, player.currentTeam?.id);
-
-
- // Now properly awaited
-                    const playerInfo = Object.values(players).find(p => p.id === player.id);
-                    let displayName = playerInfo ? playerInfo.displayName : player.fullName;
-                    
-                    const league = playerInfo ? playerInfo.league : 'Unknown';
-                    
-                    const playerId = player.id;
-                    const previousStats = previousPlayerStats[playerId];
-                    let statChange = null;
-                    
-                    if (previousStats && !isInitialLoad) {
-                        const previousDistance = previousStats.distanceTo200;
-                        
-                        if (distanceTo200 < previousDistance) {
-                            statChange = 'closer';
-                        } else if (distanceTo200 > previousDistance) {
-                            statChange = 'farther';
-                        }
+                    if (hittingStats && hittingStats.splits && hittingStats.splits.length > 0) {
+                        const stats = hittingStats.splits[0].stat;
+                        player.currentAvg = parseFloat(stats.avg) || 0;
+                        player.liveAtBats = stats.atBats || 0;
+                        player.liveHits = stats.hits || 0;
+                        player.distanceFrom200 = calculateDistanceFrom200(player.currentAvg);
                     }
-                    
-                    previousPlayerStats[playerId] = {
-                        battingAverage: battingAvg,
-                        distanceTo200: distanceTo200,
-                        atBats: hittingStats?.atBats || 0,
-                        hits: hittingStats?.hits || 0,
-                        homeRuns: hittingStats?.homeRuns || 0,
-                        strikeOuts: hittingStats?.strikeOuts || 0
-                    };
-                    
-                    return {
-                        id: player.id,
-                        name: player.fullName,
-                        displayName: displayName,
-                        team: player.currentTeam?.name || 'Unknown',
-                        league: league,
-                        battingAverage: battingAvg,
-                        distanceTo200: distanceTo200,
-                        atBats: hittingStats?.atBats || 0,
-                        hits: hittingStats?.hits || 0,
-                        isOnIL: isOnIL,
-                        isInGame: isInGame,
-                        statChange: statChange,
-                        isActive: isInLineup,
-                        isInMinors: isInMinors,
-                        isDFA: isDFA
-                    };
-                }));
-                
-                playerData = processedPlayers.sort((a, b) => a.distanceTo200 - b.distanceTo200);
-
-// Detect mirrored pair: same distance, opposite sides
-const mirroredPairs = [];
-for (let i = 0; i < playerData.length; i++) {
-    for (let j = i + 1; j < playerData.length; j++) {
-        const p1 = playerData[i];
-        const p2 = playerData[j];
-
-        if (p1.distanceTo200 === p2.distanceTo200 &&
-            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
-            mirroredPairs.push(p1.id, p2.id);
-            break;
+                }
+            } catch (err) {
+                console.error(`Error fetching stats for ${player.name}:`, err);
+            }
         }
+        
+        rankPlayers();
+        renderPlayers();
+        
+    } catch (error) {
+        console.error('Error fetching MLB stats:', error);
     }
-    if (mirroredPairs.length > 0) break;
 }
 
-playerData.forEach(player => {
-    player.isMirrored = mirroredPairs.includes(player.id);
+initializePlayers();
+setTimeout(fetchMLBStats, 2000);
+setInterval(fetchMLBStats, 300000);
+
+const link=document.createElement('link');
+link.rel='icon';
+link.href='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2225%22 y=%2225%22 width=%2250%22 height=%2250%22 fill=%22%23feed89%22 transform=%22rotate(45 50 50)%22/><text x=%2250%22 y=%2262%22 font-size=%2232%22 font-weight=%22bold%22 fill=%22black%22 text-anchor=%22middle%22>11</text></svg>';
+document.head.appendChild(link);
+
+document.addEventListener('DOMContentLoaded',function(){
+    const rulesModal=document.getElementById('rules-modal');
+    const playerModal=document.getElementById('player-modal');
+    const contactModal=document.getElementById('contact-modal');
+    const rulesTrigger=document.getElementById('rules-trigger');
+    const contactTrigger=document.getElementById('contact-trigger');
+    
+    rulesTrigger.addEventListener('click',function(e){
+        e.preventDefault();
+        rulesModal.classList.add('open');
+        document.body.style.overflow='hidden';
+    });
+    
+    contactTrigger.addEventListener('click',function(e){
+        e.preventDefault();
+        contactModal.classList.add('open');
+        document.body.style.overflow='hidden';
+    });
+    
+    document.querySelectorAll('.close').forEach(btn=>{
+        btn.addEventListener('click',function(){
+            const modalType=this.getAttribute('data-modal');
+            if(modalType==='rules'){
+                rulesModal.classList.remove('open');
+            }else if(modalType==='player'){
+                playerModal.classList.remove('open');
+            }else if(modalType==='contact'){
+                contactModal.classList.remove('open');
+            }
+            document.body.style.overflow='';
+        });
+    });
+    
+    window.addEventListener('click',function(event){
+        if(event.target==rulesModal){
+            rulesModal.classList.remove('open');
+            document.body.style.overflow='';
+        }
+        if(event.target==playerModal){
+            playerModal.classList.remove('open');
+            document.body.style.overflow='';
+        }
+        if(event.target==contactModal){
+            contactModal.classList.remove('open');
+            document.body.style.overflow='';
+        }
+    });
+    
+    document.getElementById('contact-form').addEventListener('submit',function(e){
+        const submitBtn=this.querySelector('.contact-submit-btn');
+        submitBtn.textContent="& THEY'RE OFF!!";
+        submitBtn.disabled=true;
+    });
 });
 
-                renderLeaderboard();
-    console.log('✅ fetchPlayerStats success');
-                updateTimestamp();
-                
-                if (isInitialLoad) {
-                    isInitialLoad = false;
-                }
-                
-            } catch (error) {
-    console.error('❌ fetchPlayerStats failed:', error);
-                console.error('Error fetching player stats:', error);
-                const content = document.getElementById('content');
-                if (content) {
-                    content.innerHTML = `
-                        <div class="error">
-                            You gotta be online for that...
-                            <br><small>Error: ${error.message}</small>
-                        </div>
-                    `;
-                }
-            }
-        }
-
-        
-function getMirroredFooterPhrase() {
-    const lastWasAbove = localStorage.getItem('lastMirroredPhraseWasAbove') === 'true';
-    const nextPhrase = lastWasAbove ? 'So Below | As Above' : 'As Above | So Below';
-    localStorage.setItem('lastMirroredPhraseWasAbove', (!lastWasAbove).toString());
-    return nextPhrase;
+function updateCountdown(){
+    const postTime=new Date('2026-03-25T00:00:00').getTime();
+    const now=new Date().getTime();
+    const distance=postTime-now;
+    
+    if(distance<0){
+        document.getElementById('countdown-timer').textContent='00:00:00:00';
+        return;
+    }
+    
+    const days=Math.floor(distance/(1000*60*60*24));
+    const hours=Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+    const minutes=Math.floor((distance%(1000*60*60))/(1000*60));
+    const seconds=Math.floor((distance%(1000*60))/1000);
+    
+    const formatted=String(days).padStart(2,'0')+':'+
+                    String(hours).padStart(2,'0')+':'+
+                    String(minutes).padStart(2,'0')+':'+
+                    String(seconds).padStart(2,'0');
+    
+    document.getElementById('countdown-timer').textContent=formatted;
 }
 
+updateCountdown();
+setInterval(updateCountdown,1000);
 
-function renderLeaderboard() {
-            const content = document.getElementById('content');
-            
-            if (!content) return;
-            
-            if (playerData.length === 0) {
-                content.innerHTML = '<div class="error">I don\'t know her...</div>';
-                return;
-            }
-            
-            isUpdatingContent = true;
-            
-            let shouldPreserveScroll = false;
-            let currentScrollY = 0;
-            
-            let leaderboard = content.querySelector('.leaderboard');
-            
-            if (leaderboard && !isInitialLoad) {
-                shouldPreserveScroll = true;
-                currentScrollY = window.scrollY;
-            }
-            
-            if (!leaderboard) {
-                
-let mirroredFooter = null;
+const staticMessages=['Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Our 11<sup>th</sup> "Glorious" Season','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','"Congratulations" to 2025 Champ D. Moore','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','It\'s the Race for Two Hundred!!','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','R.I.P. Mister Baseball','Diamond Life','Diamond Life!!!!!!!!!!!','Your Perfect Fantasy','Mario\'s Eleventh Affair'];
 
-// Detect mirrored pair
-for (let i = 0; i < playerData.length; i++) {
-    for (let j = i + 1; j < playerData.length; j++) {
-        const p1 = playerData[i];
-        const p2 = playerData[j];
+let lastMessage=localStorage.getItem('lastMessage')||'';
+let randomIndex;
+let newMessage;
 
-        if (p1.distanceTo200 === p2.distanceTo200 &&
-            Math.sign(p1.battingAverage - 0.200) !== Math.sign(p2.battingAverage - 0.200)) {
-            mirroredFooter = getMirroredFooterPhrase();
-            break;
-        }
-    }
-    if (mirroredFooter) break;
-}
+do{
+    randomIndex=Math.floor(Math.random()*staticMessages.length);
+    newMessage=staticMessages[randomIndex];
+}while(newMessage===lastMessage);
 
-const footerPhrase = mirroredFooter || currentPhrase;
-
-content.innerHTML = `
-    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
-    <div class="leaderboard"></div>
-    <div class="hits-squares-text">${footerPhrase}</div>
-`;
-
-                leaderboard = content.querySelector('.leaderboard');
-            }
-            
-            
-
-
-
-
-let rowClasses = [];
-let lastRoundedAvg = null;
-let firstGroupAssigned = false;
-let secondGroupAssigned = false;
-let colorToggle = false;
-
-
-const topAvg = playerData[0].battingAverage.toFixed(3);
-const topCount = playerData.filter(p => p.battingAverage.toFixed(3) === topAvg).length;
-const hasSoleFirstPlace = topCount === 1;
-
-playerData.forEach((player, index) => {
-    const isFirstPlace = index === 0 && hasSoleFirstPlace;
-
-    const roundedAvg = player.battingAverage.toFixed(3);
-
-    if (!firstGroupAssigned) {
-        rowClasses.push('first-place');
-        lastRoundedAvg = roundedAvg;
-        firstGroupAssigned = true;
-    } else if (roundedAvg === lastRoundedAvg || (player.isMirrored && playerData[index - 1]?.isMirrored)) {
-        rowClasses.push(rowClasses[index - 1]);
-    } else if (!secondGroupAssigned) {
-        rowClasses.push('second-place');
-        lastRoundedAvg = roundedAvg;
-        secondGroupAssigned = true;
-    } else {
-        const nextClass = colorToggle ? 'even-place' : 'odd-place';
-        rowClasses.push(nextClass);
-        colorToggle = !colorToggle;
-        lastRoundedAvg = roundedAvg;
-    }
-});
-
-
-
-
-
-if (leaderboard) {
-                leaderboard.innerHTML = playerData.map((player, index) => {
-                    let rowClass = rowClasses[index];
-                    
-                    
-                    const isAtMendozaLine = player.battingAverage === 0.200;
-                    const isFirstPlace = index === 0;
-                    
-                    return `
-                        <div class="player-row ${rowClass}">
-                            <div class="player-info">
-                                <div>
-                                    <div class="player-name">
-                                        ${player.displayName}${player.isMirrored ? " ↕" : ""}
-                                        ${player.isInGame && player.isActive && !player.isOnIL ? 
-    (isAtMendozaLine ? 
-        `<span class="game-status-dot ${player.isAtBat && isAtMendozaLine ? "smiley-flash" : ""} ${player.statChange === "closer" ? "flash-dot-green" : ""} ${player.statChange === "farther" ? "flash-dot-red" : ""}">😎</span>` :
-        `<span class="game-status-dot ${player.statChange === 'closer' ? 'flash-dot-green' : ''} ${player.statChange === 'farther' ? 'flash-dot-red' : ''}">•</span>`
-    ) : 
-    (isAtMendozaLine ? `<span class="mendoza-line-emoji">😎</span>` : '') }
-                                    </div>
-                                </div>
-                                <div class="batting-stats">
-                                    <div class="batting-display" data-player-id="${player.id}">
-                                        <div class="batting-average">
-                                            <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
-                                        </div>
-                                        <div class="tap-tooltip">
-                                            <span style="font-style: normal;">${isFirstPlace && hasSoleFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.isInMinors ? '↓ ' : ''}${player.isDFA ? '🦤 ' : ''}${player.atBats < 200 ? `${player.atBats}/200AB` : `${player.atBats}AB`}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                const battingDisplays = leaderboard.querySelectorAll('.batting-display');
-                battingDisplays.forEach(display => {
-                    display.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        
-                        battingDisplays.forEach(other => {
-                            if (other !== display) {
-                                other.classList.remove('active');
-                            }
-                        });
-                        
-                        display.classList.toggle('active');
-                    });
-                    
-                    display.addEventListener('touchstart', function(e) {
-                        e.preventDefault();
-                        
-                        battingDisplays.forEach(other => {
-                            if (other !== display) {
-                                other.classList.remove('active');
-                            }
-                        });
-                        
-                        display.classList.toggle('active');
-                    });
-                });
-                
-                document.addEventListener('click', function(e) {
-                    if (!e.target.closest('.batting-display')) {
-                        battingDisplays.forEach(display => {
-                            display.classList.remove('active');
-                        });
-                    }
-                });
-            }
-            
-            if (shouldPreserveScroll && currentScrollY > 50) {
-                setTimeout(() => {
-                    window.scrollTo(0, currentScrollY);
-                    isUpdatingContent = false;
-    updateLiveDotBasedOnPlayers();
-                }, 0);
-            } else {
-                isUpdatingContent = false;
-    updateLiveDotBasedOnPlayers();
-            }
-        }
-
-        
-function updateLiveDotBasedOnPlayers() {
-    const anyInGame = playerData.some(p => p.isInGame);
-    const liveDot = document.getElementById('live-dot');
-    if (liveDot) {
-        if (anyInGame) {
-        liveDot.style.display = 'inline';
-        liveDot.classList.add('blink');
-    } else {
-        liveDot.style.display = 'none';
-        liveDot.classList.remove('blink');
-    }
-    }
-}
-
-
-// Initialize
-        fetchPlayerStats();
-        startRefreshInterval();
-        
-        shouldRefresh().then(active => {
-            isRefreshActive = active;
-            console.log(`Initial game status check: ${active ? 'Games active' : 'No games active'}`);
-        });
-        
-        // Manual refresh with 'r' key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'r' || event.key === 'R') {
-                console.log('Manual refresh triggered');
-                fetchPlayerStats();
-            }
-        });
+localStorage.setItem('lastMessage',newMessage);
+document.querySelector('.hits-squares-text').textContent=newMessage;
     </script>
 </body>
 </html>
