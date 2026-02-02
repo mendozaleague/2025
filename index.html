@@ -56,7 +56,7 @@
         .player-info { flex: 1; display: flex; justify-content: space-between; align-items: center; min-width: 0; width: 100%; }
         .player-name { font-size: 1.5rem; font-weight: bold; line-height: 1.2; position: relative; padding-left: 0; cursor: pointer; display: flex; align-items: center; }
         .player-name.tbd-line .tbd-text { display: none; }
-        .player-name.tbd-line::after { content: ''; display: inline-block; width: 11ch; height: 3px; background-color: currentColor; vertical-align: middle; }
+        .player-name.tbd-line::after { content: ''; display: inline-block; width: 11ch; height: 2px; background-color: currentColor; vertical-align: middle; }
         .batting-stats { text-align: right; flex-shrink: 0; position: relative; min-width: 0; }
         .batting-display { font-size: 1.5rem; font-weight: bold; line-height: 1.2; cursor: pointer; position: relative; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; text-align: right; }
         .batting-average { position: relative; z-index: 1; text-align: right; }
@@ -131,7 +131,7 @@
     <div id="rules-modal" class="modal">
         <div class="modal-content">
             <span class="close" data-modal="rules">&times;</span>
-            <p style="font-size: 1.1rem; font-weight: bold; margin-top: 15px;">Pick which of our 11 batters will<br>finish closest* to The Mendoza Line!</p>
+            <p style="font-size: 1.1rem; font-weight: bold; margin-top: 15px;">Pick the batter who will finish closest* to The Mendoza Line!</p>
             <div class="rules-divider">WAGERING</div>
             <p><strong>Pre-Race Tickets: $25</strong><br><span style="font-size: 0.85rem;">Available during Spring Training</span></p>
             <p><strong>Mid-Race Tickets: $45</strong><br><span style="font-size: 0.85rem;">Available during All-Star Break</span></p>
@@ -143,7 +143,6 @@
             <p><strong>FINISH LINE: September 27, 2026</strong></p>
             <p style="font-size: 0.8rem;">Remaining purse + all Mid-Race ticket funds<br>split between ticket holders of eligible batter<br>(MIN 200 AB) closest* to The Mendoza Line</p>
             <p style="font-size: 0.8rem; font-style: italic; margin-top: 20px;">*Above or below a .200 Batting Average</p>
-            <div class="rules-symbol-bottom">⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩</div>
         </div>
     </div>
     <div id="player-modal" class="modal">
