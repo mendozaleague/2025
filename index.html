@@ -29,8 +29,8 @@
         .header-diamond.wave-emoji-4 { animation: wave-diamond 11s ease-in-out 10.45s infinite; }
         .header-diamond.wave-emoji-5 { animation: wave-diamond 11s ease-in-out 10.6s infinite; }
         .header-diamond.wave-emoji-6 { animation: wave-diamond 11s ease-in-out 10.75s infinite; }
-        .header .race-title { font-size: 0.85rem; color: #b8ddf2; line-height: 1; font-weight: normal; font-style: normal; margin: 0; padding: 0; white-space: nowrap; display: flex; align-items: center; }
-        .hexagon-bar { position: relative; background: black; padding: 0; margin: 8px auto 0; display: inline-flex; align-items: center; justify-content: center; height: 1.2rem; width: 240px; clip-path: polygon(0.6rem 0%, calc(100% - 0.6rem) 0%, 100% 50%, calc(100% - 0.6rem) 100%, 0.6rem 100%, 0% 50%); box-sizing: border-box; }
+        .header .race-title { font-size: 0.95rem; color: #b8ddf2; line-height: 1; font-weight: normal; font-style: normal; margin: 0; padding: 0; white-space: nowrap; display: flex; align-items: center; }
+        .hexagon-bar { position: relative; background: black; padding: 0 12px; margin: 8px auto 0; display: inline-flex; align-items: center; justify-content: center; height: 1.5rem; width: auto; box-sizing: border-box; max-width: fit-content; }
         .live-standings { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: #2c2c2c; }
         .live-standings a { color: #2c2c2c; text-decoration: underline; cursor: pointer; }
         .mendoza-line-divider { text-align: center; margin: -15px 0 0 0; padding: 15px 12px; position: relative; color: #2c2c2c; font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
@@ -118,7 +118,7 @@
         <div class="header">
             <h1><strong><span class="header-diamond wave-emoji-1"></span><span class="header-diamond wave-emoji-2"></span><span class="header-diamond wave-emoji-3"></span> 2026 <span class="header-diamond wave-emoji-4"></span><span class="header-diamond wave-emoji-5"></span><span class="header-diamond wave-emoji-6"></span><br>MENDOZA STAKES</strong></h1>
             <div class="hexagon-bar">
-                <p class="race-title"><i>It's the 3</i><sup style="font-style: normal; font-size: 0.55em; position: relative; top: -0.5em; line-height: 0; margin-left: 0.1em;">rd</sup><i> &thinsp;Race for Two Hundred!!</i></p>
+                <p class="race-title"><i>Hits are for Squares⬩Since 2015</i></p>
             </div>
         </div>
         <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
@@ -141,13 +141,16 @@
             <p><strong>Pre-Race Tickets: $25</strong><br><span style="font-size: 0.85rem;">Available during Spring Training</span></p>
             <p><strong>Mid-Race Tickets: $45</strong><br><span style="font-size: 0.85rem;">Available during All-Star Break</span></p>
             <div class="rules-divider">ENTRY/FEES</div>
-            <p>Please send picks & payments to<br>your loyal Commissioner via <a href="https://account.venmo.com/u/dudlawson" target="_blank" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">VENMO</a><br>before Monday, May 25, 2026</p>
+            <p>Please send picks & payments to<br>your loyal <a href="/cdn-cgi/l/email-protection#e2818d8f8f8b918aa28f878c868d98838e8783859787cc818d8fdd91978088878196dfa58b9487c7d0d28f87c7d0d2bdbdc7d0d2968b8189879691c7d0d2848d90c7d0d2bdbdbdbdbdbdbdbdbdbdbdcec7d0d2a18d8f8f8b918ac3" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">Commissioner</a> via <strong>VENMO</strong><br>before Monday, May 25, 2026</p>
             <div class="rules-divider">PAYOUTS</div>
             <p><strong>ALL-STAR BREAK: July 10, 2026</strong></p>
             <p style="font-size: 0.8rem;">20% of purse split between ticket holders<br>of FIRST batter to reach 200 At Bats</p>
             <p><strong>FINISH LINE: September 27, 2026</strong></p>
             <p style="font-size: 0.8rem;">Remaining purse + all Mid-Race ticket funds<br>split between ticket holders of eligible batter<br>(MIN 200 AB) closest* to The Mendoza Line</p>
             <p style="font-size: 0.8rem; font-style: italic; margin-top: 20px;">*Above or below a .200 Batting Average</p>
+            <div style="text-align: center; margin-top: 20px;">
+                <div class="bio-close-btn" onclick="document.getElementById('rules-modal').classList.remove('open'); document.body.style.overflow='';">CLOSE</div>
+            </div>
         </div>
     </div>
     <div id="player-modal" class="modal">
@@ -189,8 +192,15 @@
             </form>
         </div>
     </div>
+    <div id="horse-modal" class="modal">
+        <div class="modal-content" style="background-color: #b8ddf2; max-width: 90%; width: 1200px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+            <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+                <pre id="horse-animation" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #2c2c2c; text-align: left; white-space: pre;"></pre>
+            </div>
+        </div>
+    </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const playerData={
     1:{name:"P.C.A.",number:"4",fullName:"Pete Crow-Armstrong",wbcFlag:"🇺🇸",mlbId:691718,age:23,height:"6'0\"",weight:"184lbs",battingAvg2025:".247/591AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/crowape01.shtml",bio:"<i>Technically</i> their mascot is a pantsless bear named Clark, but the <i>real</i> face of the Cubs is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats, hit a Khris Davis-approved .247 & smacked 31 home runs… but only 7 of those came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"},
     2:{name:"M. MURAKAMI",number:"5",fullName:"Munetaka Murakami",wbcFlag:"🇯🇵",mlbId:null,age:25,height:"6'2\"",weight:"213lbs",battingAvg2025:"*",battingAvgValue:".273/187AB",games:"",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muraka000mun",bio:"One of the biggest bats in Japanese baseball history is bringing his talent (& 30% strikeout rate) to the south side of Chicago! Murakami hit a Nippon Professional Baseball record 56 hōmurans in 2022. He most recently missed about half of last season with an oblique injury, but still hit .273 with 187 At Bats *in 56 games. That was against Japanese pitching, though… & the only MLB front office willing to take the risk was none other than Chicago's American League ballclub. Never change, Jerry!!"},
@@ -569,6 +579,8 @@ document.addEventListener('DOMContentLoaded',function(){
                 playerModal.classList.remove('open');
             }else if(modalType==='contact'){
                 contactModal.classList.remove('open');
+            }else if(modalType==='horse'){
+                document.getElementById('horse-modal').classList.remove('open');
             }
             document.body.style.overflow='';
         });
@@ -585,6 +597,11 @@ document.addEventListener('DOMContentLoaded',function(){
         }
         if(event.target==contactModal){
             contactModal.classList.remove('open');
+            document.body.style.overflow='';
+        }
+        const horseModal=document.getElementById('horse-modal');
+        if(event.target==horseModal){
+            horseModal.classList.remove('open');
             document.body.style.overflow='';
         }
     });
@@ -773,7 +790,160 @@ if (bugleTrigger) {
         // Measure 12: D (eighth rest), two rests
         playNote(D4, t, eighth);
         
-        return false;
+        
+        // Calculate total song duration
+        const totalDuration = t - now;
+        
+        // Open horse animation modal
+        document.getElementById('horse-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        
+        // Horse animation frames - 4-3-4 pattern (11 horses total) with staggered offset
+        const horseFrames = [
+            `
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\     \\        \`    \\             \`       \\            \`      \\
+        \\     \\             \\    \\               \\                   \\
+                             \\    \\          \\    \\           \\    \\
+
+                  .''                 .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //(        ( \`'    //(        ( \`'    //(        ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`      \\            \`       \\            \`   \\     \\
+                \\    \\            \\    \\              \\     \\
+                 \\                 \\                    
+                  \\   \\             \\   \\
+
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\  \\           \`    \\    \\        \`     \\
+        \\     \\            \\                    \\                  \\   \\
+                            \\   \\            \\    \\          \\
+
+                          Look @ 'em go!!`,
+            `
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`    \\             \`   \\  \\           \`        \\           \`       \\
+         \\    \\            \\                   \\    \\              \\    \\
+          \\    \\            \\   \\           \\                  \\
+
+                  .''                 .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //(        ( \`'    //(        ( \`'    //(        ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`   \\             \`    \\    \\        \`        \\
+              \\   \\               \\                 \\    \\
+               \\                   \\   \\          \\
+                \\   \\               \\              \\   \\
+
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`    \\    \\        \`       \\            \`   \\             \`   \\     \\
+         \\                \\    \\                \\    \\              \\     \\
+          \\   \\             \\                    \\
+
+                          Look @ 'em go!!`,
+            `
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`     \\             \`    \\    \\        \`   \\             \`    \\
+          \\                   \\                \\    \\             \\   \\
+           \\   \\          \\                     \\              \\
+
+                  .''                 .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //(        ( \`'    //(        ( \`'    //(        ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`     \\             \`       \\            \`    \\    \\
+                \\   \\              \\    \\                \\
+                 \\                  \\                 \\    \\
+                  \\   \\              \\   \\             \\
+
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`       \\            \`    \\             \`   \\  \\           \`        \\
+        \\    \\                \\   \\             \\                  \\    \\
+             \\             \\                     \\   \\          \\
+
+                          Look @ 'em go!!`,
+            `
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`      \\            \`       \\           \`     \\            \`   \\     \\
+           \\                \\    \\              \\   \\               \\     \\
+             \\           \\                        \\
+
+                  .''                 .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //(        ( \`'    //(        ( \`'    //(        ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`    \\             \`     \\             \`   \\  \\
+               \\   \\             \\   \\              \\
+                \\                 \\                  \\   \\
+                 \\   \\             \\    \\             \\
+
+            .''                 .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(        ( \`'    //(        ( \`'    //(        ( \`'    //(        ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\    \\          \`   \\             \`        \\            \`       \\
+        \\                   \\   \\              \\    \\               \\    \\
+         \\   \\               \\              \\                   \\
+
+                          Look @ 'em go!!`
+        ];
+        
+        let currentFrame = 0;
+        let horseInterval;
+        const horseElement = document.getElementById('horse-animation');
+        
+        function animateHorse() {
+            horseElement.textContent = horseFrames[currentFrame];
+            currentFrame = (currentFrame + 1) % horseFrames.length;
+        }
+        
+        // Start animation and let it run for the full song duration
+        animateHorse();
+        horseInterval = setInterval(animateHorse, 300);
+        
+        // Stop animation and close modal when song ends
+        setTimeout(() => {
+            if (horseInterval) {
+                clearInterval(horseInterval);
+            }
+            // Close the modal
+            document.getElementById('horse-modal').classList.remove('open');
+            document.body.style.overflow = '';
+        }, totalDuration * 1000); // Convert to milliseconds
     });
 }
     </script>
