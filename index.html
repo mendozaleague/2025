@@ -118,7 +118,7 @@
         <div class="header">
             <h1><strong><span class="header-diamond wave-emoji-1"></span><span class="header-diamond wave-emoji-2"></span><span class="header-diamond wave-emoji-3"></span> 2026 <span class="header-diamond wave-emoji-4"></span><span class="header-diamond wave-emoji-5"></span><span class="header-diamond wave-emoji-6"></span><br>MENDOZA STAKES</strong></h1>
             <div class="hexagon-bar">
-                <p class="race-title"><i>Hits are for Squares</i>⬩<i>Since 2015</i></p>
+                <p class="race-title"><i>Hits are for Squares⬩Since 2015</i></p>
             </div>
         </div>
         <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
@@ -193,9 +193,9 @@
         </div>
     </div>
     <div id="horse-modal" class="modal">
-        <div class="modal-content" style="background-color: #b8ddf2; max-width: 90%; width: 1200px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background-color: #000000; max-width: 90%; width: 1200px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
-                <pre id="horse-animation" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #2c2c2c; text-align: left; white-space: pre;"></pre>
+                <pre id="horse-animation" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #b8ddf2; text-align: left; white-space: pre;"></pre>
             </div>
         </div>
     </div>
@@ -551,25 +551,6 @@ link.rel='icon';
 link.href='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2225%22 y=%2225%22 width=%2250%22 height=%2250%22 fill=%22%23c5e5f0%22 transform=%22rotate(45 50 50)%22/></svg>';
 document.head.appendChild(link);
 
-// Global modal functions with scroll preservation
-let scrollY = 0;
-
-function openModalWithScroll(modal) {
-    scrollY = window.scrollY;
-    modal.classList.add('open');
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.width = '100%';
-}
-
-function closeModalWithScroll(modal) {
-    modal.classList.remove('open');
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
-    window.scrollTo(0, scrollY);
-}
-
 document.addEventListener('DOMContentLoaded',function(){
     const rulesModal=document.getElementById('rules-modal');
     const playerModal=document.getElementById('player-modal');
@@ -579,42 +560,49 @@ document.addEventListener('DOMContentLoaded',function(){
     
     rulesTrigger.addEventListener('click',function(e){
         e.preventDefault();
-        openModalWithScroll(rulesModal);
+        rulesModal.classList.add('open');
+        document.body.style.overflow='hidden';
     });
     
     contactTrigger.addEventListener('click',function(e){
         e.preventDefault();
-        openModalWithScroll(contactModal);
+        contactModal.classList.add('open');
+        document.body.style.overflow='hidden';
     });
     
     document.querySelectorAll('.close').forEach(btn=>{
         btn.addEventListener('click',function(){
             const modalType=this.getAttribute('data-modal');
             if(modalType==='rules'){
-                closeModalWithScroll(rulesModal);
+                rulesModal.classList.remove('open');
             }else if(modalType==='player'){
-                closeModalWithScroll(playerModal);
+                playerModal.classList.remove('open');
             }else if(modalType==='contact'){
-                closeModalWithScroll(contactModal);
+                contactModal.classList.remove('open');
             }else if(modalType==='horse'){
-                closeModalWithScroll(document.getElementById('horse-modal'));
+                document.getElementById('horse-modal').classList.remove('open');
             }
+            document.body.style.overflow='';
         });
     });
     
     window.addEventListener('click',function(event){
         if(event.target==rulesModal){
-            closeModalWithScroll(rulesModal);
+            rulesModal.classList.remove('open');
+            document.body.style.overflow='';
         }
         if(event.target==playerModal){
-            closeModalWithScroll(playerModal);
+            playerModal.classList.remove('open');
+            document.body.style.overflow='';
         }
         if(event.target==contactModal){
-            closeModalWithScroll(contactModal);
+            contactModal.classList.remove('open');
+            document.body.style.overflow='';
         }
         const horseModal=document.getElementById('horse-modal');
         if(event.target==horseModal){
-            closeModalWithScroll(horseModal);
+            horseModal.classList.remove('open');
+            document.body.style.overflow='';
         }
     });
     
@@ -807,121 +795,196 @@ if (bugleTrigger) {
         const totalDuration = t - now;
         
         // Open horse animation modal
-        const horseModal = document.getElementById('horse-modal');
-        openModalWithScroll(horseModal);
+        document.getElementById('horse-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
         
-        // Get first place player's number
-        const firstPlacePlayer = playersArray.length > 0 ? playersArray[0] : null;
-        const firstPlaceNumber = firstPlacePlayer && firstPlacePlayer.number ? firstPlacePlayer.number.toString().padStart(2, ' ') : '??';
-        
-        // Horse animation frames - 11 horses total, lead horse on right middle
+        // Horse animation frames - 2-2-2-3-2 pattern (11 horses total) for mobile compatibility
         const horseFrames = [
             `
-                  .''
-        ._.-.___.' (\`\\
-       //(  4 ( \`'
-      '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\
-         \`   \\     \\
-              \\     \\
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`   \\     \\        \`    \\
+              \\     \\             \\    \\
+                               \\    \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  5 ( \`'       //(  10 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
+ //( 4 ( \`'    //( 5 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. ) 
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\
-        \\     \\            \\     \\
+   \`      \\            \`       \\
+          \\    \\            \\    \\
+           \\                 \\
 
-            .''                 .''                       .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\           ._.-.___.' (\`\\
- //(  14 ( \`'      //(  15 ( \`'             //(  ${firstPlaceNumber} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )            '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\            ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\              \`   \\     \\
-        \\     \\            \\     \\                  \\     \\
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`   \\     \\        \`   \\  \\
+              \\     \\            \\
+                              \\   \\
+            Look @ 'em go!!
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  24 ( \`'      //(  25 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\
-        \\     \\            \\     \\
-   Look @ 'em go!!
+            .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\  \\           \`    \\    \\
+        \\     \\            \\                    \\
+                            \\   \\            \\    \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  88 ( \`'      //(  ? ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\
-        \\     \\            \\     \\
-
-            .''
-  ._.-.___.' (\`\\
- //(  ? ( \`'
-'/ )\\ ).__. )
-' <' \`\\ ._/'\\
-   \`   \\     \\
-        \\     \\
-`,
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`     \\             \`    \\    \\
+               \\   \\               \\
+                \\                   \\   \\`,
             `
-                  .''
-        ._.-.___.' (\`\\
-       //(  4 ( \`'
-      '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\
-         \`     \\   \\
-                \\   \\
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`    \\             \`   \\  \\
+              \\    \\            \\
+                \\    \\            \\   \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  5 ( \`'       //(  10 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
+ //( 4 ( \`'    //( 5 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. ) 
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\
-         \\   \\                \\   \\
+   \`   \\             \`    \\    \\
+        \\   \\               \\
+         \\                   \\   \\
 
-            .''                 .''                       .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\           ._.-.___.' (\`\\
- //(  14 ( \`'      //(  15 ( \`'             //(  ${firstPlaceNumber} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )            '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\            ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\              \`     \\   \\
-         \\   \\                \\   \\                    \\   \\
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`   \\             \`    \\    \\
+              \\   \\               \\
+               \\                   \\   \\
+            Look @ 'em go!!
+
+            .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`    \\    \\        \`       \\            \`   \\
+         \\                \\    \\                \\    \\
+          \\   \\             \\                    \\
+
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`    \\             \`     \\
+              \\   \\             \\   \\
+               \\                 \\`,
+            `
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`     \\             \`    \\    \\
+               \\                   \\
+            \\   \\          \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  24 ( \`'      //(  25 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
+ //( 4 ( \`'    //( 5 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. ) 
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\
-         \\   \\                \\   \\
-   Look @ 'em go!!
+   \`     \\             \`       \\
+          \\   \\              \\    \\
+           \\                  \\
+
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`     \\             \`       \\
+               \\   \\              \\    \\
+                \\                  \\
+            Look @ 'em go!!
+
+            .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`       \\            \`    \\             \`   \\  \\
+        \\    \\                \\   \\             \\
+             \\             \\                     \\   \\
+
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`      \\            \`       \\
+                \\    \\            \\    \\
+                 \\                 \\`,
+            `
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`      \\            \`       \\
+                \\                \\    \\
+              \\           \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  88 ( \`'      //(  ? ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
+ //( 4 ( \`'    //( 5 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. ) 
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\
-         \\   \\                \\   \\
+   \`    \\             \`     \\
+         \\   \\             \\   \\
+          \\                 \\
 
-            .''
-  ._.-.___.' (\`\\
- //(  ? ( \`'
-'/ )\\ ).__. )
-' <' \`\\ ._/'\\
-   \`     \\   \\
-         \\   \\
-`
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`    \\             \`     \\
+              \\   \\             \\   \\
+               \\                 \\
+            Look @ 'em go!!
+
+            .''                 .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\    \\          \`   \\             \`        \\
+        \\                   \\   \\              \\    \\
+         \\   \\               \\              \\
+
+                  .''                 .''
+        ._.-.___.' (\`\\     ._.-.___.' (\`\\
+       //( 4 ( \`'    //( 5 ( \`'
+      '/ )\\ ).__. )      '/ )\\ ).__. ) 
+      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+         \`   \\    \\          \`   \\
+              \\                   \\   \\
+               \\              \\`
         ];
-
-
-
-
-
         
         let currentFrame = 0;
         let horseInterval;
@@ -942,8 +1005,8 @@ if (bugleTrigger) {
                 clearInterval(horseInterval);
             }
             // Close the modal
-            const horseModal = document.getElementById('horse-modal');
-            closeModalWithScroll(horseModal);
+            document.getElementById('horse-modal').classList.remove('open');
+            document.body.style.overflow = '';
         }, totalDuration * 1000); // Convert to milliseconds
     });
 }
