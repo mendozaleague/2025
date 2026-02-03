@@ -118,7 +118,7 @@
         <div class="header">
             <h1><strong><span class="header-diamond wave-emoji-1"></span><span class="header-diamond wave-emoji-2"></span><span class="header-diamond wave-emoji-3"></span> 2026 <span class="header-diamond wave-emoji-4"></span><span class="header-diamond wave-emoji-5"></span><span class="header-diamond wave-emoji-6"></span><br>MENDOZA STAKES</strong></h1>
             <div class="hexagon-bar">
-                <p class="race-title"><i>Hits are for Squares⬩Since 2015</i></p>
+                <p class="race-title"><i>Hits are for Squares</i>⬩<i>Since 2015</i></p>
             </div>
         </div>
         <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
@@ -129,7 +129,7 @@
             <div class="hits-squares-text">Next Race: Mar 25 – Sept 27</div>
         </div>
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br>...& they're <a href="#" id="bugle-trigger" style="cursor: pointer;"><strong><u>OFF!!!</u></strong></a></p>
+            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br>Race <a href="#" id="bugle-trigger" style="cursor: pointer;"><strong><u>SIMULATION</u></strong></a></p>
         </div>
         <div class="copyright">mendozaleague.com ver3.2 ©2026 your pal <a href="https://www.dudlawson.com" target="_blank"><u>Dud Lawson</u></a></div>
     </div>
@@ -193,7 +193,7 @@
         </div>
     </div>
     <div id="horse-modal" class="modal">
-        <div class="modal-content" style="background-color: #000000; max-width: 90%; width: 1200px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
             <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
                 <pre id="horse-animation" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #b8ddf2; text-align: left; white-space: pre;"></pre>
             </div>
@@ -551,6 +551,25 @@ link.rel='icon';
 link.href='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2225%22 y=%2225%22 width=%2250%22 height=%2250%22 fill=%22%23c5e5f0%22 transform=%22rotate(45 50 50)%22/></svg>';
 document.head.appendChild(link);
 
+// Global modal functions with scroll preservation
+let scrollY = 0;
+
+function openModalWithScroll(modal) {
+    scrollY = window.scrollY;
+    modal.classList.add('open');
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+}
+
+function closeModalWithScroll(modal) {
+    modal.classList.remove('open');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, scrollY);
+}
+
 document.addEventListener('DOMContentLoaded',function(){
     const rulesModal=document.getElementById('rules-modal');
     const playerModal=document.getElementById('player-modal');
@@ -560,49 +579,42 @@ document.addEventListener('DOMContentLoaded',function(){
     
     rulesTrigger.addEventListener('click',function(e){
         e.preventDefault();
-        rulesModal.classList.add('open');
-        document.body.style.overflow='hidden';
+        openModalWithScroll(rulesModal);
     });
     
     contactTrigger.addEventListener('click',function(e){
         e.preventDefault();
-        contactModal.classList.add('open');
-        document.body.style.overflow='hidden';
+        openModalWithScroll(contactModal);
     });
     
     document.querySelectorAll('.close').forEach(btn=>{
         btn.addEventListener('click',function(){
             const modalType=this.getAttribute('data-modal');
             if(modalType==='rules'){
-                rulesModal.classList.remove('open');
+                closeModalWithScroll(rulesModal);
             }else if(modalType==='player'){
-                playerModal.classList.remove('open');
+                closeModalWithScroll(playerModal);
             }else if(modalType==='contact'){
-                contactModal.classList.remove('open');
+                closeModalWithScroll(contactModal);
             }else if(modalType==='horse'){
-                document.getElementById('horse-modal').classList.remove('open');
+                closeModalWithScroll(document.getElementById('horse-modal'));
             }
-            document.body.style.overflow='';
         });
     });
     
     window.addEventListener('click',function(event){
         if(event.target==rulesModal){
-            rulesModal.classList.remove('open');
-            document.body.style.overflow='';
+            closeModalWithScroll(rulesModal);
         }
         if(event.target==playerModal){
-            playerModal.classList.remove('open');
-            document.body.style.overflow='';
+            closeModalWithScroll(playerModal);
         }
         if(event.target==contactModal){
-            contactModal.classList.remove('open');
-            document.body.style.overflow='';
+            closeModalWithScroll(contactModal);
         }
         const horseModal=document.getElementById('horse-modal');
         if(event.target==horseModal){
-            horseModal.classList.remove('open');
-            document.body.style.overflow='';
+            closeModalWithScroll(horseModal);
         }
     });
     
@@ -795,196 +807,133 @@ if (bugleTrigger) {
         const totalDuration = t - now;
         
         // Open horse animation modal
-        document.getElementById('horse-modal').classList.add('open');
-        document.body.style.overflow = 'hidden';
+        const horseModal = document.getElementById('horse-modal');
+        openModalWithScroll(horseModal);
         
-        // Horse animation frames - 2-2-2-3-2 pattern (11 horses total) for mobile compatibility
+        // Get first place player's number
+        const firstPlacePlayer = playersArray.length > 0 ? playersArray[0] : null;
+        const firstPlaceNumber = firstPlacePlayer && firstPlacePlayer.number ? firstPlacePlayer.number.toString().padStart(2, ' ') : '??';
+        
+        // Get all player numbers from playerData (players 2-11 for the pack)
+        const player2Num = playerData[2].number || '?';
+        const player3Num = playerData[3].number || '?';
+        const player4Num = playerData[4].number || '?';
+        const player5Num = playerData[5].number || '?';
+        const player6Num = playerData[6].number || '?';
+        const player7Num = playerData[7].number || '?';
+        const player8Num = playerData[8].number || '?';
+        const player9Num = playerData[9].number || '?';
+        const player10Num = playerData[10].number || '?';
+        const player11Num = playerData[11].number || '?';
+        
+        // Horse animation frames - 11 horses total: 10 in pack + 1 lead horse
         const horseFrames = [
             `
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`   \\     \\        \`    \\
-              \\     \\             \\    \\
-                               \\    \\
+                  .''
+        ._.-.___.' (\`\\
+       //(  4 ( \`'
+      '/ )\\ ).__. )
+      ' <' \`\\ ._/'\\
+         \`   \\     \\
+              \\     \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. ) 
+ //(  ${player2Num} ( \`'       //(  ${player3Num} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`      \\            \`       \\
-          \\    \\            \\    \\
-           \\                 \\
+   \`   \\     \\        \`   \\     \\
+        \\     \\            \\     \\
 
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`   \\     \\        \`   \\  \\
-              \\     \\            \\
-                              \\   \\
-            Look @ 'em go!!
+            .''                 .''                       .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\           ._.-.___.' (\`\\
+ //(  ${player4Num} ( \`'      //(  ${player5Num} ( \`'             //(  ${firstPlaceNumber} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )            '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\            ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\     \\              \`   \\     \\
+        \\     \\            \\     \\                  \\     \\
 
-            .''                 .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\  \\           \`    \\    \\
-        \\     \\            \\                    \\
-                            \\   \\            \\    \\
+            .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player6Num} ( \`'      //(  ${player7Num} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\     \\
+        \\     \\            \\     \\
+   Look @ 'em go!!
 
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`     \\             \`    \\    \\
-               \\   \\               \\
-                \\                   \\   \\`,
+            .''                 .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player8Num} ( \`'      //(  ${player9Num} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\     \\
+        \\     \\            \\     \\
+
+            .''
+  ._.-.___.' (\`\\
+ //(  ${player10Num} ( \`'
+'/ )\\ ).__. )
+' <' \`\\ ._/'\\
+   \`   \\     \\
+        \\     \\
+`,
             `
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`    \\             \`   \\  \\
-              \\    \\            \\
-                \\    \\            \\   \\
+                  .''
+        ._.-.___.' (\`\\
+       //(  4 ( \`'
+      '/ )\\ ).__. )
+      ' <' \`\\ ._/'\\
+         \`     \\   \\
+                \\   \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. ) 
+ //(  ${player2Num} ( \`'       //(  ${player3Num} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\             \`    \\    \\
-        \\   \\               \\
-         \\                   \\   \\
+   \`     \\   \\        \`     \\   \\
+         \\   \\                \\   \\
 
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`   \\             \`    \\    \\
-              \\   \\               \\
-               \\                   \\   \\
-            Look @ 'em go!!
-
-            .''                 .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`    \\    \\        \`       \\            \`   \\
-         \\                \\    \\                \\    \\
-          \\   \\             \\                    \\
-
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`    \\             \`     \\
-              \\   \\             \\   \\
-               \\                 \\`,
-            `
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`     \\             \`    \\    \\
-               \\                   \\
-            \\   \\          \\
+            .''                 .''                       .''
+  ._.-.___.' (\`\\     ._.-.___.' (\`\\           ._.-.___.' (\`\\
+ //(  ${player4Num} ( \`'      //(  ${player5Num} ( \`'             //(  ${firstPlaceNumber} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )            '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\            ' <' \`\\ ._/'\\
+   \`     \\   \\        \`     \\   \\              \`     \\   \\
+         \\   \\                \\   \\                    \\   \\
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. ) 
+ //(  ${player6Num} ( \`'      //(  ${player7Num} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\             \`       \\
-          \\   \\              \\    \\
-           \\                  \\
-
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`     \\             \`       \\
-               \\   \\              \\    \\
-                \\                  \\
-            Look @ 'em go!!
-
-            .''                 .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`       \\            \`    \\             \`   \\  \\
-        \\    \\                \\   \\             \\
-             \\             \\                     \\   \\
-
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`      \\            \`       \\
-                \\    \\            \\    \\
-                 \\                 \\`,
-            `
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`      \\            \`       \\
-                \\                \\    \\
-              \\           \\
+   \`     \\   \\        \`     \\   \\
+         \\   \\                \\   \\
+   Look @ 'em go!!
 
             .''                 .''
   ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. ) 
+ //(  ${player8Num} ( \`'      //(  ${player9Num} ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`    \\             \`     \\
-         \\   \\             \\   \\
-          \\                 \\
+   \`     \\   \\        \`     \\   \\
+         \\   \\                \\   \\
 
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`    \\             \`     \\
-              \\   \\             \\   \\
-               \\                 \\
-            Look @ 'em go!!
-
-            .''                 .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //( 4 ( \`'    //( 5 ( \`'    //( 10 ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\    \\          \`   \\             \`        \\
-        \\                   \\   \\              \\    \\
-         \\   \\               \\              \\
-
-                  .''                 .''
-        ._.-.___.' (\`\\     ._.-.___.' (\`\\
-       //( 4 ( \`'    //( 5 ( \`'
-      '/ )\\ ).__. )      '/ )\\ ).__. ) 
-      ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-         \`   \\    \\          \`   \\
-              \\                   \\   \\
-               \\              \\`
+            .''
+  ._.-.___.' (\`\\
+ //(  ${player10Num} ( \`'
+'/ )\\ ).__. )
+' <' \`\\ ._/'\\
+   \`     \\   \\
+         \\   \\
+`
         ];
+
+
+
+
+
         
         let currentFrame = 0;
         let horseInterval;
@@ -1005,8 +954,8 @@ if (bugleTrigger) {
                 clearInterval(horseInterval);
             }
             // Close the modal
-            document.getElementById('horse-modal').classList.remove('open');
-            document.body.style.overflow = '';
+            const horseModal = document.getElementById('horse-modal');
+            closeModalWithScroll(horseModal);
         }, totalDuration * 1000); // Convert to milliseconds
     });
 }
