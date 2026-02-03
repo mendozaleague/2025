@@ -116,7 +116,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1><strong><span class="header-diamond wave-emoji-1"></span><span class="header-diamond wave-emoji-2"></span><span class="header-diamond wave-emoji-3"></span> 2026 <span class="header-diamond wave-emoji-4"></span><span class="header-diamond wave-emoji-5"></span><span class="header-diamond wave-emoji-6" id="airhorn-diamond" style="cursor: pointer;"></span><br>MENDOZA STAKES</strong></h1>
+            <h1><strong><span class="header-diamond wave-emoji-1"></span><span class="header-diamond wave-emoji-2"></span><span class="header-diamond wave-emoji-3"></span> 2026 <span class="header-diamond wave-emoji-4"></span><span class="header-diamond wave-emoji-5"></span><span class="header-diamond wave-emoji-6"></span><br>MENDOZA STAKES</strong></h1>
             <div class="hexagon-bar">
                 <p class="race-title"><i>It's the 3</i><sup style="font-style: normal; font-size: 0.55em; position: relative; top: -0.5em; line-height: 0; margin-left: 0.1em;">rd</sup><i> &thinsp;Race for Two Hundred!!</i></p>
             </div>
@@ -129,7 +129,7 @@
             <div class="hits-squares-text">Next Race: Mar 25 – Sept 27</div>
         </div>
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner</p>
+            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br>...& they're <a id="bugle-trigger" style="cursor: pointer;"><strong><u>OFF!!!</u></strong></a></p>
         </div>
         <div class="copyright">mendozaleague.com ver3.2 ©2026 your pal <a href="https://www.dudlawson.com" target="_blank"><u>Dud Lawson</u></a></div>
     </div>
@@ -636,84 +636,141 @@ do{
 localStorage.setItem('lastMessage',newMessage);
 document.querySelector('.hits-squares-text').textContent=newMessage;
 
-// Horse neigh sound effect
-const airhornDiamond = document.getElementById('airhorn-diamond');
-if (airhornDiamond) {
-    airhornDiamond.addEventListener('click', function() {
-        // Create audio context for horse neigh
+// Call to the Post bugle sound effect
+const bugleTrigger = document.getElementById('bugle-trigger');
+if (bugleTrigger) {
+    bugleTrigger.addEventListener('click', function(e) {
+        e.preventDefault();
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const now = audioContext.currentTime;
         
-        // Create oscillators for horse whinny
-        const oscillator1 = audioContext.createOscillator();
-        const oscillator2 = audioContext.createOscillator();
-        
-        // Create noise for breath/texture
-        const bufferSize = audioContext.sampleRate * 1.5;
-        const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            output[i] = Math.random() * 2 - 1;
+        // Function to play a bugle note
+        function playNote(freq, startTime, duration, louder = false) {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, startTime);
+            
+            const volume = louder ? 0.35 : 0.28;
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(volume, startTime + 0.015);
+            gain.gain.setValueAtTime(volume, startTime + duration - 0.02);
+            gain.gain.linearRampToValueAtTime(0.001, startTime + duration);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start(startTime);
+            osc.stop(startTime + duration);
         }
-        const noise = audioContext.createBufferSource();
-        noise.buffer = noiseBuffer;
         
-        const noiseGain = audioContext.createGain();
-        const gainNode = audioContext.createGain();
-        const filterNode = audioContext.createBiquadFilter();
+        // Notes - in D major (3 sharps)
+        const D4 = 293.66;
+        const FSharp4 = 369.99;
+        const A4 = 440.00;
+        const D5 = 587.33;
         
-        // Horse neigh frequency modulation
-        oscillator1.frequency.setValueAtTime(800, now);
-        oscillator1.frequency.linearRampToValueAtTime(400, now + 0.3);
-        oscillator1.frequency.linearRampToValueAtTime(600, now + 0.5);
-        oscillator1.frequency.linearRampToValueAtTime(300, now + 1.0);
-        oscillator1.frequency.linearRampToValueAtTime(500, now + 1.2);
-        oscillator1.frequency.linearRampToValueAtTime(250, now + 1.5);
+        // Tempo: quarter note = 92 bpm, 3/8 time
+        // Quarter = 60/92 = 0.652 seconds
+        const eighth = 0.326;
+        const tripletEighth = eighth * 0.67;
+        const quarter = 0.652;
+        const dottedQuarter = quarter * 1.5;
         
-        oscillator2.frequency.setValueAtTime(1200, now);
-        oscillator2.frequency.linearRampToValueAtTime(600, now + 0.3);
-        oscillator2.frequency.linearRampToValueAtTime(900, now + 0.5);
-        oscillator2.frequency.linearRampToValueAtTime(450, now + 1.0);
-        oscillator2.frequency.linearRampToValueAtTime(750, now + 1.2);
-        oscillator2.frequency.linearRampToValueAtTime(375, now + 1.5);
+        let t = now;
         
-        oscillator1.type = 'sawtooth';
-        oscillator2.type = 'triangle';
+        // Measure 1: eighth rest, D, A
+        t += eighth;
+        playNote(D4, t, eighth);
+        t += eighth;
+        playNote(A4, t, eighth);
+        t += eighth;
         
-        // Filter for vocal quality
-        filterNode.type = 'bandpass';
-        filterNode.frequency.setValueAtTime(1000, now);
-        filterNode.Q.setValueAtTime(2, now);
+        // Measure 2: D (quarter), A (eighth)
+        playNote(D5, t, quarter);
+        t += quarter;
+        playNote(A4, t, eighth);
+        t += eighth;
         
-        // Connect oscillators through filter
-        oscillator1.connect(filterNode);
-        oscillator2.connect(filterNode);
-        filterNode.connect(gainNode);
+        // Measure 3: Triplet (D F# A), D (eighth)
+        playNote(D5, t, tripletEighth);
+        t += tripletEighth;
+        playNote(FSharp4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(A4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(D5, t, eighth);
+        t += eighth;
         
-        // Add noise for breathiness
-        noise.connect(noiseGain);
-        noiseGain.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        // Measure 4: A (eighth), triplet (D F# A), D (eighth)
+        playNote(A4, t, eighth);
+        t += eighth;
+        playNote(D5, t, tripletEighth);
+        t += tripletEighth;
+        playNote(FSharp4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(A4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(D5, t, eighth);
+        t += eighth;
         
-        // Envelope for horse neigh
-        gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.25, now + 0.05);
-        gainNode.gain.linearRampToValueAtTime(0.3, now + 0.3);
-        gainNode.gain.linearRampToValueAtTime(0.2, now + 0.6);
-        gainNode.gain.linearRampToValueAtTime(0.25, now + 1.0);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+        // Measure 5: D (quarter), A (eighth)
+        playNote(D4, t, quarter);
+        t += quarter;
+        playNote(A4, t, eighth);
+        t += eighth;
         
-        noiseGain.gain.setValueAtTime(0.02, now);
-        noiseGain.gain.linearRampToValueAtTime(0.05, now + 0.3);
-        noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+        // Measure 6: D (quarter with fermata - hold longer)
+        playNote(D5, t, dottedQuarter, true);
+        t += dottedQuarter;
         
-        // Start and stop
-        oscillator1.start(now);
-        oscillator2.start(now);
-        noise.start(now);
-        oscillator1.stop(now + 1.5);
-        oscillator2.stop(now + 1.5);
-        noise.stop(now + 1.5);
+        // Measure 7: Rest, triplet (D F# A), D
+        t += eighth;
+        playNote(D4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(FSharp4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(A4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(D5, t, eighth);
+        t += eighth;
+        
+        // Measure 8: A, triplet (D F# A), D
+        playNote(A4, t, eighth);
+        t += eighth;
+        playNote(D5, t, tripletEighth);
+        t += tripletEighth;
+        playNote(FSharp4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(A4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(D5, t, eighth);
+        t += eighth;
+        
+        // Measure 9: A, D, A
+        playNote(A4, t, eighth);
+        t += eighth;
+        playNote(D5, t, eighth);
+        t += eighth;
+        playNote(A4, t, eighth);
+        t += eighth;
+        
+        // Measure 10: eighth rest, triplet (D F# A)
+        t += eighth;
+        playNote(D4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(FSharp4, t, tripletEighth);
+        t += tripletEighth;
+        playNote(A4, t, tripletEighth);
+        t += tripletEighth;
+        
+        // Measure 11: D (quarter with fermata)
+        playNote(D5, t, dottedQuarter, true);
+        t += dottedQuarter;
+        
+        // Measure 12: D (eighth rest), two rests
+        playNote(D4, t, eighth);
     });
 }
     </script>
