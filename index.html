@@ -77,6 +77,14 @@
         .bio-symbol { color: #b8ddf2; margin-top: 15px; font-size: 0.75rem; font-weight: bold; background-color: black; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
         .bio-close-btn { text-align: center; margin-top: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; color: #b8ddf2; background-color: black; padding: 8px 16px; display: inline-block; }
         .bio-close-btn:hover { opacity: 0.7; }
+        #horse-animation { 
+            font-size: 0.7rem; 
+            line-height: 1.1; 
+            white-space: pre; 
+            overflow-x: auto; 
+            max-width: 100%; 
+            color: #2c2c2c;
+        }
         .player-number { display: inline-flex; align-items: center; justify-content: center; width: 1.2rem; height: 1.2rem; font-size: 0.8rem; font-weight: bold; margin-right: 1rem; flex-shrink: 0; transform: rotate(45deg); }
         .player-number span { display: block; transform: rotate(-45deg); }
         .player-row.first-place .player-number, .player-row.odd-place .player-number { background-color: #b8ddf2; color: black; }
@@ -110,6 +118,10 @@
             .player-name { font-size: 1.25rem; }
             .batting-display { font-size: 1.25rem; }
             .tap-tooltip { font-size: 1.25rem; padding: 0; }
+            #horse-animation { 
+                font-size: 0.5rem; 
+                line-height: 1.0;
+            }
         }
     </style>
 </head>
@@ -674,19 +686,16 @@ if (bugleTrigger) {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const now = audioContext.currentTime;
         
-        // Function to play a bugle note
-        function playNote(freq, startTime, duration, louder = false) {
+        // Function to play a note
+        function playNote(freq, startTime, duration) {
             const osc = audioContext.createOscillator();
             const gain = audioContext.createGain();
             
-            osc.type = 'sine';
+            osc.type = 'square';
             osc.frequency.setValueAtTime(freq, startTime);
             
-            const volume = louder ? 0.35 : 0.28;
-            gain.gain.setValueAtTime(0, startTime);
-            gain.gain.linearRampToValueAtTime(volume, startTime + 0.015);
-            gain.gain.setValueAtTime(volume, startTime + duration - 0.02);
-            gain.gain.linearRampToValueAtTime(0.001, startTime + duration);
+            gain.gain.setValueAtTime(0.3, startTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
             
             osc.connect(gain);
             gain.connect(audioContext.destination);
@@ -695,113 +704,70 @@ if (bugleTrigger) {
             osc.stop(startTime + duration);
         }
         
-        // Notes - in D major (3 sharps)
-        const D4 = 293.66;
-        const FSharp4 = 369.99;
-        const A4 = 440.00;
-        const D5 = 587.33;
-        
-        // Tempo: quarter note = 92 bpm, 3/8 time
-        // Quarter = 60/92 = 0.652 seconds
-        const eighth = 0.326;
-        const tripletEighth = eighth * 0.67;
-        const quarter = 0.652;
-        const dottedQuarter = quarter * 1.5;
+        // Notes for racetrack melody
+        const C4 = 261.63;  // C4 (low C)
+        const F4 = 349.23;  // F4
+        const A4 = 440.00;  // A4
+        const C5 = 523.25;  // C5 (high C)
         
         let t = now;
         
-        // Measure 1: eighth rest, D, A
-        t += eighth;
-        playNote(D4, t, eighth);
-        t += eighth;
-        playNote(A4, t, eighth);
-        t += eighth;
+        // First phrase: F A CCC [pause] AAA [pause] FAFC (C goes DOWN)
+        playNote(F4, t, 0.3);
+        t += 0.3;
+        playNote(A4, t, 0.3);
+        t += 0.3;
+        playNote(C5, t, 0.2);
+        t += 0.2;
+        playNote(C5, t, 0.2);
+        t += 0.2;
+        playNote(C5, t, 0.3);
+        t += 0.3;
+        t += 0.2; // pause
+        playNote(A4, t, 0.2);
+        t += 0.2;
+        playNote(A4, t, 0.2);
+        t += 0.2;
+        playNote(A4, t, 0.3);
+        t += 0.3;
+        t += 0.2; // pause
+        playNote(F4, t, 0.2);
+        t += 0.2;
+        playNote(A4, t, 0.2);
+        t += 0.2;
+        playNote(F4, t, 0.2);
+        t += 0.2;
+        playNote(C4, t, 0.3);  // C goes DOWN to C4
+        t += 0.3;
+        t += 0.4; // double pause
         
-        // Measure 2: D (quarter), A (eighth)
-        playNote(D5, t, quarter);
-        t += quarter;
-        playNote(A4, t, eighth);
-        t += eighth;
-        
-        // Measure 3: Triplet (D F# A), D (eighth)
-        playNote(D5, t, tripletEighth);
-        t += tripletEighth;
-        playNote(FSharp4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(A4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(D5, t, eighth);
-        t += eighth;
-        
-        // Measure 4: A (eighth), triplet (D F# A), D (eighth)
-        playNote(A4, t, eighth);
-        t += eighth;
-        playNote(D5, t, tripletEighth);
-        t += tripletEighth;
-        playNote(FSharp4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(A4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(D5, t, eighth);
-        t += eighth;
-        
-        // Measure 5: D (quarter), A (eighth)
-        playNote(D4, t, quarter);
-        t += quarter;
-        playNote(A4, t, eighth);
-        t += eighth;
-        
-        // Measure 6: D (quarter with fermata - hold longer)
-        playNote(D5, t, dottedQuarter, true);
-        t += dottedQuarter;
-        
-        // Measure 7: Rest, triplet (D F# A), D
-        t += eighth;
-        playNote(D4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(FSharp4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(A4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(D5, t, eighth);
-        t += eighth;
-        
-        // Measure 8: A, triplet (D F# A), D
-        playNote(A4, t, eighth);
-        t += eighth;
-        playNote(D5, t, tripletEighth);
-        t += tripletEighth;
-        playNote(FSharp4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(A4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(D5, t, eighth);
-        t += eighth;
-        
-        // Measure 9: A, D, A
-        playNote(A4, t, eighth);
-        t += eighth;
-        playNote(D5, t, eighth);
-        t += eighth;
-        playNote(A4, t, eighth);
-        t += eighth;
-        
-        // Measure 10: eighth rest, triplet (D F# A)
-        t += eighth;
-        playNote(D4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(FSharp4, t, tripletEighth);
-        t += tripletEighth;
-        playNote(A4, t, tripletEighth);
-        t += tripletEighth;
-        
-        // Measure 11: D (quarter with fermata)
-        playNote(D5, t, dottedQuarter, true);
-        t += dottedQuarter;
-        
-        // Measure 12: D (eighth rest), two rests
-        playNote(D4, t, eighth);
-        
+        // Second phrase: F A CCC [pause] AAA [pause] CCCF (Cs are LOW C4, F goes UP)
+        playNote(F4, t, 0.3);
+        t += 0.3;
+        playNote(A4, t, 0.3);
+        t += 0.3;
+        playNote(C5, t, 0.2);
+        t += 0.2;
+        playNote(C5, t, 0.2);
+        t += 0.2;
+        playNote(C5, t, 0.3);
+        t += 0.3;
+        t += 0.2; // pause
+        playNote(A4, t, 0.2);
+        t += 0.2;
+        playNote(A4, t, 0.2);
+        t += 0.2;
+        playNote(A4, t, 0.3);
+        t += 0.3;
+        t += 0.2; // pause
+        playNote(C4, t, 0.2);  // LOW C4
+        t += 0.2;
+        playNote(C4, t, 0.2);  // LOW C4
+        t += 0.2;
+        playNote(C4, t, 0.2);  // LOW C4
+        t += 0.2;
+        playNote(F4, t, 0.4);  // F goes UP
+        t += 0.4;
         
         // Calculate total song duration
         const totalDuration = t - now;
@@ -815,118 +781,101 @@ if (bugleTrigger) {
         const firstPlaceNumber = firstPlacePlayer && firstPlacePlayer.number ? firstPlacePlayer.number.toString().padStart(2, ' ') : '??';
         
         // Get all player numbers from playerData (players 2-11 for the pack)
-        const player2Num = playerData[2].number || '?';
-        const player3Num = playerData[3].number || '?';
-        const player4Num = playerData[4].number || '?';
-        const player5Num = playerData[5].number || '?';
-        const player6Num = playerData[6].number || '?';
-        const player7Num = playerData[7].number || '?';
-        const player8Num = playerData[8].number || '?';
-        const player9Num = playerData[9].number || '?';
-        const player10Num = playerData[10].number || '?';
-        const player11Num = playerData[11].number || '?';
+        const player2Num = (playerData[2].number || '??').toString().padStart(2, ' ');
+        const player3Num = (playerData[3].number || '??').toString().padStart(2, ' ');
+        const player4Num = (playerData[4].number || '??').toString().padStart(2, ' ');
+        const player5Num = (playerData[5].number || '??').toString().padStart(2, ' ');
+        const player6Num = (playerData[6].number || '??').toString().padStart(2, ' ');
+        const player7Num = (playerData[7].number || '??').toString().padStart(2, ' ');
+        const player8Num = (playerData[8].number || '??').toString().padStart(2, ' ');
+        const player9Num = (playerData[9].number || '??').toString().padStart(2, ' ');
+        const player10Num = (playerData[10].number || '??').toString().padStart(2, ' ');
+        const player11Num = (playerData[11].number || '??').toString().padStart(2, ' ');
         
-        // Horse animation frames - 11 horses total: 10 in pack + 1 lead horse
+        // Opening text
+        const openingFrame = `
+
+...& they're OFF!!!
+
+
+
+
+
+
+
+`;
+        
+        // Horse animation frames - 11 horses total representing all 10 players
         const horseFrames = [
             `
-                  .''
-        ._.-.___.' (\`\\
-       //(  4 ( \`'
-      '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\
-         \`   \\     \\
-              \\     \\
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\     \\         \`   \\     \\
+        \\     \\            \\     \\             \\     \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player2Num} ( \`'       //(  ${player3Num} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\
-        \\     \\            \\     \\
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\     \\         \`   \\     \\
+        \\     \\            \\     \\             \\     \\
 
-            .''                 .''                       .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\           ._.-.___.' (\`\\
- //(  ${player4Num} ( \`'      //(  ${player5Num} ( \`'             //(  ${firstPlaceNumber} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )            '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\            ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\              \`   \\     \\
-        \\     \\            \\     \\                  \\     \\
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`   \\     \\        \`   \\     \\         \`   \\     \\
+        \\     \\            \\     \\             \\     \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player6Num} ( \`'      //(  ${player7Num} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\
-        \\     \\            \\     \\
-   Look @ 'em go!!
+                .''                             .''
+        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
+       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
+      '/ )\\ ).__. )                   '/ )\\ ).__. )
+      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
+         \`   \\     \\                     \`   \\     \\
+              \\     \\                         \\     \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player8Num} ( \`'      //(  ${player9Num} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\
-        \\     \\            \\     \\
-
-            .''
-  ._.-.___.' (\`\\
- //(  ${player10Num} ( \`'
-'/ )\\ ).__. )
-' <' \`\\ ._/'\\
-   \`   \\     \\
-        \\     \\
+                      Look @ 'em go!!
 `,
             `
-                  .''
-        ._.-.___.' (\`\\
-       //(  4 ( \`'
-      '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\
-         \`     \\   \\
-                \\   \\
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`     \\   \\        \`     \\   \\         \`     \\   \\
+          \\   \\              \\   \\               \\   \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player2Num} ( \`'       //(  ${player3Num} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\
-         \\   \\                \\   \\
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`     \\   \\        \`     \\   \\         \`     \\   \\
+          \\   \\              \\   \\               \\   \\
 
-            .''                 .''                       .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\           ._.-.___.' (\`\\
- //(  ${player4Num} ( \`'      //(  ${player5Num} ( \`'             //(  ${firstPlaceNumber} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )            '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\            ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\              \`     \\   \\
-         \\   \\                \\   \\                    \\   \\
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`     \\   \\        \`     \\   \\         \`     \\   \\
+          \\   \\              \\   \\               \\   \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player6Num} ( \`'      //(  ${player7Num} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\
-         \\   \\                \\   \\
-   Look @ 'em go!!
+                .''                             .''
+        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
+       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
+      '/ )\\ ).__. )                   '/ )\\ ).__. )
+      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
+         \`     \\   \\                     \`     \\   \\
+                \\   \\                           \\   \\
 
-            .''                 .''
-  ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player8Num} ( \`'      //(  ${player9Num} ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\
-         \\   \\                \\   \\
-
-            .''
-  ._.-.___.' (\`\\
- //(  ${player10Num} ( \`'
-'/ )\\ ).__. )
-' <' \`\\ ._/'\\
-   \`     \\   \\
-         \\   \\
+                      Look @ 'em go!!
 `
         ];
 
@@ -939,14 +888,19 @@ if (bugleTrigger) {
         let horseInterval;
         const horseElement = document.getElementById('horse-animation');
         
+        // Show opening text
+        horseElement.textContent = openingFrame;
+        
         function animateHorse() {
             horseElement.textContent = horseFrames[currentFrame];
             currentFrame = (currentFrame + 1) % horseFrames.length;
         }
         
-        // Start animation and let it run for the full song duration
-        animateHorse();
-        horseInterval = setInterval(animateHorse, 300);
+        // Wait 1 second, then start horse animation
+        setTimeout(() => {
+            animateHorse();
+            horseInterval = setInterval(animateHorse, 300);
+        }, 1000);
         
         // Stop animation and close modal when song ends
         setTimeout(() => {
