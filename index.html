@@ -69,8 +69,13 @@
         .player-modal-header { text-align: center; margin-bottom: 20px; margin-top: 20px; position: relative; }
         .player-modal-header h2 { font-size: 2rem; color: #b8ddf2; background: black; margin-bottom: 10px; padding: 10px 60px 10px 60px; font-weight: bold; transition: opacity 0.2s; display: block; text-align: center; word-wrap: break-word; overflow-wrap: break-word; }
         .player-modal-header .player-number { background-color: #b8ddf2; color: black; font-size: 1rem; width: 1.5rem; height: 1.5rem; position: absolute; left: 10px; top: 50%; transform: translateY(-50%) rotate(45deg); margin-right: 0; z-index: 10; }
+        .player-modal-header .player-position { background-color: #b8ddf2; color: black; font-size: 0.8rem; font-weight: bold; width: 1.5rem; height: 1.5rem; position: absolute; right: 10px; top: 50%; transform: translateY(-50%) rotate(45deg); margin-right: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+        .player-modal-header .player-position span { transform: rotate(-45deg); }
         .player-modal-header h2:hover { opacity: 0.8; }
-        .player-modal-stats { text-align: center; color: #2c2c2c; margin-bottom: 15px; }
+        .player-modal-stats-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; position: relative; }
+        .player-status-indicator { position: absolute; left: 25%; transform: translateX(-50%); text-align: center; font-size: 0.75rem; color: #2c2c2c; font-weight: bold; line-height: 1.3; }
+        .player-trend-indicator { position: absolute; right: 25%; transform: translateX(50%); text-align: center; font-size: 0.75rem; color: #2c2c2c; font-weight: bold; line-height: 1.3; }
+        .player-modal-stats { flex: 1; text-align: center; color: #2c2c2c; padding: 0 10px; }
         .player-modal-stats p { font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
         .player-modal-stats strong { font-weight: bold; }
         .screw-flanders { text-align: center; font-size: 1rem; line-height: 1.6; color: #2c2c2c; word-wrap: break-word; margin-top: 20px; margin-bottom: 15px; }
@@ -170,18 +175,29 @@
             <span class="close" data-modal="player">&times;</span>
             <div class="player-modal-header">
                 <span id="player-modal-number"></span>
+                <span id="player-modal-position"></span>
                 <h2 id="player-modal-name"></h2>
             </div>
-            <div class="player-modal-stats">
-                <p id="player-modal-details"></p>
-                <p id="player-modal-2025-stats"></p>
-                <p id="player-modal-2026-stats"></p>
-                <p id="player-modal-games" style="font-size: 0.9rem; margin-top: 5px;"></p>
+            <div class="player-modal-stats-container">
+                <div class="player-status-indicator">
+                    <div style="font-size: 0.65rem;">STATUS:</div>
+                    <div id="player-status" style="font-size: 0.85rem;">WINTER</div>
+                </div>
+                <div class="player-modal-stats">
+                    <p id="player-modal-details"></p>
+                    <p id="player-modal-2025-stats"></p>
+                    <p id="player-modal-2026-stats"></p>
+                    <p id="player-modal-games" style="font-size: 0.9rem; margin-top: 5px;"></p>
+                </div>
+                <div class="player-trend-indicator">
+                    <div style="font-size: 0.65rem;">TREND:</div>
+                    <div id="player-trend" style="font-size: 0.85rem;">---</div>
+                </div>
             </div>
             <div style="width: 100%; height: 6px; background-color: #2c2c2c; margin-bottom: 15px;"></div>
             <div class="screw-flanders" id="player-modal-screw"></div>
             <div style="text-align: center;">
-                <div class="bio-close-btn" onclick="document.getElementById('player-modal').classList.remove('open'); document.body.style.overflow='';">CLOSE</div>
+                <div class="bio-close-btn" onclick="closeModalWithScroll(document.getElementById('player-modal'));">CLOSE</div>
             </div>
         </div>
     </div>
@@ -205,26 +221,27 @@
         </div>
     </div>
     <div id="horse-modal" class="modal">
-        <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; min-height: 400px; display: flex; align-items: center; justify-content: center;">
-            <div style="text-align: center; display: flex; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; min-height: 400px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+            <div style="flex: 1; display: flex; justify-content: center; align-items: center; overflow: hidden;">
                 <pre id="horse-animation" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #b8ddf2; text-align: left; white-space: pre;"></pre>
             </div>
+            <div id="horse-text" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #b8ddf2; text-align: center; margin-top: 10px; white-space: pre;">Look @ 'em go!!</div>
         </div>
     </div>
 
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const playerData={
-    1:{name:"P.C.A.",number:"4",fullName:"Pete Crow-Armstrong",wbcFlag:"🇺🇸",mlbId:691718,age:23,height:"6'0\"",weight:"184lbs",battingAvg2025:".247/591AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/crowape01.shtml",bio:"<i>Technically</i> their mascot is a pantsless bear named Clark, but the <i>real</i> face of the Cubs is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats, hit a Khris Davis-approved .247 & smacked 31 home runs… but only 7 of those came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"},
-    2:{name:"M. MURAKAMI",number:"5",fullName:"Munetaka Murakami",wbcFlag:"🇯🇵",mlbId:null,age:25,height:"6'2\"",weight:"213lbs",battingAvg2025:"*",battingAvgValue:".273/187AB",games:"",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muraka000mun",bio:"One of the biggest bats in Japanese baseball history is bringing his talent (& 30% strikeout rate) to the south side of Chicago! Murakami hit a Nippon Professional Baseball record 56 hōmurans in 2022. He most recently missed about half of last season with an oblique injury, but still hit .273 with 187 At Bats *in 56 games. That was against Japanese pitching, though… & the only MLB front office willing to take the risk was none other than Chicago's American League ballclub. Never change, Jerry!!"},
-    3:{name:"M. MUNCY",number:"10",fullName:"Max Muncy (AL)",wbcFlag:null,mlbId:null,age:23,height:"6'1\"",weight:"180lbs",battingAvg2025:".214/206AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muncy-002max",bio:"In 2025, Max Muncy finished his rookie season 14 points above The Mendoza Line in 206 At Bats. Let's be clear THIS Max Muncy is NOT the Max Muncy who competed in last year's Mendoza Stakes. THAT Max Muncy is a 10-year veteran infielder for the Los Angeles National League ballclub. THIS Max Muncy is a SOPHOMORE infielder for what is currently the SACRAMENTO American League ballclub. The wildest part is you can't even say THIS Max Muncy is \"the one born on August 25\" because BOTH Maxes Muncy were born on August 25th. How about that!"},
-    4:{name:"B. NAYLOR",number:"14",fullName:"Noah-Gibson \"Bo\" Naylor",wbcFlag:null,mlbId:647304,age:25,height:"6'0\"",weight:"205lbs",battingAvg2025:".195/359AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/n/naylobo01.shtml",bio:"If Noah-Gibson Naylor, better known as Bo, sounds vaguely familiar it's probably because his older brother Josh plays for the Mariners. Bo only hit .195 last season, yet still seems to be Cleveland's guy behind the plate in the foreseeable future. At the time of this writing, the other two catchers on their roster are David Fry (.171/146AB) and journeyman Austin Hedges (.161/155) so it seems like his job is safe? You can only go up from here, Bo! Unless you go down, of course. That's still a very real possibility."},
-    5:{name:"O. CRUZ",number:"15",fullName:"Oneil Cruz",wbcFlag:"🇩🇴",mlbId:665833,age:25,height:"6'7\"",weight:"240lbs",battingAvg2025:".200/514AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/cruzon01.shtml",bio:"Holy cow, could Oneil Cruz be the true heir to the Mendoza Crown? Not only does he play Mario Mendoza's position on the team Mario Mendoza spent most of his career playing for — he also hit EXACTLY .200 last year. Not even Mario Mendoza himself ever did that!!"},
-    6:{name:"C. MOREL",number:"24",fullName:"Christopher Morel",wbcFlag:null,mlbId:666624,age:26,height:"6'0\"",weight:"200lbs",battingAvg2025:".219/278AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/morelch01.shtml",bio:"Christopher Morel paints two lines of eye black on his cheeks like Peter Criss from Kiss. Maybe it's more Hello Kitty? Either way, it's pretty goofy. Morel dipped below The Mendoza Line in 2024, & getting back on top last season wasn't enough to keep him from getting DFAd by Tampa Bay last December. He signed a one-year deal to play first base for Miami — a position he has never played before in his life. It's <i>Moneyball</i>, y'all! Chris Morel is Chris Pratt!!"},
-    7:{name:"D. MOORE",number:"25",fullName:"Dylan Moore",wbcFlag:null,mlbId:664238,age:32,height:"6'0\"",weight:"205lbs",battingAvg2025:".201/219AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/mooredy01.shtml",bio:"Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"},
-    8:{name:"L. ROBERT Jr.",number:"88",fullName:"Luis Robert, Junior",wbcFlag:null,mlbId:673357,age:28,height:"6'3\"",weight:"225lbs",battingAvg2025:".224/395AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/r/roberlu01.shtml",bio:"The 2021 Chicago White Sox were supposed to be The Future. Now five years removed from seemingly limitless potential and two seasons after claiming the title of \"worst team in history,\" nearly every player from the core built to bring the South Side \"multiple parades\" is gone. Luis Robert, Jr. will spend this summer in Queens, coincidentally replacing last season's Metropolitan Center Fielder, Jose Siri (who may I remind you, broke his dang leg like an actual horse). Junior hit .233 last year and maybe a change of scenery will help — even if it's mainly just an airport and scrapyards."},
-    9:{name:"TBD-PLAYER-9",number:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
-    10:{name:"TBD-PLAYER-10",number:"",fullName:"SOON COME (NL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
-    11:{name:"TBD-PLAYER-11",number:"",fullName:"SOON COME (NL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""}
+    1:{name:"P.C.A.",number:"4",position:"OF",fullName:"Pete Crow-Armstrong",wbcFlag:"🇺🇸",mlbId:691718,age:23,height:"6'0\"",weight:"184lbs",battingAvg2025:".247/591AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/crowape01.shtml",bio:"<i>Technically</i> their mascot is a pantsless bear named Clark, but the <i>real</i> face of the Cubs is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats, hit a Khris Davis-approved .247 & smacked 31 home runs… but only 7 of those came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"},
+    2:{name:"M. MURAKAMI",number:"5",position:"DH",fullName:"Munetaka Murakami",wbcFlag:"🇯🇵",mlbId:null,age:25,height:"6'2\"",weight:"213lbs",battingAvg2025:"*",battingAvgValue:".273/187AB",games:"",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muraka000mun",bio:"One of the biggest bats in Japanese baseball history is bringing his talent (& 30% strikeout rate) to the south side of Chicago! Murakami hit a Nippon Professional Baseball record 56 hōmurans in 2022. He most recently missed about half of last season with an oblique injury, but still hit .273 with 187 At Bats *in 56 games. That was against Japanese pitching, though… & the only MLB front office willing to take the risk was none other than Chicago's American League ballclub. Never change, Jerry!!"},
+    3:{name:"M. MUNCY",number:"10",position:"IF",fullName:"Max Muncy (AL)",wbcFlag:null,mlbId:null,age:23,height:"6'1\"",weight:"180lbs",battingAvg2025:".214/206AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muncy-002max",bio:"In 2025, Max Muncy finished his rookie season 14 points above The Mendoza Line in 206 At Bats. Let's be clear THIS Max Muncy is NOT the Max Muncy who competed in last year's Mendoza Stakes. THAT Max Muncy is a 10-year veteran infielder for the Los Angeles National League ballclub. THIS Max Muncy is a SOPHOMORE infielder for what is currently the SACRAMENTO American League ballclub. The wildest part is you can't even say THIS Max Muncy is \"the one born on August 25\" because BOTH Maxes Muncy were born on August 25th. How about that!"},
+    4:{name:"B. NAYLOR",number:"14",position:"C",fullName:"Noah-Gibson \"Bo\" Naylor",wbcFlag:null,mlbId:647304,age:25,height:"6'0\"",weight:"205lbs",battingAvg2025:".195/359AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/n/naylobo01.shtml",bio:"If Noah-Gibson Naylor, better known as Bo, sounds vaguely familiar it's probably because his older brother Josh plays for the Mariners. Bo only hit .195 last season, yet still seems to be Cleveland's guy behind the plate in the foreseeable future. At the time of this writing, the other two catchers on their roster are David Fry (.171/146AB) and journeyman Austin Hedges (.161/155) so it seems like his job is safe? You can only go up from here, Bo! Unless you go down, of course. That's still a very real possibility."},
+    5:{name:"O. CRUZ",number:"15",position:"IF",fullName:"Oneil Cruz",wbcFlag:"🇩🇴",mlbId:665833,age:25,height:"6'7\"",weight:"240lbs",battingAvg2025:".200/514AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/cruzon01.shtml",bio:"Holy cow, could Oneil Cruz be the true heir to the Mendoza Crown? Not only does he play Mario Mendoza's position on the team Mario Mendoza spent most of his career playing for — he also hit EXACTLY .200 last year. Not even Mario Mendoza himself ever did that!!"},
+    6:{name:"C. MOREL",number:"24",position:"IF",fullName:"Christopher Morel",wbcFlag:null,mlbId:666624,age:26,height:"6'0\"",weight:"200lbs",battingAvg2025:".219/278AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/morelch01.shtml",bio:"Christopher Morel paints two lines of eye black on his cheeks like Peter Criss from Kiss. Maybe it's more Hello Kitty? Either way, it's pretty goofy. Morel dipped below The Mendoza Line in 2024, & getting back on top last season wasn't enough to keep him from getting DFAd by Tampa Bay last December. He signed a one-year deal to play first base for Miami — a position he has never played before in his life. It's <i>Moneyball</i>, y'all! Chris Morel is Chris Pratt!!"},
+    7:{name:"D. MOORE",number:"25",position:"IF",fullName:"Dylan Moore",wbcFlag:null,mlbId:664238,age:32,height:"6'0\"",weight:"205lbs",battingAvg2025:".201/219AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/mooredy01.shtml",bio:"Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"},
+    8:{name:"L. ROBERT Jr.",number:"88",position:"OF",fullName:"Luis Robert, Junior",wbcFlag:null,mlbId:673357,age:28,height:"6'3\"",weight:"225lbs",battingAvg2025:".224/395AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/r/roberlu01.shtml",bio:"The 2021 Chicago White Sox were supposed to be The Future. Now five years removed from seemingly limitless potential and two seasons after claiming the title of \"worst team in history,\" nearly every player from the core built to bring the South Side \"multiple parades\" is gone. Luis Robert, Jr. will spend this summer in Queens, coincidentally replacing last season's Metropolitan Center Fielder, Jose Siri (who may I remind you, broke his dang leg like an actual horse). Junior hit .233 last year and maybe a change of scenery will help — even if it's mainly just an airport and scrapyards."},
+    9:{name:"TBD-PLAYER-9",number:"",position:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
+    10:{name:"TBD-PLAYER-10",number:"",position:"",fullName:"SOON COME (NL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
+    11:{name:"TBD-PLAYER-11",number:"",position:"",fullName:"SOON COME (NL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""}
 };
 
 let playersArray = [];
@@ -444,6 +461,7 @@ function openPlayerModal(playerId) {
     const modal = document.getElementById('player-modal');
     const nameEl = document.getElementById('player-modal-name');
     const numberEl = document.getElementById('player-modal-number');
+    const positionEl = document.getElementById('player-modal-position');
     
     // Use fullName for modal
     const displayName = player.fullName || player.name;
@@ -453,6 +471,13 @@ function openPlayerModal(playerId) {
         numberEl.innerHTML = '<span class="player-number"><span>' + player.number + '</span></span>';
     } else {
         numberEl.innerHTML = '<span class="player-number"><span></span></span>';
+    }
+    
+    // Populate the position badge
+    if (player.position) {
+        positionEl.innerHTML = '<span class="player-position"><span>' + player.position + '</span></span>';
+    } else {
+        positionEl.innerHTML = '';
     }
     
     // Convert name to uppercase
@@ -509,8 +534,116 @@ function openPlayerModal(playerId) {
         screwDiv.textContent = 'SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME';
     }
     
-    modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    // Fetch player status and trend
+    fetchPlayerStatusAndTrend(playerId);
+    
+    openModalWithScroll(modal);
+}
+
+async function fetchPlayerStatusAndTrend(playerId) {
+    const player = playerData[playerId];
+    const statusEl = document.getElementById('player-status');
+    const trendEl = document.getElementById('player-trend');
+    
+    // Check current date for season status
+    const now = new Date();
+    const springTrainingStart = new Date('2026-02-15'); // Spring training typically starts mid-February
+    const openingDay = new Date('2026-03-25'); // Opening day per site info
+    
+    // Default to season status
+    if (now < springTrainingStart) {
+        statusEl.textContent = 'WINTER';
+        trendEl.textContent = '---';
+        return;
+    } else if (now < openingDay) {
+        statusEl.textContent = 'SPRING';
+        trendEl.textContent = '---';
+        return;
+    }
+    
+    // Reset for loading during season
+    statusEl.textContent = 'LOADING';
+    trendEl.textContent = '---';
+    
+    if (!player.mlbId) {
+        statusEl.textContent = 'TBD';
+        return;
+    }
+    
+    try {
+        // Fetch player info to get status and recent stats
+        const response = await fetch(
+            `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=currentTeam,stats(group=[hitting],type=[gameLog],season=2026)`
+        );
+        
+        if (!response.ok) {
+            statusEl.textContent = 'ERROR';
+            return;
+        }
+        
+        const data = await response.json();
+        const person = data.people[0];
+        
+        // Determine status
+        let status = 'FREE AGENT';
+        if (person.currentTeam) {
+            const teamId = person.currentTeam.id;
+            // MLB teams are IDs 108-158 (approximately)
+            if (teamId >= 108 && teamId <= 158) {
+                // Check if injured
+                if (person.status && person.status.code === 'D60') {
+                    status = 'INJURED';
+                } else {
+                    status = 'ACTIVE';
+                }
+            } else {
+                // Minor league team - check level
+                if (person.currentTeam.name) {
+                    const teamName = person.currentTeam.name.toUpperCase();
+                    if (teamName.includes('AAA') || teamName.includes('TRIPLE')) {
+                        status = 'AAA';
+                    } else if (teamName.includes('AA') || teamName.includes('DOUBLE')) {
+                        status = 'AA';
+                    } else if (teamName.includes('A+') || teamName.includes('HIGH')) {
+                        status = 'A+';
+                    } else {
+                        status = 'A';
+                    }
+                }
+            }
+        }
+        
+        statusEl.textContent = status;
+        
+        // Determine trend from game log
+        if (person.stats && person.stats.length > 0) {
+            const gameLog = person.stats.find(s => s.type.displayName === 'gameLog');
+            if (gameLog && gameLog.splits && gameLog.splits.length >= 2) {
+                const splits = gameLog.splits;
+                // Get last two games with at-bats
+                const recentGames = splits.filter(g => g.stat && g.stat.atBats > 0).slice(0, 2);
+                
+                if (recentGames.length >= 2) {
+                    const lastGame = recentGames[0].stat;
+                    const prevGame = recentGames[1].stat;
+                    
+                    const lastAvg = lastGame.atBats > 0 ? lastGame.hits / lastGame.atBats : 0;
+                    const prevAvg = prevGame.atBats > 0 ? prevGame.hits / prevGame.atBats : 0;
+                    
+                    if (lastAvg > prevAvg) {
+                        trendEl.textContent = 'AVG↑';
+                    } else if (lastAvg < prevAvg) {
+                        trendEl.textContent = 'AVG↓';
+                    } else {
+                        trendEl.textContent = 'AVG→';
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching player status:', error);
+        statusEl.textContent = 'ERROR';
+    }
 }
 
 async function fetchMLBStats() {
@@ -805,77 +938,143 @@ if (bugleTrigger) {
 
 `;
         
-        // Horse animation frames - 11 horses total representing all 10 players
+        // Horse animation frames - truly independent movement, text locked separately below
         const horseFrames = [
+            // Frame 1 - Each horse has unique leg position
             `
           .''                .''                 .''
   ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
  //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
 '/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\         \`   \\     \\
-        \\     \\            \\     \\             \\     \\
+   \`   \\     \\        \`  \\      \\         \`     \\   \\
+        \\     \\            \\      \\              \\   \\
 
           .''                .''                 .''
   ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
  //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
 '/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\         \`   \\     \\
-        \\     \\            \\     \\             \\     \\
+   \`     \\   \\        \`   \\     \\         \`  \\      \\
+          \\   \\            \\     \\             \\      \\
 
           .''                .''                 .''
   ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
  //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
 '/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`   \\     \\        \`   \\     \\         \`   \\     \\
-        \\     \\            \\     \\             \\     \\
+   \`  \\      \\        \`     \\   \\         \`   \\     \\
+       \\      \\              \\   \\            \\     \\
 
                 .''                             .''
         ._.-.___.' (\`\\                 ._.-.___.' (\`\\
        //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
       '/ )\\ ).__. )                   '/ )\\ ).__. )
       ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
-         \`   \\     \\                     \`   \\     \\
-              \\     \\                         \\     \\
-
-                      Look @ 'em go!!
+         \`    \\    \\                     \`  \\      \\
+               \\    \\                         \\      \\
 `,
+            // Frame 2 - Different leg positions for each horse
             `
           .''                .''                 .''
   ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
  //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
 '/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\         \`     \\   \\
-          \\   \\              \\   \\               \\   \\
+   \`    \\    \\        \`     \\   \\         \`  \\      \\
+         \\    \\              \\   \\             \\      \\
 
           .''                .''                 .''
   ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
  //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
 '/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\         \`     \\   \\
-          \\   \\              \\   \\               \\   \\
+   \`  \\      \\        \`    \\    \\         \`     \\   \\
+       \\      \\             \\    \\              \\   \\
 
           .''                .''                 .''
   ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
  //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
 '/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
 ' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`     \\   \\         \`     \\   \\
-          \\   \\              \\   \\               \\   \\
+   \`     \\   \\        \`  \\      \\         \`    \\    \\
+          \\   \\            \\      \\              \\    \\
 
                 .''                             .''
         ._.-.___.' (\`\\                 ._.-.___.' (\`\\
        //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
       '/ )\\ ).__. )                   '/ )\\ ).__. )
       ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
-         \`     \\   \\                     \`     \\   \\
-                \\   \\                           \\   \\
+         \`  \\      \\                     \`     \\   \\
+             \\      \\                          \\   \\
+`,
+            // Frame 3 - More varied leg positions
+            `
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`  \\      \\        \`   \\     \\         \`    \\    \\
+       \\      \\            \\     \\              \\    \\
 
-                      Look @ 'em go!!
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`   \\     \\        \`  \\      \\         \`  \\      \\
+        \\     \\            \\      \\             \\      \\
+
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`     \\   \\        \`   \\     \\         \`  \\      \\
+          \\   \\            \\     \\             \\      \\
+
+                .''                             .''
+        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
+       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
+      '/ )\\ ).__. )                   '/ )\\ ).__. )
+      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
+         \`     \\   \\                     \`   \\     \\
+                \\   \\                         \\     \\
+`,
+            // Frame 4 - Continue varied movement
+            `
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`     \\   \\        \`    \\    \\         \`   \\     \\
+          \\   \\             \\    \\            \\     \\
+
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`    \\    \\        \`     \\   \\         \`   \\     \\
+         \\    \\              \\   \\            \\     \\
+
+          .''                .''                 .''
+  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
+ //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
+'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
+' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
+   \`  \\      \\        \`    \\    \\         \`     \\   \\
+       \\      \\             \\    \\              \\   \\
+
+                .''                             .''
+        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
+       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
+      '/ )\\ ).__. )                   '/ )\\ ).__. )
+      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
+         \`   \\     \\                     \`    \\    \\
+              \\     \\                          \\    \\
 `
         ];
 
@@ -899,7 +1098,7 @@ if (bugleTrigger) {
         // Wait 1 second, then start horse animation
         setTimeout(() => {
             animateHorse();
-            horseInterval = setInterval(animateHorse, 300);
+            horseInterval = setInterval(animateHorse, 200); // Faster animation for smoother gallop
         }, 1000);
         
         // Stop animation and close modal when song ends
