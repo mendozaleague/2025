@@ -191,7 +191,7 @@
                     <div style="font-size: 0.65rem;">STATUS:</div>
                     <div id="player-status" style="font-size: 0.65rem;">WINTER</div>
                 </div>
-                <div id="player-team-designation" style="font-family: 'Brush Script MT', cursive, 'Arial', sans-serif; font-size: 0.9rem; text-align: center; color: #2c2c2c; font-style: italic; padding: 0 15px; flex: 1; line-height: 1.4;"></div>
+                <div id="player-team-designation" style="font-family: 'Brush Script MT', cursive, 'Arial', sans-serif; font-size: 1.25rem; text-align: center; color: #2c2c2c; font-style: italic; padding: 0 10px; flex: 1; line-height: 1.4; white-space: nowrap;"></div>
                 <div class="player-trend-indicator" style="position: static; transform: none;">
                     <div style="font-size: 0.65rem;">TREND:</div>
                     <div id="player-trend" style="font-size: 0.65rem;">---</div>
@@ -543,14 +543,14 @@ function openPlayerModal(playerId) {
     // Set team designation
     const teamDesignationEl = document.getElementById('player-team-designation');
     const teamDesignations = {
-        1: 'Ricketsville <span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Senior Circuit',
-        2: 'Bridgeport <span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Junior Circuit',
-        3: 'Sacramento<span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Junior Circuit',
-        4: 'Cleveland<span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Junior Circuit',
-        5: 'Pittsburgh<span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Senior Circuit',
-        6: 'Florida<span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Senior Circuit',
-        7: 'Texas?<span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Junior Circuit',
-        8: 'Queens<span style="font-style: normal; vertical-align: middle; display: inline-block; transform: translateY(0.05em);">⬩</span>Senior Circuit'
+        1: 'Senior Circuit',
+        2: 'Junior Circuit',
+        3: 'Junior Circuit',
+        4: 'Junior Circuit',
+        5: 'Senior Circuit',
+        6: 'Senior Circuit',
+        7: 'Junior Circuit',
+        8: 'Senior Circuit'
     };
     teamDesignationEl.innerHTML = teamDesignations[playerId] || '';
     
