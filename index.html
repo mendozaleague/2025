@@ -706,7 +706,7 @@ async function fetchMLBStats() {
 
 initializePlayers();
 setTimeout(fetchMLBStats, 2000);
-setInterval(fetchMLBStats, 300000);
+setInterval(fetchMLBStats, 11000); // Update every 11 seconds - diamond animation signals update
 
 const link=document.createElement('link');
 link.rel='icon';
@@ -792,30 +792,68 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 function updateCountdown(){
-    const postTime=new Date('2026-03-25T00:00:00').getTime();
-    const now=new Date().getTime();
-    const distance=postTime-now;
+    const now = new Date().getTime();
     
-    if(distance<0){
-        document.getElementById('countdown-timer').textContent='00:00:00:00';
+    // Define key dates
+    const springTraining = new Date('2026-02-15T00:00:00').getTime();  // Spring Training starts
+    const openingDay = new Date('2026-03-25T00:00:00').getTime();      // Opening Day / Post Time
+    const allStarBreakStart = new Date('2026-07-11T00:00:00').getTime(); // All-Star Break starts
+    const allStarBreakEnd = new Date('2026-07-15T00:00:00').getTime();   // All-Star Break ends
+    const finishLine = new Date('2026-09-27T23:59:59').getTime();      // End of season
+    
+    let targetDate, labelText;
+    
+    // Determine which phase we're in and set target accordingly
+    if (now < springTraining) {
+        // Before Spring Training
+        targetDate = springTraining;
+        labelText = 'TO SPRING TRAINING';
+    } else if (now < openingDay) {
+        // During Spring Training
+        targetDate = openingDay;
+        labelText = 'TO POST TIME';
+    } else if (now < allStarBreakStart) {
+        // During first half of season
+        targetDate = allStarBreakStart;
+        labelText = 'TO ALL-STAR BREAK';
+    } else if (now < allStarBreakEnd) {
+        // During All-Star Break
+        targetDate = allStarBreakEnd;
+        labelText = 'TO 2nd HALF';
+    } else if (now < finishLine) {
+        // During second half
+        targetDate = finishLine;
+        labelText = 'TO FINISH LINE';
+    } else {
+        // Season is over
+        document.getElementById('countdown-timer').textContent = '00:00:00:00';
+        document.getElementById('live-indicator').innerHTML = '<span id="countdown-timer">00:00:00:00</span> SEASON COMPLETE';
         return;
     }
     
-    const days=Math.floor(distance/(1000*60*60*24));
-    const hours=Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-    const minutes=Math.floor((distance%(1000*60*60))/(1000*60));
-    const seconds=Math.floor((distance%(1000*60))/1000);
+    const distance = targetDate - now;
     
-    const formatted=String(days).padStart(2,'0')+':'+
-                    String(hours).padStart(2,'0')+':'+
-                    String(minutes).padStart(2,'0')+':'+
-                    String(seconds).padStart(2,'0');
+    if (distance < 0) {
+        document.getElementById('countdown-timer').textContent = '00:00:00:00';
+        return;
+    }
     
-    document.getElementById('countdown-timer').textContent=formatted;
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    const formatted = String(days).padStart(2, '0') + ':' +
+                      String(hours).padStart(2, '0') + ':' +
+                      String(minutes).padStart(2, '0') + ':' +
+                      String(seconds).padStart(2, '0');
+    
+    document.getElementById('countdown-timer').textContent = formatted;
+    document.getElementById('live-indicator').innerHTML = `<span id="countdown-timer">${formatted}</span> ${labelText}`;
 }
 
 updateCountdown();
-setInterval(updateCountdown,1000);
+setInterval(updateCountdown, 1000);
 
 const staticMessages=['Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Our 11th "Glorious" Season','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','"Congratulations" to 2025 Champ D. Moore','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','It\'s the 3rd Race to Two Hundred!','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','R.I.P. Mister Baseball','Diamond Life','Diamond Life!!!!!!!!!!!','Your Perfect Fantasy','Mario\'s Eleventh Affair'];
 
