@@ -191,6 +191,7 @@
                     <p id="player-modal-details"></p>
                     <p id="player-modal-2025-stats"></p>
                     <p id="player-modal-2026-stats"></p>
+                    <p id="player-modal-current-stats"><strong>Current Stats: ---/---AB</strong></p>
                     <p id="player-modal-games" style="font-size: 0.9rem; margin-top: 5px; margin-bottom: 8px;"></p>
                 </div>
             </div>
@@ -470,6 +471,10 @@ function openPlayerModal(playerId) {
     if (!player) return;
     
     const modal = document.getElementById('player-modal');
+    
+    // Store the current player ID so we can update it when stats refresh
+    modal.setAttribute('data-current-player-id', playerId);
+    
     const nameEl = document.getElementById('player-modal-name');
     const numberEl = document.getElementById('player-modal-number');
     const positionEl = document.getElementById('player-modal-position');
@@ -531,6 +536,19 @@ function openPlayerModal(playerId) {
     
     document.getElementById('player-modal-2026-stats').innerHTML = 
         '<strong>2026 PECOTA Projection: ' + player.pecota2026 + '</strong>';
+    
+    // Get live player data from playersArray
+    const livePlayer = playersArray.find(p => p.id === playerId);
+    let currentStatsText = '---/---AB';
+    
+    if (livePlayer && livePlayer.currentAvg !== null && !isNaN(livePlayer.currentAvg)) {
+        const avg = livePlayer.currentAvg.toFixed(3);
+        const ab = livePlayer.liveAtBats || 0;
+        currentStatsText = `${avg}/${ab}AB`;
+    }
+    
+    document.getElementById('player-modal-current-stats').innerHTML = 
+        '<strong>Current Stats: ' + currentStatsText + '</strong>';
     
     if (player.games) {
         document.getElementById('player-modal-games').textContent = '*' + player.games;
@@ -707,9 +725,39 @@ async function fetchMLBStats() {
         rankPlayers();
         renderPlayers();
         
+        // Update player modal if it's currently open
+        updateOpenPlayerModal();
+        
     } catch (error) {
         console.error('Error fetching MLB stats:', error);
     }
+}
+
+// Function to update player modal stats if modal is currently open
+function updateOpenPlayerModal() {
+    const playerModal = document.getElementById('player-modal');
+    if (!playerModal || !playerModal.classList.contains('open')) {
+        return; // Modal not open, nothing to update
+    }
+    
+    // Get the currently displayed player by checking which row was clicked
+    // We'll need to store this when opening the modal
+    const currentPlayerId = playerModal.getAttribute('data-current-player-id');
+    if (!currentPlayerId) return;
+    
+    const livePlayer = playersArray.find(p => p.id === parseInt(currentPlayerId));
+    if (!livePlayer) return;
+    
+    // Update current stats display
+    let currentStatsText = '---/---AB';
+    if (livePlayer.currentAvg !== null && !isNaN(livePlayer.currentAvg)) {
+        const avg = livePlayer.currentAvg.toFixed(3);
+        const ab = livePlayer.liveAtBats || 0;
+        currentStatsText = `${avg}/${ab}AB`;
+    }
+    
+    document.getElementById('player-modal-current-stats').innerHTML = 
+        '<strong>Current Stats: ' + currentStatsText + '</strong>';
 }
 
 initializePlayers();
@@ -1406,15 +1454,50 @@ ${countdownText}
                 `;
                 horseElement.textContent = countdownFrame;
                 
-                // Close modal after 3 seconds
+                // Close modal after 2 seconds
                 setTimeout(() => {
                     const horseModal = document.getElementById('horse-modal');
                     closeModalWithScroll(horseModal);
-                }, 3000);
+                }, 2000);
             } else {
-                // Pre-season: Just close the modal
-                const horseModal = document.getElementById('horse-modal');
-                closeModalWithScroll(horseModal);
+                // Pre-season: Show countdown to Opening Day
+                if (horseText) {
+                    horseText.style.visibility = 'hidden';
+                    horseText.textContent = '';
+                }
+                
+                // Calculate days until Opening Day
+                const openingDay = new Date('2026-03-25T00:00:00');
+                const now = new Date();
+                const daysUntilOpening = Math.max(0, Math.ceil((openingDay - now) / (1000 * 60 * 60 * 24)));
+                
+                // Show pre-season countdown frame
+                const preSeasonCountdownFrame = `
+
+
+
+
+
+
+
+
+${daysUntilOpening} Days 'til Post Time!!
+
+
+
+
+
+
+
+
+                `;
+                horseElement.textContent = preSeasonCountdownFrame;
+                
+                // Close modal after 2 seconds
+                setTimeout(() => {
+                    const horseModal = document.getElementById('horse-modal');
+                    closeModalWithScroll(horseModal);
+                }, 2000);
             }
         }, totalDuration * 1000);
     });
