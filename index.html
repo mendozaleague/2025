@@ -717,21 +717,23 @@ document.head.appendChild(link);
 let scrollY = 0;
 
 function openModalWithScroll(modal) {
-    scrollY = window.scrollY;
+    scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
     modal.classList.add('open');
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeModalWithScroll(modal) {
     modal.classList.remove('open');
+    const scrollPosition = scrollY;
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
-    requestAnimationFrame(() => {
-        window.scrollTo(0, scrollY);
-    });
+    document.body.style.overflow = '';
+    window.scrollTo(0, scrollPosition);
+    scrollY = 0;
 }
 
 document.addEventListener('DOMContentLoaded',function(){
@@ -1097,6 +1099,68 @@ if (bugleTrigger) {
 `
         ];
 
+        // Check current date for race mode
+        const currentDate = new Date();
+        const openingDay = new Date('2026-03-25T00:00:00');
+        const allStarBreak = new Date('2026-07-11T00:00:00');
+        const isSeasonActive = currentDate >= openingDay;
+        const isPostAllStarBreak = currentDate >= allStarBreak;
+        
+        // Prepare race announcements if season is active
+        let raceAnnouncementText = '';
+        let countdownText = '';
+        
+        if (isSeasonActive) {
+            let top3Players = [];
+            
+            if (isPostAllStarBreak) {
+                // POST ALL-STAR BREAK: Race for .200
+                let sortedBy200 = [...playersArray]
+                    .filter(p => !p.name.startsWith('TBD') && p.currentAvg !== null && !isNaN(p.currentAvg))
+                    .sort((a, b) => a.distanceFrom200 - b.distanceFrom200);
+                
+                top3Players = sortedBy200.slice(0, 3).map((p, idx) => {
+                    let distanceText;
+                    const avg = p.currentAvg;
+                    
+                    if (Math.abs(avg - 0.200) < 0.0001) {
+                        distanceText = 'GIDDYUP!!';
+                    } else {
+                        const distance = Math.abs(Math.round((avg - 0.200) * 1000));
+                        distanceText = `${distance} AWAY`;
+                    }
+                    
+                    return `${idx + 1}${idx === 0 ? 'st' : idx === 1 ? 'nd' : 'rd'}: ${p.number || '??'} ${p.name} ${distanceText}`;
+                });
+                
+                // Calculate days until end of season (Sept 27, 2026)
+                const endOfSeason = new Date('2026-09-27T23:59:59');
+                const daysLeft = Math.max(0, Math.ceil((endOfSeason - currentDate) / (1000 * 60 * 60 * 24)));
+                countdownText = `${daysLeft} Days 'til The Finish!!`;
+                
+            } else {
+                // PRE ALL-STAR BREAK: Race for 200AB
+                let sortedByAB = [...playersArray]
+                    .filter(p => !p.name.startsWith('TBD'))
+                    .sort((a, b) => (b.liveAtBats || 0) - (a.liveAtBats || 0));
+                
+                top3Players = sortedByAB.slice(0, 3).map((p, idx) => {
+                    const abDisplay = p.liveAtBats ? `${p.liveAtBats}AB` : '0AB';
+                    return `${idx + 1}${idx === 0 ? 'st' : idx === 1 ? 'nd' : 'rd'}: ${p.number || '??'} ${p.name} ${abDisplay}`;
+                });
+                
+                // Calculate days until All-Star Break
+                const daysUntilBreak = Math.max(0, Math.ceil((allStarBreak - currentDate) / (1000 * 60 * 60 * 24)));
+                countdownText = `${daysUntilBreak} Days 'til The Break!!`;
+            }
+            
+            // Build the race announcement text (will display progressively)
+            if (top3Players.length >= 3) {
+                raceAnnouncementText = top3Players.join('\n');
+            }
+        }
+
+
 
 
 
@@ -1110,6 +1174,7 @@ if (bugleTrigger) {
         // Reset horse text to hidden at start
         if (horseText) {
             horseText.style.visibility = 'hidden';
+            horseText.textContent = '';
         }
         
         // Show opening text
@@ -1126,23 +1191,89 @@ if (bugleTrigger) {
             horseInterval = setInterval(animateHorse, 200); // Faster animation for smoother gallop
         }, 1000);
         
-        // Show "Look @ 'em go!!" text in the second half of the song (at 60% through)
-        setTimeout(() => {
-            const horseText = document.getElementById('horse-text');
-            if (horseText) {
-                horseText.style.visibility = 'visible';
-            }
-        }, (totalDuration * 0.6) * 1000);
+        // If season is active, show race announcements progressively
+        if (isSeasonActive && raceAnnouncementText) {
+            const lines = raceAnnouncementText.split('\n');
+            
+            // Show 1st place (0.5 seconds into animation)
+            setTimeout(() => {
+                if (horseText && lines[0]) {
+                    horseText.textContent = lines[0];
+                    horseText.style.visibility = 'visible';
+                }
+            }, 1500);
+            
+            // Show 1st + 2nd place (1 second later)
+            setTimeout(() => {
+                if (horseText && lines[1]) {
+                    horseText.textContent = lines[0] + '\n' + lines[1];
+                }
+            }, 2500);
+            
+            // Show all 3 places (1 second later)
+            setTimeout(() => {
+                if (horseText && lines[2]) {
+                    horseText.textContent = raceAnnouncementText;
+                }
+            }, 3500);
+        } else {
+            // Pre-season: Show "Look @ 'em go!!" text in the second half of the song
+            setTimeout(() => {
+                const horseText = document.getElementById('horse-text');
+                if (horseText) {
+                    horseText.textContent = "Look @ 'em go!!";
+                    horseText.style.visibility = 'visible';
+                }
+            }, (totalDuration * 0.6) * 1000);
+        }
         
-        // Stop animation and close modal when song ends
+        // Stop animation and show countdown if season is active
         setTimeout(() => {
             if (horseInterval) {
                 clearInterval(horseInterval);
             }
-            // Close the modal
-            const horseModal = document.getElementById('horse-modal');
-            closeModalWithScroll(horseModal);
-        }, totalDuration * 1000); // Convert to milliseconds
+            
+            // If season is active, show countdown screen
+            if (isSeasonActive && countdownText) {
+                // Hide race announcements
+                if (horseText) {
+                    horseText.style.visibility = 'hidden';
+                    horseText.textContent = '';
+                }
+                
+                // Show countdown
+                const countdownFrame = `
+
+
+
+
+
+
+
+
+${countdownText}
+
+
+
+
+
+
+
+
+                `;
+                horseElement.textContent = countdownFrame;
+                
+                // Close modal after 3 seconds
+                setTimeout(() => {
+                    const horseModal = document.getElementById('horse-modal');
+                    closeModalWithScroll(horseModal);
+                }, 3000);
+            } else {
+                // Pre-season: Just close the modal
+                const horseModal = document.getElementById('horse-modal');
+                closeModalWithScroll(horseModal);
+            }
+        }, totalDuration * 1000);
     });
 }
     </script>
