@@ -19,6 +19,12 @@
         .wave-emoji-5 { animation: wave 11s ease-in-out 10.6s infinite; }
         .wave-emoji-6 { animation: wave 11s ease-in-out 10.75s infinite; }
         .wave-emoji-1, .wave-emoji-2, .wave-emoji-3, .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
+        .live-letter { display: inline-block; }
+        .live-letter.wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
+        .live-letter.wave-emoji-2 { animation: wave 11s ease-in-out 10.15s infinite; }
+        .live-letter.wave-emoji-3 { animation: wave 11s ease-in-out 10.3s infinite; }
+        .live-letter.wave-emoji-4 { animation: wave 11s ease-in-out 10.45s infinite; }
+        .live-letter.paused { animation-play-state: paused !important; }
         .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
         .header { text-align: center; margin-bottom: 0; padding: 15px; background: #b8ddf2; border: 2px solid #b8ddf2; }
         .header h1 { font-size: 2.0rem; margin-bottom: 0; color: black; line-height: 1.2; }
@@ -148,7 +154,9 @@
         <div class="live-standings">
             <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br>Watch Race <a href="#" id="bugle-trigger" style="cursor: pointer;"><strong><u>SIMULATION</u></strong></a></p>
         </div>
-        <div class="copyright">mendozaleague.com ver3.2 ©2026 your pal <a href="https://www.dudlawson.com" target="_blank"><u>Dud Lawson</u></a></div>
+        <div class="copyright">
+            mendozaleague.com ver3.2 ©2026⬩<span id="live-text"><span class="live-letter wave-emoji-1">L</span><span class="live-letter wave-emoji-2">I</span><span class="live-letter wave-emoji-3">V</span><span class="live-letter wave-emoji-4">E</span></span> updates every 0:11
+        </div>
     </div>
     <div id="rules-modal" class="modal">
         <div class="modal-content">
@@ -707,6 +715,103 @@ async function fetchMLBStats() {
 initializePlayers();
 setTimeout(fetchMLBStats, 2000);
 setInterval(fetchMLBStats, 11000); // Update every 11 seconds - diamond animation signals update
+
+// Function to check if any of our players' games are currently active
+async function checkGameStatus() {
+    try {
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        // Get list of our players with MLB IDs
+        const ourPlayers = playersArray.filter(p => p.mlbId);
+        
+        if (ourPlayers.length === 0) {
+            pauseLiveAnimation();
+            return;
+        }
+        
+        let anyGameActive = false;
+        
+        // Check each player's team schedule for today
+        for (let player of ourPlayers) {
+            try {
+                // Get player's current team
+                const personResponse = await fetch(
+                    `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=currentTeam`
+                );
+                
+                if (!personResponse.ok) continue;
+                
+                const personData = await personResponse.json();
+                const person = personData.people[0];
+                
+                if (!person.currentTeam) continue;
+                
+                const teamId = person.currentTeam.id;
+                
+                // Get today's schedule for this team
+                const scheduleResponse = await fetch(
+                    `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}&date=${dateStr}`
+                );
+                
+                if (!scheduleResponse.ok) continue;
+                
+                const scheduleData = await scheduleResponse.json();
+                
+                if (scheduleData.dates && scheduleData.dates.length > 0) {
+                    const games = scheduleData.dates[0].games;
+                    
+                    for (let game of games) {
+                        const status = game.status.abstractGameState;
+                        // Game is active if it's "Live" (in progress)
+                        if (status === 'Live') {
+                            anyGameActive = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (anyGameActive) break;
+                
+            } catch (err) {
+                console.error(`Error checking game status for player ${player.name}:`, err);
+            }
+        }
+        
+        // Control the wave animation based on game status
+        if (anyGameActive) {
+            playLiveAnimation();
+        } else {
+            pauseLiveAnimation();
+        }
+        
+    } catch (error) {
+        console.error('Error in checkGameStatus:', error);
+        pauseLiveAnimation();
+    }
+}
+
+function playLiveAnimation() {
+    const liveLetters = document.querySelectorAll('.live-letter');
+    liveLetters.forEach(letter => {
+        letter.classList.remove('paused');
+    });
+}
+
+function pauseLiveAnimation() {
+    const liveLetters = document.querySelectorAll('.live-letter');
+    liveLetters.forEach(letter => {
+        letter.classList.add('paused');
+    });
+}
+
+// Start with paused animation
+pauseLiveAnimation();
+
+// Check game status every 30 seconds (don't need to check as frequently as stats)
+setInterval(checkGameStatus, 30000);
+// Do initial check after a brief delay
+setTimeout(checkGameStatus, 5000);
 
 const link=document.createElement('link');
 link.rel='icon';
