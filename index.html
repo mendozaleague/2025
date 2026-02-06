@@ -6,11 +6,6 @@
     <title>THE 2026 MENDOZA STAKES</title>
     <meta name="description" content="The 3rd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
     <meta name="author" content="Dud Lawson">
-    
-    <!-- iOS Home Screen Icon -->
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { overflow-y: scroll; overflow-x: hidden; height: 100%; -webkit-overflow-scrolling: touch; }
@@ -24,12 +19,6 @@
         .wave-emoji-5 { animation: wave 11s ease-in-out 10.6s infinite; }
         .wave-emoji-6 { animation: wave 11s ease-in-out 10.75s infinite; }
         .wave-emoji-1, .wave-emoji-2, .wave-emoji-3, .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
-        .live-letter { display: inline-block; }
-        .live-letter.wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
-        .live-letter.wave-emoji-2 { animation: wave 11s ease-in-out 10.15s infinite; }
-        .live-letter.wave-emoji-3 { animation: wave 11s ease-in-out 10.3s infinite; }
-        .live-letter.wave-emoji-4 { animation: wave 11s ease-in-out 10.45s infinite; }
-        .live-letter.paused { animation-play-state: paused !important; }
         .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
         .header { text-align: center; margin-bottom: 0; padding: 15px; background: #b8ddf2; border: 2px solid #b8ddf2; }
         .header h1 { font-size: 2.0rem; margin-bottom: 0; color: black; line-height: 1.2; }
@@ -87,7 +76,7 @@
         .player-status-indicator { text-align: center; font-size: 0.75rem; color: #2c2c2c; font-weight: bold; line-height: 1.3; }
         .player-trend-indicator { text-align: center; font-size: 0.75rem; color: #2c2c2c; font-weight: bold; line-height: 1.3; }
         .player-modal-stats { flex: 1; text-align: center; color: #2c2c2c; padding: 0 20px; }
-        .player-modal-stats p { font-size: 1rem; margin-bottom: 8px; line-height: 1.4; }
+        .player-modal-stats p { font-size: 1rem; margin-bottom: 6px; line-height: 1.4; }
         .player-modal-stats strong { font-weight: bold; }
         .screw-flanders { text-align: center; font-size: 1rem; line-height: 1.6; color: #2c2c2c; word-wrap: break-word; margin-top: 20px; margin-bottom: 15px; }
         .bio-symbol { color: #b8ddf2; margin-top: 15px; font-size: 0.75rem; font-weight: bold; background-color: black; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
@@ -157,11 +146,9 @@
             <div class="hits-squares-text">Next Race: Mar 25 – Sept 27</div>
         </div>
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> UNTIL POST TIME</strong><br>View our 2026 Race <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br>Watch Race <a href="#" id="bugle-trigger" style="cursor: pointer;"><strong><u>SIMULATION</u></strong></a></p>
+            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong><br>Race for .200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> Commissioner<br>Run Race <a href="#" id="bugle-trigger" style="cursor: pointer;"><strong><u>SIMULATION</u></strong></a></p>
         </div>
-        <div class="copyright">
-            mendozaleague.com ver3.2 ©2026⬩<span id="live-text"><span class="live-letter wave-emoji-1">L</span><span class="live-letter wave-emoji-2">I</span><span class="live-letter wave-emoji-3">V</span><span class="live-letter wave-emoji-4">E</span></span> updates every 0:11
-        </div>
+        <div class="copyright">mendozaleague.com ver3.2 ©2026</div>
     </div>
     <div id="rules-modal" class="modal">
         <div class="modal-content">
@@ -196,7 +183,7 @@
                     <p id="player-modal-details"></p>
                     <p id="player-modal-2025-stats"></p>
                     <p id="player-modal-2026-stats"></p>
-                    <p id="player-modal-current-stats"><strong>Current Stats: ---/---AB</strong></p>
+                    <p id="player-modal-current-stats"></p>
                     <p id="player-modal-games" style="font-size: 0.9rem; margin-top: 5px; margin-bottom: 8px;"></p>
                 </div>
             </div>
@@ -239,10 +226,11 @@
     </div>
     <div id="horse-modal" class="modal">
         <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; height: 500px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-            <div style="flex: 1; display: flex; justify-content: center; align-items: center; overflow: hidden;">
-                <pre id="horse-animation" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #b8ddf2; text-align: left; white-space: pre;"></pre>
+            <div style="position: relative; flex: 1; width: 100%;">
+                <div id="horse-animation" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-family: monospace; font-size: 1.5rem; line-height: 2.5; color: #b8ddf2; overflow: hidden;"></div>
+                <div id="finish-line" style="position: absolute; right: 0; display: none; flex-direction: column; justify-content: space-between; font-family: monospace; font-size: 0.7rem; line-height: 1.2; color: #b8ddf2; white-space: pre; padding: 0;"></div>
             </div>
-            <div id="horse-text" style="font-family: monospace; font-size: 0.65rem; line-height: 1.1; color: #b8ddf2; text-align: center; margin-top: 10px; white-space: pre; visibility: hidden; min-height: 1.1rem;">Look @ 'em go!!</div>
+            <div id="horse-text" style="font-family: monospace; font-size: 0.85rem; line-height: 1.3; color: #b8ddf2; text-align: center; margin-top: 15px; white-space: pre; visibility: hidden; min-height: 3.9rem;"></div>
         </div>
     </div>
 
@@ -250,7 +238,7 @@
 const playerData={
     1:{name:"P.C.A.",number:"4",position:"OF",fullName:"Pete Crow-Armstrong",wbcFlag:"🇺🇸",mlbId:691718,age:23,height:"6'0\"",weight:"184lbs",battingAvg2025:".247/591AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/crowape01.shtml",bio:"<i>Technically</i> their mascot is a pantsless bear named Clark, but the <i>real</i> face of the Cubs is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats, hit a Khris Davis-approved .247 & smacked 31 home runs… but only 7 of those came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"},
     2:{name:"M. MURAKAMI",number:"5",position:"DH",fullName:"Munetaka Murakami",wbcFlag:"🇯🇵",mlbId:null,age:25,height:"6'2\"",weight:"213lbs",battingAvg2025:"*",battingAvgValue:".273/187AB",games:"",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muraka000mun",bio:"One of the biggest bats in Japanese baseball history is bringing his talent (& 30% strikeout rate) to the south side of Chicago! Murakami hit a Nippon Professional Baseball record 56 hōmurans in 2022. He most recently missed about half of last season with an oblique injury, but still hit .273 with 187 At Bats *in 56 games. That was against Japanese pitching, though… & the only MLB front office willing to take the risk was none other than Chicago's American League ballclub. Never change, Jerry!!"},
-    3:{name:"M. MUNCY",number:"10",position:"IF",fullName:"Max Muncy (AL)",wbcFlag:null,mlbId:null,age:23,height:"6'1\"",weight:"180lbs",battingAvg2025:".214/206AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muncy-002max",bio:"In 2025, Max Muncy finished his rookie season 14 points above The Mendoza Line in 206 At Bats. Let's be clear THIS Max Muncy is NOT the Max Muncy who competed in last year's Mendoza Stakes. THAT Max Muncy is a 10-year veteran infielder for the Los Angeles National League ballclub. THIS Max Muncy is a SOPHOMORE infielder for what is currently the SACRAMENTO American League ballclub. The wildest part is you can't even say THIS Max Muncy is \"the one born on August 25\" because BOTH Maxes Muncy were born on August 25th. How about that!"},
+    3:{name:"M. MUNCY",number:"10",position:"IF",fullName:"MAX P. MUNCY",wbcFlag:null,mlbId:null,age:23,height:"6'1\"",weight:"180lbs",battingAvg2025:".214/206AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/register/player.fcgi?id=muncy-002max",bio:"In 2025, Max Muncy finished his rookie season 14 points above The Mendoza Line in 206 At Bats. Let's be clear THIS Max Muncy is NOT the Max Muncy who competed in last year's Mendoza Stakes. THAT Max Muncy is a 10-year veteran infielder for the Los Angeles National League ballclub. THIS Max Muncy is a SOPHOMORE infielder for what is currently the SACRAMENTO American League ballclub. The wildest part is you can't even say THIS Max Muncy is \"the one born on August 25\" because BOTH Maxes Muncy were born on August 25th. How about that!"},
     4:{name:"B. NAYLOR",number:"14",position:"C",fullName:"Noah-Gibson \"Bo\" Naylor",wbcFlag:null,mlbId:647304,age:25,height:"6'0\"",weight:"205lbs",battingAvg2025:".195/359AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/n/naylobo01.shtml",bio:"If Noah-Gibson Naylor, better known as Bo, sounds vaguely familiar it's probably because his older brother Josh plays for the Mariners. Bo only hit .195 last season, yet still seems to be Cleveland's guy behind the plate in the foreseeable future. At the time of this writing, the other two catchers on their roster are David Fry (.171/146AB) and journeyman Austin Hedges (.161/155) so it seems like his job is safe? You can only go up from here, Bo! Unless you go down, of course. That's still a very real possibility."},
     5:{name:"O. CRUZ",number:"15",position:"IF",fullName:"Oneil Cruz",wbcFlag:"🇩🇴",mlbId:665833,age:25,height:"6'7\"",weight:"240lbs",battingAvg2025:".200/514AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/c/cruzon01.shtml",bio:"Holy cow, could Oneil Cruz be the true heir to the Mendoza Crown? Not only does he play Mario Mendoza's position on the team Mario Mendoza spent most of his career playing for — he also hit EXACTLY .200 last year. Not even Mario Mendoza himself ever did that!!"},
     6:{name:"C. MOREL",number:"24",position:"IF",fullName:"Christopher Morel",wbcFlag:null,mlbId:666624,age:26,height:"6'0\"",weight:"200lbs",battingAvg2025:".219/278AB",pecota2026:".---/---AB",url:"https://www.baseball-reference.com/players/m/morelch01.shtml",bio:"Christopher Morel paints two lines of eye black on his cheeks like Peter Criss from Kiss. Maybe it's more Hello Kitty? Either way, it's pretty goofy. Morel dipped below The Mendoza Line in 2024, & getting back on top last season wasn't enough to keep him from getting DFAd by Tampa Bay last December. He signed a one-year deal to play first base for Miami — a position he has never played before in his life. It's <i>Moneyball</i>, y'all! Chris Morel is Chris Pratt!!"},
@@ -476,10 +464,6 @@ function openPlayerModal(playerId) {
     if (!player) return;
     
     const modal = document.getElementById('player-modal');
-    
-    // Store the current player ID so we can update it when stats refresh
-    modal.setAttribute('data-current-player-id', playerId);
-    
     const nameEl = document.getElementById('player-modal-name');
     const numberEl = document.getElementById('player-modal-number');
     const positionEl = document.getElementById('player-modal-position');
@@ -542,18 +526,8 @@ function openPlayerModal(playerId) {
     document.getElementById('player-modal-2026-stats').innerHTML = 
         '<strong>2026 PECOTA Projection: ' + player.pecota2026 + '</strong>';
     
-    // Get live player data from playersArray
-    const livePlayer = playersArray.find(p => p.id === playerId);
-    let currentStatsText = '---/---AB';
-    
-    if (livePlayer && livePlayer.currentAvg !== null && !isNaN(livePlayer.currentAvg)) {
-        const avg = livePlayer.currentAvg.toFixed(3);
-        const ab = livePlayer.liveAtBats || 0;
-        currentStatsText = `${avg}/${ab}AB`;
-    }
-    
     document.getElementById('player-modal-current-stats').innerHTML = 
-        '<strong>Current Stats: ' + currentStatsText + '</strong>';
+        '<strong>Current Stats: <span id="player-current-stats">.---/---AB</span></strong>';
     
     if (player.games) {
         document.getElementById('player-modal-games').textContent = '*' + player.games;
@@ -570,6 +544,17 @@ function openPlayerModal(playerId) {
     
     // Fetch player status and trend
     fetchPlayerStatusAndTrend(playerId);
+    
+    // Update current stats from playersArray
+    const playerObj = playersArray.find(p => p.id === playerId);
+    const currentStatsEl = document.getElementById('player-current-stats');
+    if (playerObj && playerObj.currentAvg !== null && playerObj.liveAtBats !== null) {
+        const avgDisplay = playerObj.currentAvg.toFixed(3);
+        const abDisplay = `${playerObj.liveAtBats}AB`;
+        currentStatsEl.textContent = `${avgDisplay}/${abDisplay}`;
+    } else {
+        currentStatsEl.textContent = '.---/---AB';
+    }
     
     // Set team designation
     const teamDesignationEl = document.getElementById('player-team-designation');
@@ -730,141 +715,14 @@ async function fetchMLBStats() {
         rankPlayers();
         renderPlayers();
         
-        // Update player modal if it's currently open
-        updateOpenPlayerModal();
-        
     } catch (error) {
         console.error('Error fetching MLB stats:', error);
     }
 }
 
-// Function to update player modal stats if modal is currently open
-function updateOpenPlayerModal() {
-    const playerModal = document.getElementById('player-modal');
-    if (!playerModal || !playerModal.classList.contains('open')) {
-        return; // Modal not open, nothing to update
-    }
-    
-    // Get the currently displayed player by checking which row was clicked
-    // We'll need to store this when opening the modal
-    const currentPlayerId = playerModal.getAttribute('data-current-player-id');
-    if (!currentPlayerId) return;
-    
-    const livePlayer = playersArray.find(p => p.id === parseInt(currentPlayerId));
-    if (!livePlayer) return;
-    
-    // Update current stats display
-    let currentStatsText = '---/---AB';
-    if (livePlayer.currentAvg !== null && !isNaN(livePlayer.currentAvg)) {
-        const avg = livePlayer.currentAvg.toFixed(3);
-        const ab = livePlayer.liveAtBats || 0;
-        currentStatsText = `${avg}/${ab}AB`;
-    }
-    
-    document.getElementById('player-modal-current-stats').innerHTML = 
-        '<strong>Current Stats: ' + currentStatsText + '</strong>';
-}
-
 initializePlayers();
 setTimeout(fetchMLBStats, 2000);
-setInterval(fetchMLBStats, 11000); // Update every 11 seconds - diamond animation signals update
-
-// Function to check if any of our players' games are currently active
-async function checkGameStatus() {
-    try {
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD format
-        
-        // Get list of our players with MLB IDs
-        const ourPlayers = playersArray.filter(p => p.mlbId);
-        
-        if (ourPlayers.length === 0) {
-            pauseLiveAnimation();
-            return;
-        }
-        
-        let anyGameActive = false;
-        
-        // Check each player's team schedule for today
-        for (let player of ourPlayers) {
-            try {
-                // Get player's current team
-                const personResponse = await fetch(
-                    `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=currentTeam`
-                );
-                
-                if (!personResponse.ok) continue;
-                
-                const personData = await personResponse.json();
-                const person = personData.people[0];
-                
-                if (!person.currentTeam) continue;
-                
-                const teamId = person.currentTeam.id;
-                
-                // Get today's schedule for this team
-                const scheduleResponse = await fetch(
-                    `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}&date=${dateStr}`
-                );
-                
-                if (!scheduleResponse.ok) continue;
-                
-                const scheduleData = await scheduleResponse.json();
-                
-                if (scheduleData.dates && scheduleData.dates.length > 0) {
-                    const games = scheduleData.dates[0].games;
-                    
-                    for (let game of games) {
-                        const status = game.status.abstractGameState;
-                        // Game is active if it's "Live" (in progress)
-                        if (status === 'Live') {
-                            anyGameActive = true;
-                            break;
-                        }
-                    }
-                }
-                
-                if (anyGameActive) break;
-                
-            } catch (err) {
-                console.error(`Error checking game status for player ${player.name}:`, err);
-            }
-        }
-        
-        // Control the wave animation based on game status
-        if (anyGameActive) {
-            playLiveAnimation();
-        } else {
-            pauseLiveAnimation();
-        }
-        
-    } catch (error) {
-        console.error('Error in checkGameStatus:', error);
-        pauseLiveAnimation();
-    }
-}
-
-function playLiveAnimation() {
-    const liveLetters = document.querySelectorAll('.live-letter');
-    liveLetters.forEach(letter => {
-        letter.classList.remove('paused');
-    });
-}
-
-function pauseLiveAnimation() {
-    const liveLetters = document.querySelectorAll('.live-letter');
-    liveLetters.forEach(letter => {
-        letter.classList.add('paused');
-    });
-}
-
-// Start with paused animation
-pauseLiveAnimation();
-
-// Check game status every 30 seconds (don't need to check as frequently as stats)
-setInterval(checkGameStatus, 30000);
-// Do initial check after a brief delay
-setTimeout(checkGameStatus, 5000);
+setInterval(fetchMLBStats, 300000);
 
 const link=document.createElement('link');
 link.rel='icon';
@@ -950,68 +808,30 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 function updateCountdown(){
-    const now = new Date().getTime();
+    const postTime=new Date('2026-03-25T00:00:00').getTime();
+    const now=new Date().getTime();
+    const distance=postTime-now;
     
-    // Define key dates
-    const springTraining = new Date('2026-02-15T00:00:00').getTime();  // Spring Training starts
-    const openingDay = new Date('2026-03-25T00:00:00').getTime();      // Opening Day / Post Time
-    const allStarBreakStart = new Date('2026-07-11T00:00:00').getTime(); // All-Star Break starts
-    const allStarBreakEnd = new Date('2026-07-15T00:00:00').getTime();   // All-Star Break ends
-    const finishLine = new Date('2026-09-27T23:59:59').getTime();      // End of season
-    
-    let targetDate, labelText;
-    
-    // Determine which phase we're in and set target accordingly
-    if (now < springTraining) {
-        // Before Spring Training
-        targetDate = springTraining;
-        labelText = 'TO SPRING TRAINING';
-    } else if (now < openingDay) {
-        // During Spring Training
-        targetDate = openingDay;
-        labelText = 'TO POST TIME';
-    } else if (now < allStarBreakStart) {
-        // During first half of season
-        targetDate = allStarBreakStart;
-        labelText = 'TO ALL-STAR BREAK';
-    } else if (now < allStarBreakEnd) {
-        // During All-Star Break
-        targetDate = allStarBreakEnd;
-        labelText = 'TO 2nd HALF';
-    } else if (now < finishLine) {
-        // During second half
-        targetDate = finishLine;
-        labelText = 'TO FINISH LINE';
-    } else {
-        // Season is over
-        document.getElementById('countdown-timer').textContent = '00:00:00:00';
-        document.getElementById('live-indicator').innerHTML = '<span id="countdown-timer">00:00:00:00</span> SEASON COMPLETE';
+    if(distance<0){
+        document.getElementById('countdown-timer').textContent='00:00:00:00';
         return;
     }
     
-    const distance = targetDate - now;
+    const days=Math.floor(distance/(1000*60*60*24));
+    const hours=Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+    const minutes=Math.floor((distance%(1000*60*60))/(1000*60));
+    const seconds=Math.floor((distance%(1000*60))/1000);
     
-    if (distance < 0) {
-        document.getElementById('countdown-timer').textContent = '00:00:00:00';
-        return;
-    }
+    const formatted=String(days).padStart(2,'0')+':'+
+                    String(hours).padStart(2,'0')+':'+
+                    String(minutes).padStart(2,'0')+':'+
+                    String(seconds).padStart(2,'0');
     
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    const formatted = String(days).padStart(2, '0') + ':' +
-                      String(hours).padStart(2, '0') + ':' +
-                      String(minutes).padStart(2, '0') + ':' +
-                      String(seconds).padStart(2, '0');
-    
-    document.getElementById('countdown-timer').textContent = formatted;
-    document.getElementById('live-indicator').innerHTML = `<span id="countdown-timer">${formatted}</span> ${labelText}`;
+    document.getElementById('countdown-timer').textContent=formatted;
 }
 
 updateCountdown();
-setInterval(updateCountdown, 1000);
+setInterval(updateCountdown,1000);
 
 const staticMessages=['Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Our 11th "Glorious" Season','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','"Congratulations" to 2025 Champ D. Moore','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','It\'s the 3rd Race to Two Hundred!','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','Next Race: Mar 25 – Sept 27','R.I.P. Mister Baseball','Diamond Life','Diamond Life!!!!!!!!!!!','Your Perfect Fantasy','Mario\'s Eleventh Affair'];
 
@@ -1123,178 +943,36 @@ if (bugleTrigger) {
         const totalDuration = t - now;
         
         // Open horse animation modal
+        // Open horse animation modal
         const horseModal = document.getElementById('horse-modal');
         openModalWithScroll(horseModal);
         
-        // Get first place player's number
-        const firstPlacePlayer = playersArray.length > 0 ? playersArray[0] : null;
-        const firstPlaceNumber = firstPlacePlayer && firstPlacePlayer.number ? firstPlacePlayer.number.toString().padStart(2, ' ') : '??';
+        // Build horses array from player data
+        const raceHorses = [];
+        for (let i = 1; i <= 11; i++) {
+            const player = playerData[i];
+            if (player && !player.name.startsWith('TBD')) {
+                const playerObj = playersArray.find(p => p.id === i);
+                raceHorses.push({
+                    number: player.number || '??',
+                    id: i,
+                    name: player.name,
+                    atBats: playerObj ? (playerObj.liveAtBats || 0) : 0,
+                    avg: playerObj ? (playerObj.currentAvg || 0) : 0,
+                    distanceFrom200: playerObj ? (playerObj.distanceFrom200 || 1000) : 1000
+                });
+            } else {
+                raceHorses.push({
+                    number: '??',
+                    id: i,
+                    name: `TBD-${i}`,
+                    atBats: 0,
+                    avg: 0,
+                    distanceFrom200: 1000
+                });
+            }
+        }
         
-        // Get all player numbers from playerData (players 2-11 for the pack)
-        const player2Num = (playerData[2].number || '??').toString().padStart(2, ' ');
-        const player3Num = (playerData[3].number || '??').toString().padStart(2, ' ');
-        const player4Num = (playerData[4].number || '??').toString().padStart(2, ' ');
-        const player5Num = (playerData[5].number || '??').toString().padStart(2, ' ');
-        const player6Num = (playerData[6].number || '??').toString().padStart(2, ' ');
-        const player7Num = (playerData[7].number || '??').toString().padStart(2, ' ');
-        const player8Num = (playerData[8].number || '??').toString().padStart(2, ' ');
-        const player9Num = (playerData[9].number || '??').toString().padStart(2, ' ');
-        const player10Num = (playerData[10].number || '??').toString().padStart(2, ' ');
-        const player11Num = (playerData[11].number || '??').toString().padStart(2, ' ');
-        
-        // Opening text
-        const openingFrame = `
-
-...& they're OFF!!!
-
-
-
-
-
-
-
-`;
-        
-        // Horse animation frames - truly independent movement, text locked separately below
-        const horseFrames = [
-            // Frame 1 - Each horse has unique leg position
-            `
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`   \\     \\        \`  \\      \\         \`     \\   \\
-        \\     \\            \\      \\              \\   \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`   \\     \\         \`  \\      \\
-          \\   \\            \\     \\             \\      \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`  \\      \\        \`     \\   \\         \`   \\     \\
-       \\      \\              \\   \\            \\     \\
-
-                .''                             .''
-        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
-       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
-      '/ )\\ ).__. )                   '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
-         \`    \\    \\                     \`  \\      \\
-               \\    \\                         \\      \\
-`,
-            // Frame 2 - Different leg positions for each horse
-            `
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`    \\    \\        \`     \\   \\         \`  \\      \\
-         \\    \\              \\   \\             \\      \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`  \\      \\        \`    \\    \\         \`     \\   \\
-       \\      \\             \\    \\              \\   \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`  \\      \\         \`    \\    \\
-          \\   \\            \\      \\              \\    \\
-
-                .''                             .''
-        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
-       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
-      '/ )\\ ).__. )                   '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
-         \`  \\      \\                     \`     \\   \\
-             \\      \\                          \\   \\
-`,
-            // Frame 3 - More varied leg positions
-            `
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`  \\      \\        \`   \\     \\         \`    \\    \\
-       \\      \\            \\     \\              \\    \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`   \\     \\        \`  \\      \\         \`  \\      \\
-        \\     \\            \\      \\             \\      \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`   \\     \\         \`  \\      \\
-          \\   \\            \\     \\             \\      \\
-
-                .''                             .''
-        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
-       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
-      '/ )\\ ).__. )                   '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
-         \`     \\   \\                     \`   \\     \\
-                \\   \\                         \\     \\
-`,
-            // Frame 4 - Continue varied movement
-            `
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player11Num}  ( \`'    //(  ${player10Num}  ( \`'     //(  ${player9Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`     \\   \\        \`    \\    \\         \`   \\     \\
-          \\   \\             \\    \\            \\     \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player8Num}  ( \`'    //(  ${player7Num}  ( \`'     //(  ${player6Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`    \\    \\        \`     \\   \\         \`   \\     \\
-         \\    \\              \\   \\            \\     \\
-
-          .''                .''                 .''
-  ._.-.___.' (\`\\    ._.-.___.' (\`\\     ._.-.___.' (\`\\
- //(  ${player5Num}  ( \`'    //(  ${player4Num}  ( \`'     //(  ${player3Num}  ( \`'
-'/ )\\ ).__. )      '/ )\\ ).__. )       '/ )\\ ).__. )
-' <' \`\\ ._/'\\      ' <' \`\\ ._/'\\       ' <' \`\\ ._/'\\
-   \`  \\      \\        \`    \\    \\         \`     \\   \\
-       \\      \\             \\    \\              \\   \\
-
-                .''                             .''
-        ._.-.___.' (\`\\                 ._.-.___.' (\`\\
-       //(  ${player2Num}  ( \`'                 //(  ${firstPlaceNumber}  ( \`'
-      '/ )\\ ).__. )                   '/ )\\ ).__. )
-      ' <' \`\\ ._/'\\                   ' <' \`\\ ._/'\\
-         \`   \\     \\                     \`    \\    \\
-              \\     \\                          \\    \\
-`
-        ];
-
         // Check current date for race mode
         const currentDate = new Date();
         const openingDay = new Date('2026-03-25T00:00:00');
@@ -1302,209 +980,236 @@ if (bugleTrigger) {
         const isSeasonActive = currentDate >= openingDay;
         const isPostAllStarBreak = currentDate >= allStarBreak;
         
-        // Prepare race announcements if season is active
-        let raceAnnouncementText = '';
-        let countdownText = '';
-        
-        if (isSeasonActive) {
-            let top3Players = [];
-            
-            if (isPostAllStarBreak) {
-                // POST ALL-STAR BREAK: Race for .200
-                let sortedBy200 = [...playersArray]
-                    .filter(p => !p.name.startsWith('TBD') && p.currentAvg !== null && !isNaN(p.currentAvg))
-                    .sort((a, b) => a.distanceFrom200 - b.distanceFrom200);
-                
-                top3Players = sortedBy200.slice(0, 3).map((p, idx) => {
-                    let distanceText;
-                    const avg = p.currentAvg;
-                    
-                    if (Math.abs(avg - 0.200) < 0.0001) {
-                        distanceText = 'GIDDYUP!!';
-                    } else {
-                        const distance = Math.abs(Math.round((avg - 0.200) * 1000));
-                        distanceText = `${distance} AWAY`;
-                    }
-                    
-                    return `${idx + 1}${idx === 0 ? 'st' : idx === 1 ? 'nd' : 'rd'}: ${p.number || '??'} ${p.name} ${distanceText}`;
-                });
-                
-                // Calculate days until end of season (Sept 27, 2026)
-                const endOfSeason = new Date('2026-09-27T23:59:59');
-                const daysLeft = Math.max(0, Math.ceil((endOfSeason - currentDate) / (1000 * 60 * 60 * 24)));
-                countdownText = `${daysLeft} Days 'til The Finish!!`;
-                
-            } else {
-                // PRE ALL-STAR BREAK: Race for 200AB
-                let sortedByAB = [...playersArray]
-                    .filter(p => !p.name.startsWith('TBD'))
-                    .sort((a, b) => (b.liveAtBats || 0) - (a.liveAtBats || 0));
-                
-                top3Players = sortedByAB.slice(0, 3).map((p, idx) => {
-                    const abDisplay = p.liveAtBats ? `${p.liveAtBats}AB` : '0AB';
-                    return `${idx + 1}${idx === 0 ? 'st' : idx === 1 ? 'nd' : 'rd'}: ${p.number || '??'} ${p.name} ${abDisplay}`;
-                });
-                
-                // Calculate days until All-Star Break
-                const daysUntilBreak = Math.max(0, Math.ceil((allStarBreak - currentDate) / (1000 * 60 * 60 * 24)));
-                countdownText = `${daysUntilBreak} Days 'til The Break!!`;
-            }
-            
-            // Build the race announcement text (will display progressively)
-            if (top3Players.length >= 3) {
-                raceAnnouncementText = top3Players.join('\n');
-            }
+        // Sort horses by race position
+        let sortedHorses;
+        if (isPostAllStarBreak) {
+            // Sort by distance from .200 (closest first)
+            sortedHorses = [...raceHorses].sort((a, b) => a.distanceFrom200 - b.distanceFrom200);
+        } else if (isSeasonActive) {
+            // Sort by at-bats (highest first)
+            sortedHorses = [...raceHorses].sort((a, b) => b.atBats - a.atBats);
+        } else {
+            // Pre-season: randomize order every time
+            sortedHorses = [...raceHorses].sort(() => Math.random() - 0.5);
         }
-
-
-
-
-
-
         
-        let currentFrame = 0;
-        let horseInterval;
+        // Calculate race positions (1st place goes furthest right)
+        sortedHorses.forEach((horse, idx) => {
+            horse.racePosition = idx;
+        });
+        
         const horseElement = document.getElementById('horse-animation');
         const horseText = document.getElementById('horse-text');
         
-        // Reset horse text to hidden at start
+        // Reset horse text
         if (horseText) {
             horseText.style.visibility = 'hidden';
             horseText.textContent = '';
         }
         
         // Show opening text
-        horseElement.textContent = openingFrame;
+        horseElement.innerHTML = '<div style="font-size: 0.7rem; text-align: center; width: 100%;">...& they\'re off!!</div>';
         
-        function animateHorse() {
-            horseElement.textContent = horseFrames[currentFrame];
-            currentFrame = (currentFrame + 1) % horseFrames.length;
-        }
-        
-        // Wait 1 second, then start horse animation
+        // After 1 second, start the race
         setTimeout(() => {
-            animateHorse();
-            horseInterval = setInterval(animateHorse, 200); // Faster animation for smoother gallop
-        }, 1000);
-        
-        // If season is active, show race announcements progressively
-        if (isSeasonActive && raceAnnouncementText) {
-            const lines = raceAnnouncementText.split('\n');
+            // Clear and setup race
+            horseElement.innerHTML = '';
             
-            // Show 1st place (0.5 seconds into animation)
-            setTimeout(() => {
-                if (horseText && lines[0]) {
-                    horseText.textContent = lines[0];
-                    horseText.style.visibility = 'visible';
-                }
-            }, 1500);
+            // Show finish line - will be positioned to align with fences
+            const finishLine = document.getElementById('finish-line');
             
-            // Show 1st + 2nd place (1 second later)
-            setTimeout(() => {
-                if (horseText && lines[1]) {
-                    horseText.textContent = lines[0] + '\n' + lines[1];
-                }
-            }, 2500);
+            // Add fence at the top
+            const fenceDiv = document.createElement('div');
+            fenceDiv.style.cssText = `
+                font-size: 0.7rem;
+                line-height: 1;
+                color: #b8ddf2;
+                margin-bottom: 5px;
+                overflow: hidden;
+                white-space: nowrap;
+            `;
+            fenceDiv.textContent = '|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==';
+            horseElement.appendChild(fenceDiv);
             
-            // Show all 3 places (1 second later)
-            setTimeout(() => {
-                if (horseText && lines[2]) {
-                    horseText.textContent = raceAnnouncementText;
-                }
-            }, 3500);
-        } else {
-            // Pre-season: Show "Look @ 'em go!!" text in the second half of the song
-            setTimeout(() => {
-                const horseText = document.getElementById('horse-text');
-                if (horseText) {
-                    horseText.textContent = "Look @ 'em go!!";
-                    horseText.style.visibility = 'visible';
-                }
-            }, (totalDuration * 0.6) * 1000);
-        }
-        
-        // Stop animation and show countdown if season is active
-        setTimeout(() => {
-            if (horseInterval) {
-                clearInterval(horseInterval);
-            }
-            
-            // If season is active, show countdown screen
-            if (isSeasonActive && countdownText) {
-                // Hide race announcements
-                if (horseText) {
-                    horseText.style.visibility = 'hidden';
-                    horseText.textContent = '';
-                }
-                
-                // Show countdown
-                const countdownFrame = `
-
-
-
-
-
-
-
-
-${countdownText}
-
-
-
-
-
-
-
-
+            // Create horse elements
+            raceHorses.forEach(horse => {
+                const horseDiv = document.createElement('div');
+                horseDiv.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    font-size: 0.65rem;
+                    line-height: 1.2;
+                    transform: translateX(0px);
                 `;
-                horseElement.textContent = countdownFrame;
+                horseDiv.innerHTML = `<span style="min-width: 22px; display: inline-block;">${horse.number}</span><span style="display: inline-block; transform: scaleX(-1); font-size: 1.3rem;">𓃗</span>`;
+                horseElement.appendChild(horseDiv);
                 
-                // Close modal after 2 seconds
+                // Animate to final position with jerky 8-bit motion
+                const finalPosition = horse.racePosition * 45;
+                let currentPosition = 0;
+                const steps = 12;
+                const stepSize = finalPosition / steps;
+                const stepDuration = (totalDuration * 1000) / steps;
+                
+                let stepCount = 0;
+                let gallopFrame = Math.random() < 0.5 ? 0 : 1; // Random start
+                
+                // Independent gallop animation
+                const gallopInterval = setInterval(() => {
+                    gallopFrame = 1 - gallopFrame; // Toggle between 0 and 1
+                    const yOffset = gallopFrame === 0 ? -5 : 0;
+                    horseDiv.style.transform = `translateX(${Math.floor(currentPosition)}px) translateY(${yOffset}px)`;
+                }, 140);
+                
+                // Horizontal movement
+                const moveInterval = setInterval(() => {
+                    if (stepCount >= steps) {
+                        clearInterval(moveInterval);
+                        clearInterval(gallopInterval);
+                        horseDiv.style.transform = `translateX(${Math.floor(currentPosition)}px) translateY(0px)`;
+                        return;
+                    }
+                    currentPosition += stepSize;
+                    stepCount++;
+                }, stepDuration);
+            });
+            
+            // Add fence at the bottom
+            const bottomFenceDiv = document.createElement('div');
+            bottomFenceDiv.style.cssText = `
+                font-size: 0.7rem;
+                line-height: 1;
+                color: #b8ddf2;
+                margin-top: 5px;
+                margin-bottom: 10px;
+                overflow: hidden;
+                white-space: nowrap;
+            `;
+            bottomFenceDiv.textContent = '|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==|==';
+            horseElement.appendChild(bottomFenceDiv);
+            
+            // Position and show finish line between the fences
+            setTimeout(() => {
+                const topFenceRect = fenceDiv.getBoundingClientRect();
+                const bottomFenceRect = bottomFenceDiv.getBoundingClientRect();
+                const containerRect = horseElement.getBoundingClientRect();
+                
+                const topPosition = topFenceRect.bottom - containerRect.top;
+                const bottomPosition = bottomFenceRect.top - containerRect.top;
+                const height = bottomPosition - topPosition;
+                
+                finishLine.style.top = topPosition + 'px';
+                finishLine.style.height = height + 'px';
+                finishLine.style.display = 'flex';
+                finishLine.style.justifyContent = 'space-between';
+                finishLine.textContent = `|     |
+|     |
+|     |
+|     |
+|     |
+|  T  |
+|  W  |
+|  O  |
+|     |
+|     |
+|  H  |
+|  U  |
+|  N  |
+|  D  |
+|  R  |
+|  E  |
+|  D  |
+|     |
+|     |
+|     |
+|     |`;
+            }, 50);
+            
+            // Build leaderboard text if season is active
+            if (isSeasonActive) {
+                const top3 = sortedHorses.slice(0, 3).map((horse, idx) => {
+                    let stats;
+                    if (isPostAllStarBreak) {
+                        // Show distance from .200
+                        if (Math.abs(horse.avg - 0.200) < 0.0001) {
+                            stats = 'GIDDYUP!!';
+                        } else {
+                            const distance = Math.abs(Math.round((horse.avg - 0.200) * 1000));
+                            stats = `${distance} AWAY`;
+                        }
+                    } else {
+                        // Show at-bats
+                        stats = `${horse.atBats}AB`;
+                    }
+                    const position = idx === 0 ? '1st' : idx === 1 ? '2nd' : '3rd';
+                    return `${position}: ${horse.number} ${horse.name} ${stats}`;
+                });
+                
+                // Show leaderboard progressively
                 setTimeout(() => {
-                    const horseModal = document.getElementById('horse-modal');
-                    closeModalWithScroll(horseModal);
-                }, 2000);
+                    if (horseText) {
+                        horseText.textContent = top3[0];
+                        horseText.style.visibility = 'visible';
+                    }
+                }, 1500);
+                
+                setTimeout(() => {
+                    if (horseText && top3[1]) {
+                        horseText.textContent = top3[0] + '\n' + top3[1];
+                    }
+                }, 2500);
+                
+                setTimeout(() => {
+                    if (horseText && top3[2]) {
+                        horseText.textContent = top3.join('\n');
+                    }
+                }, 3500);
             } else {
-                // Pre-season: Show countdown to Opening Day
+                // Pre-season: show "Look @ 'em go!!"
+                setTimeout(() => {
+                    if (horseText) {
+                        horseText.textContent = "Look @ 'em go!!";
+                        horseText.style.visibility = 'visible';
+                    }
+                }, (totalDuration * 0.6) * 1000);
+            }
+            
+            // When animation ends, show countdown
+            setTimeout(() => {
                 if (horseText) {
                     horseText.style.visibility = 'hidden';
-                    horseText.textContent = '';
                 }
                 
-                // Calculate days until Opening Day
-                const openingDay = new Date('2026-03-25T00:00:00');
-                const now = new Date();
-                const daysUntilOpening = Math.max(0, Math.ceil((openingDay - now) / (1000 * 60 * 60 * 24)));
+                // Hide finish line
+                const finishLine = document.getElementById('finish-line');
+                finishLine.style.display = 'none';
                 
-                // Show pre-season countdown frame
-                const preSeasonCountdownFrame = `
-
-
-
-
-
-
-
-
-${daysUntilOpening} Days 'til Post Time!!
-
-
-
-
-
-
-
-
-                `;
-                horseElement.textContent = preSeasonCountdownFrame;
+                // Calculate countdown text
+                let countdownText;
+                if (isSeasonActive) {
+                    if (isPostAllStarBreak) {
+                        const endOfSeason = new Date('2026-09-27T23:59:59');
+                        const daysLeft = Math.max(0, Math.ceil((endOfSeason - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysLeft} Days 'til The Finish!!`;
+                    } else {
+                        const daysUntilBreak = Math.max(0, Math.ceil((allStarBreak - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysUntilBreak} Days 'til The Break!!`;
+                    }
+                } else {
+                    const daysUntilOpening = Math.max(0, Math.ceil((openingDay - currentDate) / (1000 * 60 * 60 * 24)));
+                    countdownText = `${daysUntilOpening} Days 'til Post Time!!`;
+                }
+                
+                horseElement.innerHTML = `<div style="font-size: 0.7rem; text-align: center; width: 100%;">${countdownText}</div>`;
                 
                 // Close modal after 2 seconds
                 setTimeout(() => {
-                    const horseModal = document.getElementById('horse-modal');
                     closeModalWithScroll(horseModal);
                 }, 2000);
-            }
-        }, totalDuration * 1000);
+                
+            }, (totalDuration + 1) * 1000); // Add 1 second after song ends
+            
+        }, 1000);
     });
 }
     </script>
