@@ -82,6 +82,8 @@
         .bio-symbol { color: #b8ddf2; margin-top: 15px; font-size: 0.75rem; font-weight: bold; background-color: black; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
         .bio-close-btn { text-align: center; margin-top: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; color: #b8ddf2; background-color: black; padding: 8px 16px; display: inline-block; }
         .bio-close-btn:hover { opacity: 0.7; }
+        .run-simulation-btn { background: black; padding: 0 12px; margin: 0 auto; display: inline-flex; align-items: center; justify-content: center; height: 1.5rem; width: auto; box-sizing: border-box; max-width: fit-content; }
+        .run-simulation-btn:hover { opacity: 0.7; }
         #horse-animation { 
             font-size: 0.7rem; 
             line-height: 1.1; 
@@ -143,10 +145,14 @@
             <!-- Player rows will be dynamically inserted here -->
         </div>
         <div style="text-align: center; margin: 15px 0;">
-            <div class="hits-squares-text">Next Race: Mar 25 – Sept 27</div>
+            <a href="#" id="bugle-trigger" style="cursor: pointer; text-decoration: none;">
+                <div class="run-simulation-btn">
+                    <p style="font-size: 0.95rem; color: #b8ddf2; line-height: 1; font-weight: normal; font-style: normal; margin: 0; padding: 0; white-space: nowrap; font-family: monospace;">Look at 'em Go!</p>
+                </div>
+            </a>
         </div>
         <div class="live-standings">
-            <p><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong><br>Race for .200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> Commissioner<br>Run Race <a href="#" id="bugle-trigger" style="cursor: pointer;"><strong><u>SIMULATION</u></strong></a></p>
+            <p>2026 Race for .200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
         </div>
         <div class="copyright">mendozaleague.com ver3.2 ©2026</div>
     </div>
@@ -225,7 +231,8 @@
         </div>
     </div>
     <div id="horse-modal" class="modal">
-        <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; height: 500px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+        <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; height: 550px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+            <div id="race-title" style="font-family: monospace; font-size: 0.75rem; line-height: 1.2; color: #b8ddf2; text-align: center; margin-bottom: 10px; white-space: nowrap; visibility: hidden;">"The 3rd Annual Bob Uecker Memorial Race for Two Hundred!"</div>
             <div style="position: relative; flex: 1; width: 100%;">
                 <div id="horse-animation" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-family: monospace; font-size: 1.5rem; line-height: 2.5; color: #b8ddf2; overflow: hidden;"></div>
                 <div id="finish-line" style="position: absolute; right: 0; display: none; flex-direction: column; justify-content: space-between; font-family: monospace; font-size: 0.7rem; line-height: 1.2; color: #b8ddf2; white-space: pre; padding: 0;"></div>
@@ -845,7 +852,7 @@ do{
 }while(newMessage===lastMessage);
 
 localStorage.setItem('lastMessage',newMessage);
-document.querySelector('.hits-squares-text').textContent=newMessage;
+// Removed hits-squares-text reference since element no longer exists
 
 // Call to the Post bugle sound effect
 const bugleTrigger = document.getElementById('bugle-trigger');
@@ -1015,6 +1022,10 @@ if (bugleTrigger) {
             // Clear and setup race
             horseElement.innerHTML = '';
             
+            // Show race title
+            const raceTitle = document.getElementById('race-title');
+            raceTitle.style.visibility = 'visible';
+            
             // Show finish line - will be positioned to align with fences
             const finishLine = document.getElementById('finish-line');
             
@@ -1032,6 +1043,7 @@ if (bugleTrigger) {
             horseElement.appendChild(fenceDiv);
             
             // Create horse elements
+            const allIntervals = [];
             raceHorses.forEach(horse => {
                 const horseDiv = document.createElement('div');
                 horseDiv.style.cssText = `
@@ -1049,7 +1061,8 @@ if (bugleTrigger) {
                 let currentPosition = 0;
                 const steps = 12;
                 const stepSize = finalPosition / steps;
-                const stepDuration = (totalDuration * 1000) / steps;
+                const remainingSongTime = totalDuration - 1; // Song has this much time left after "they're off"
+                const stepDuration = (remainingSongTime * 1000) / steps;
                 
                 let stepCount = 0;
                 let gallopFrame = Math.random() < 0.5 ? 0 : 1; // Random start
@@ -1072,6 +1085,9 @@ if (bugleTrigger) {
                     currentPosition += stepSize;
                     stepCount++;
                 }, stepDuration);
+                
+                // Store intervals for cleanup
+                allIntervals.push(gallopInterval, moveInterval);
             });
             
             // Add fence at the bottom
@@ -1176,6 +1192,9 @@ if (bugleTrigger) {
             
             // When animation ends, show countdown
             setTimeout(() => {
+                // Clear all horse animations immediately
+                allIntervals.forEach(interval => clearInterval(interval));
+                
                 if (horseText) {
                     horseText.style.visibility = 'hidden';
                 }
@@ -1183,6 +1202,10 @@ if (bugleTrigger) {
                 // Hide finish line
                 const finishLine = document.getElementById('finish-line');
                 finishLine.style.display = 'none';
+                
+                // Hide race title
+                const raceTitle = document.getElementById('race-title');
+                raceTitle.style.visibility = 'hidden';
                 
                 // Calculate countdown text
                 let countdownText;
@@ -1207,7 +1230,7 @@ if (bugleTrigger) {
                     closeModalWithScroll(horseModal);
                 }, 2000);
                 
-            }, totalDuration * 1000); // End right when song ends
+            }, (totalDuration - 1) * 1000); // Song ends 1 second before totalDuration relative to race start
             
         }, 1000);
     });
