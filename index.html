@@ -1207,7 +1207,7 @@ if (bugleTrigger) {
                     closeModalWithScroll(horseModal);
                 }, 2000);
                 
-            }, (totalDuration + 1) * 1000); // Add 1 second after song ends
+            }, totalDuration * 1000); // End right when song ends
             
         }, 1000);
     });
