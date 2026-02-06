@@ -129,6 +129,10 @@
                 font-size: 0.5rem; 
                 line-height: 1.0;
             }
+            #race-title {
+                font-size: 0.6rem !important;
+                line-height: 1.2 !important;
+            }
         }
     </style>
 </head>
@@ -147,7 +151,7 @@
         <div style="text-align: center; margin: 15px 0;">
             <a href="#" id="bugle-trigger" style="cursor: pointer; text-decoration: none;">
                 <div class="run-simulation-btn">
-                    <p style="font-size: 0.95rem; color: #b8ddf2; line-height: 1; font-weight: normal; font-style: normal; margin: 0; padding: 0; white-space: nowrap; font-family: monospace;">Look at 'em Go!</p>
+                    <p style="font-size: 1.1rem; color: #b8ddf2; line-height: 1; font-weight: normal; font-style: normal; margin: 0; padding: 0; white-space: nowrap; font-family: monospace;">Look at 'em Go!</p>
                 </div>
             </a>
         </div>
@@ -232,7 +236,8 @@
     </div>
     <div id="horse-modal" class="modal">
         <div class="modal-content" style="background-color: black; max-width: 90%; width: 1200px; height: 550px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-            <div id="race-title" style="font-family: monospace; font-size: 0.75rem; line-height: 1.2; color: #b8ddf2; text-align: center; margin-bottom: 10px; white-space: nowrap; visibility: hidden;">"The 3rd Annual Bob Uecker Memorial Race for Two Hundred!"</div>
+            <div id="race-title" style="font-family: monospace; font-size: 0.75rem; line-height: 1.3; color: #b8ddf2; text-align: center; margin-bottom: 10px; white-space: pre-line; visibility: hidden;">MendozaLeague.com Presents the 3rd Annual
+Bob Uecker Memorial Race for Two Hundred</div>
             <div style="position: relative; flex: 1; width: 100%;">
                 <div id="horse-animation" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-family: monospace; font-size: 1.5rem; line-height: 2.5; color: #b8ddf2; overflow: hidden;"></div>
                 <div id="finish-line" style="position: absolute; right: 0; display: none; flex-direction: column; justify-content: space-between; font-family: monospace; font-size: 0.7rem; line-height: 1.2; color: #b8ddf2; white-space: pre; padding: 0;"></div>
@@ -1181,10 +1186,10 @@ if (bugleTrigger) {
                     }
                 }, 3500);
             } else {
-                // Pre-season: show "Look @ 'em go!!"
+                // Pre-season: show "Wow, what a race!!"
                 setTimeout(() => {
                     if (horseText) {
-                        horseText.textContent = "Look @ 'em go!!";
+                        horseText.textContent = "Wow, what a race!!";
                         horseText.style.visibility = 'visible';
                     }
                 }, (totalDuration * 0.6) * 1000);
