@@ -1171,39 +1171,47 @@ if (bugleTrigger) {
             
             horseElement.innerHTML = '';
             
-            // GALLOPING SOUND - CRANKED UP!
-            const raceDuration = 6; // Race lasts 6 seconds
+            // GALLOPING SOUND - CRANKED UP with MULTIPLE HORSES!
+            // Continue galloping until modal closes: 6s race + 0.5s buffer + 2s countdown = 8.5s
+            const raceDuration = 8.5; // Extended to match modal close time
             const gallopInterval = 0.15; // Time between gallops (faster = more hoofbeats)
             const numGallops = Math.floor(raceDuration / gallopInterval);
             
-            // Create individual gallop sounds
-            for (let i = 0; i < numGallops; i++) {
-                const startTime = audioContext.currentTime + (i * gallopInterval);
-                
-                // Create two quick thuds for each gallop (clip-clop)
-                for (let thud = 0; thud < 2; thud++) {
-                    const thudTime = startTime + (thud * 0.05);
-                    const thudOsc = audioContext.createOscillator();
-                    const thudGain = audioContext.createGain();
-                    const thudFilter = audioContext.createBiquadFilter();
+            // Create three offset gallop patterns for multiple horse sound
+            const gallopOffsets = [0, 0.05, 0.08]; // Slight offsets to create depth
+            
+            gallopOffsets.forEach((offset, horseIndex) => {
+                // Create individual gallop sounds for each "horse"
+                for (let i = 0; i < numGallops; i++) {
+                    const startTime = audioContext.currentTime + (i * gallopInterval) + offset;
                     
-                    thudOsc.type = 'sine';
-                    thudOsc.frequency.setValueAtTime(80 + (thud * 20), thudTime);
-                    
-                    thudFilter.type = 'lowpass';
-                    thudFilter.frequency.setValueAtTime(300, thudTime);
-                    
-                    thudGain.gain.setValueAtTime(0.6, thudTime); // DOUBLED from 0.3 to 0.6!
-                    thudGain.gain.exponentialRampToValueAtTime(0.01, thudTime + 0.04);
-                    
-                    thudOsc.connect(thudFilter);
-                    thudFilter.connect(thudGain);
-                    thudGain.connect(audioContext.destination);
-                    
-                    thudOsc.start(thudTime);
-                    thudOsc.stop(thudTime + 0.04);
+                    // Create two quick thuds for each gallop (clip-clop)
+                    for (let thud = 0; thud < 2; thud++) {
+                        const thudTime = startTime + (thud * 0.05);
+                        const thudOsc = audioContext.createOscillator();
+                        const thudGain = audioContext.createGain();
+                        const thudFilter = audioContext.createBiquadFilter();
+                        
+                        thudOsc.type = 'sine';
+                        // Vary frequency slightly per horse for realism
+                        thudOsc.frequency.setValueAtTime(80 + (thud * 20) + (horseIndex * 5), thudTime);
+                        
+                        thudFilter.type = 'lowpass';
+                        thudFilter.frequency.setValueAtTime(300, thudTime);
+                        
+                        // Slightly lower volume per horse so combined isn't overwhelming
+                        thudGain.gain.setValueAtTime(0.9, thudTime);
+                        thudGain.gain.exponentialRampToValueAtTime(0.01, thudTime + 0.04);
+                        
+                        thudOsc.connect(thudFilter);
+                        thudFilter.connect(thudGain);
+                        thudGain.connect(audioContext.destination);
+                        
+                        thudOsc.start(thudTime);
+                        thudOsc.stop(thudTime + 0.04);
+                    }
                 }
-            }
+            });
             
             // Clear and setup race
             horseElement.innerHTML = '';
