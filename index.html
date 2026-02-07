@@ -1107,16 +1107,16 @@ if (bugleTrigger) {
         // 6.5 seconds total before "...& they're OFF!!!" ÷ 3 messages = ~2.17 seconds each
         
         // Message 1: MendozaLeague.com Proudly Presents (0s - 2.17s)
-        horseElement.textContent = 'MendozaLeague.com Proudly Presents';
+        horseElement.innerHTML = 'MendozaLeague.com<br>Proudly Presents';
         
         // Message 2: The 3rd Running of the Mendoza Stakes (2.17s - 4.33s)
         setTimeout(() => {
-            horseElement.textContent = 'The 3rd Running of the Mendoza Stakes';
+            horseElement.innerHTML = 'The 3rd Running of<br>The Mendoza Stakes';
         }, 2170);
         
-        // Message 3: Bob Uecker Memorial Race to 200 (4.33s - 6.5s)
+        // Message 3: Bob Uecker Memorial Race for Two Hundred (4.33s - 6.5s)
         setTimeout(() => {
-            horseElement.textContent = 'Bob Uecker Memorial Race to 200';
+            horseElement.innerHTML = 'Bob Uecker Memorial<br>Race for Two Hundred';
         }, 4330);
         
         // Final message: "...& they're OFF!!!" (at 6.5s - perfect timing)
