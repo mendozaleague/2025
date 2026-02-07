@@ -1037,7 +1037,6 @@ if (bugleTrigger) {
         const totalDuration = t - now;
         
         // Open horse animation modal
-        // Open horse animation modal
         const horseModal = document.getElementById('horse-modal');
         openModalWithScroll(horseModal);
         
@@ -1097,13 +1096,123 @@ if (bugleTrigger) {
             horseText.textContent = '';
         }
         
-        // Show opening text
-        horseElement.innerHTML = '<div style="font-size: 0.7rem; text-align: center; width: 100%;">...& they\'re off!!</div>';
+        // Build text progressively during the bugle call - EVEN SPLIT
+        // Set up the horseElement to display text in blue
+        horseElement.style.fontSize = '0.9rem';
+        horseElement.style.color = '#b8ddf2';
+        horseElement.style.textAlign = 'center';
+        horseElement.style.justifyContent = 'center';
+        horseElement.style.alignItems = 'center';
         
-        // After 1 second, start the race
+        // 6.5 seconds total before "...& they're OFF!!!" ÷ 3 messages = ~2.17 seconds each
+        
+        // Message 1: MendozaLeague.com Proudly Presents (0s - 2.17s)
+        horseElement.textContent = 'MendozaLeague.com Proudly Presents';
+        
+        // Message 2: The 3rd Running of the Mendoza Stakes (2.17s - 4.33s)
         setTimeout(() => {
+            horseElement.textContent = 'The 3rd Running of the Mendoza Stakes';
+        }, 2170);
+        
+        // Message 3: Bob Uecker Memorial Race to 200 (4.33s - 6.5s)
+        setTimeout(() => {
+            horseElement.textContent = 'Bob Uecker Memorial Race to 200';
+        }, 4330);
+        
+        // Final message: "...& they're OFF!!!" (at 6.5s - perfect timing)
+        setTimeout(() => {
+            horseElement.textContent = '...& they\'re OFF!!!';
+        }, 6500);
+        
+        // After bugle call completes, play starting gun and start race
+        setTimeout(() => {
+            // STARTING GUN SOUND - MAXIMUM PROMINENCE!
+            
+            // Layer 1: White noise blast
+            const gunNoise = audioContext.createBufferSource();
+            const gunGain = audioContext.createGain();
+            const gunFilter = audioContext.createBiquadFilter();
+            
+            const bufferSize = audioContext.sampleRate * 0.25;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            gunNoise.buffer = buffer;
+            
+            gunFilter.type = 'highpass';
+            gunFilter.frequency.setValueAtTime(1500, audioContext.currentTime); // Even sharper
+            gunFilter.Q.setValueAtTime(5, audioContext.currentTime); // More resonance
+            
+            gunGain.gain.setValueAtTime(3.0, audioContext.currentTime); // TRIPLED volume!
+            gunGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            gunNoise.connect(gunFilter);
+            gunFilter.connect(gunGain);
+            gunGain.connect(audioContext.destination);
+            gunNoise.start(audioContext.currentTime);
+            gunNoise.stop(audioContext.currentTime + 0.25);
+            
+            // Layer 2: Low thump for impact
+            const thumpOsc = audioContext.createOscillator();
+            const thumpGain = audioContext.createGain();
+            
+            thumpOsc.type = 'sine';
+            thumpOsc.frequency.setValueAtTime(60, audioContext.currentTime);
+            
+            thumpGain.gain.setValueAtTime(1.5, audioContext.currentTime);
+            thumpGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            thumpOsc.connect(thumpGain);
+            thumpGain.connect(audioContext.destination);
+            thumpOsc.start(audioContext.currentTime);
+            thumpOsc.stop(audioContext.currentTime + 0.1);
+            
+            horseElement.innerHTML = '';
+            
+            // GALLOPING SOUND - CRANKED UP!
+            const raceDuration = 6; // Race lasts 6 seconds
+            const gallopInterval = 0.15; // Time between gallops (faster = more hoofbeats)
+            const numGallops = Math.floor(raceDuration / gallopInterval);
+            
+            // Create individual gallop sounds
+            for (let i = 0; i < numGallops; i++) {
+                const startTime = audioContext.currentTime + (i * gallopInterval);
+                
+                // Create two quick thuds for each gallop (clip-clop)
+                for (let thud = 0; thud < 2; thud++) {
+                    const thudTime = startTime + (thud * 0.05);
+                    const thudOsc = audioContext.createOscillator();
+                    const thudGain = audioContext.createGain();
+                    const thudFilter = audioContext.createBiquadFilter();
+                    
+                    thudOsc.type = 'sine';
+                    thudOsc.frequency.setValueAtTime(80 + (thud * 20), thudTime);
+                    
+                    thudFilter.type = 'lowpass';
+                    thudFilter.frequency.setValueAtTime(300, thudTime);
+                    
+                    thudGain.gain.setValueAtTime(0.6, thudTime); // DOUBLED from 0.3 to 0.6!
+                    thudGain.gain.exponentialRampToValueAtTime(0.01, thudTime + 0.04);
+                    
+                    thudOsc.connect(thudFilter);
+                    thudFilter.connect(thudGain);
+                    thudGain.connect(audioContext.destination);
+                    
+                    thudOsc.start(thudTime);
+                    thudOsc.stop(thudTime + 0.04);
+                }
+            }
+            
             // Clear and setup race
             horseElement.innerHTML = '';
+            
+            // Reset horseElement styles for race display
+            horseElement.style.fontSize = '1.5rem';
+            horseElement.style.textAlign = 'left';
+            horseElement.style.justifyContent = 'center';
+            horseElement.style.alignItems = 'flex-start';
             
             // Show race title
             const raceTitle = document.getElementById('race-title');
@@ -1160,8 +1269,8 @@ if (bugleTrigger) {
                 let currentPosition = 0;
                 const steps = 12;
                 const stepSize = finalPosition / steps;
-                const remainingSongTime = totalDuration - 1; // Song has this much time left after "they're off"
-                const stepDuration = (remainingSongTime * 1000) / steps;
+                const raceAnimationTime = 6; // 6 seconds for the race
+                const stepDuration = (raceAnimationTime * 1000) / steps;
                 
                 let stepCount = 0;
                 let gallopFrame = Math.random() < 0.5 ? 0 : 1; // Random start
@@ -1311,27 +1420,29 @@ if (bugleTrigger) {
                 }, 4200);
             } else {
                 // Pre-season ONLY: show messages one at a time with black screens between
+                const raceTime = 6000; // 6 seconds of race animation
+                
                 // Message 1: "This is just a simulation" - appears early and stays longer
                 setTimeout(() => {
                     if (horseText) {
                         horseText.textContent = "This is just a simulation";
                         horseText.style.visibility = 'visible';
                     }
-                }, (totalDuration * 0.15) * 1000);
+                }, raceTime * 0.15);
                 
                 // Black screen after message 1 - much longer pause
                 setTimeout(() => {
                     if (horseText) {
                         horseText.textContent = "";
                     }
-                }, (totalDuration * 0.40) * 1000);
+                }, raceTime * 0.40);
                 
-                // Message 2: "View LIVE results starting March 25" - appears later, stays until end
+                // Message 2: "View race LIVE starting Opening Day" - appears later, stays until end
                 setTimeout(() => {
                     if (horseText) {
-                        horseText.textContent = "View LIVE results starting March 25";
+                        horseText.textContent = "View race LIVE starting Opening Day";
                     }
-                }, (totalDuration * 0.60) * 1000);
+                }, raceTime * 0.60);
             }
             
             // When animation ends, show countdown
@@ -1374,9 +1485,9 @@ if (bugleTrigger) {
                     closeModalWithScroll(horseModal);
                 }, 2000);
                 
-            }, ((totalDuration - 1) * 1000) + 400); // Wait 400ms after last note finishes
+            }, (6 * 1000) + 500); // Race duration (6 seconds) + 500ms buffer
             
-        }, 1000);
+        }, (totalDuration * 1000) + 200); // Wait for bugle call to finish + small buffer before starting gun/race
     });
 }
     </script>
