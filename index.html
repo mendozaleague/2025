@@ -259,7 +259,7 @@
                 </div>
                 <div class="contact-form-group">
                     <label for="contact-message">YOUR MESSAGE:</label>
-                    <textarea id="contact-message" name="message" placeholder="Qué tal, Commish??" required></textarea>
+                    <textarea id="contact-message" name="message" placeholder="Sign me up, Commish!!" required></textarea>
                 </div>
                 <button type="submit" class="contact-submit-btn">SEND MESSAGE</button>
             </form>
@@ -1126,8 +1126,9 @@ if (bugleTrigger) {
                     font-size: 0.65rem;
                     line-height: 1.2;
                     transform: translateX(0px);
+                    position: relative;
                 `;
-                horseDiv.innerHTML = `<span style="min-width: 22px; display: inline-block;">${horse.number}</span><span style="display: inline-block; transform: scaleX(-1); font-size: 1.3rem;">𓃗</span>`;
+                horseDiv.innerHTML = `<span style="display: inline-block; transform: scaleX(-1); font-size: 1.3rem; position: relative;">𓃗<span style="position: absolute; top: 26%; left: 52%; transform: translate(-50%, -50%);"><span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: rotate(45deg); position: relative;"><span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg) scaleX(-1); font-size: 0.35rem; font-weight: bold; color: #000000;">${horse.number}</span></span></span></span>`;
                 horseElement.appendChild(horseDiv);
                 
                 // Animate to final position with jerky 8-bit motion
