@@ -1082,10 +1082,33 @@ if (bugleTrigger) {
             sortedHorses = [...raceHorses].sort(() => Math.random() - 0.5);
         }
         
-        // Calculate race positions (1st place goes furthest right = highest position number)
-        sortedHorses.forEach((horse, idx) => {
-            horse.racePosition = sortedHorses.length - 1 - idx; // Reverse: 1st gets highest number
-        });
+        // Calculate race positions based on actual progress
+        // In first half: position = at-bats (200 AB = finish line)
+        // In second half: position = closeness to .200 (finish line = .200 exactly)
+        if (!isPostAllStarBreak && isSeasonActive) {
+            // FIRST HALF: Track actual at-bats toward 200
+            sortedHorses.forEach(horse => {
+                horse.racePosition = horse.atBats; // Actual at-bats = position
+            });
+        } else if (isPostAllStarBreak) {
+            // SECOND HALF: Track closeness to .200
+            // distanceFrom200 represents points away from .200
+            // e.g., .199 = 1 point away, .186 = 14 points away
+            // Finish line (200 spaces) = .200 exactly (0 points away)
+            // Convert: closer to .200 = further on track
+            sortedHorses.forEach(horse => {
+                // Position = 200 - distanceFrom200
+                // Perfect .200 = position 200 (finish line)
+                // .199 or .201 = position 199 (1 space from finish)
+                // .186 = position 186 (14 spaces from finish)
+                horse.racePosition = 200 - horse.distanceFrom200;
+            });
+        } else {
+            // PRE-SEASON: Random positions
+            sortedHorses.forEach((horse, idx) => {
+                horse.racePosition = sortedHorses.length - 1 - idx;
+            });
+        }
         
         const horseElement = document.getElementById('horse-animation');
         const horseText = document.getElementById('horse-text');
@@ -1171,11 +1194,26 @@ if (bugleTrigger) {
             
             horseElement.innerHTML = '';
             
+            // Calculate dynamic race duration based on season state
+            let actualRaceDuration;
+            if (!isPostAllStarBreak && isSeasonActive) {
+                // First half: based on leader's at-bats
+                const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats));
+                actualRaceDuration = Math.min(6, Math.max(2, leaderAtBats / 40));
+            } else if (isPostAllStarBreak) {
+                // Second half: based on who's closest to .200
+                const closestToMendoza = Math.max(...raceHorses.map(h => h.racePosition));
+                actualRaceDuration = Math.min(6, Math.max(2, closestToMendoza / 40));
+            } else {
+                // Pre-season: standard duration
+                actualRaceDuration = 6;
+            }
+            
             // GALLOPING SOUND - CRANKED UP with MULTIPLE HORSES!
-            // Continue galloping until modal closes: 6s race + 0.5s buffer + 2s countdown = 8.5s
-            const raceDuration = 8.5; // Extended to match modal close time
+            // Continue galloping until modal closes
+            const totalGallopDuration = actualRaceDuration + 0.5 + 2; // race + buffer + countdown
             const gallopInterval = 0.15; // Time between gallops (faster = more hoofbeats)
-            const numGallops = Math.floor(raceDuration / gallopInterval);
+            const numGallops = Math.floor(totalGallopDuration / gallopInterval);
             
             // Create three offset gallop patterns for multiple horse sound
             const gallopOffsets = [0, 0.05, 0.08]; // Slight offsets to create depth
@@ -1272,12 +1310,37 @@ if (bugleTrigger) {
                 horseDiv.innerHTML = horseIcon + playerInfo;
                 horseElement.appendChild(horseDiv);
                 
+                // Calculate animation based on mode
+                let finalPosition, raceAnimationTime;
+                
+                if (!isPostAllStarBreak && isSeasonActive) {
+                    // FIRST HALF: Position based on actual at-bats (200 AB = finish line)
+                    // Scale: 200 AB = ~500px (adjust based on typical screen width)
+                    const maxDistance = 500; // pixels for 200 AB
+                    finalPosition = (horse.atBats / 200) * maxDistance;
+                    
+                    // Race duration based on leader's at-bats (more AB = longer animation)
+                    const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats));
+                    raceAnimationTime = Math.min(6, Math.max(2, leaderAtBats / 40)); // 2-6 seconds
+                } else if (isPostAllStarBreak) {
+                    // SECOND HALF: Position based on closeness to .200
+                    // Scale: 200 spaces = ~500px (same scale as first half)
+                    const maxDistance = 500; // pixels for position 200 (perfect .200)
+                    finalPosition = (horse.racePosition / 200) * maxDistance;
+                    
+                    // Race duration based on who's closest to .200 (runs longest)
+                    const closestToMendoza = Math.max(...raceHorses.map(h => h.racePosition));
+                    raceAnimationTime = Math.min(6, Math.max(2, closestToMendoza / 40)); // 2-6 seconds
+                } else {
+                    // PRE-SEASON: Use spread-based positioning
+                    finalPosition = horse.racePosition * 45;
+                    raceAnimationTime = 6;
+                }
+                
                 // Animate to final position with jerky 8-bit motion
-                const finalPosition = horse.racePosition * 45; // Just the race spread
                 let currentPosition = 0;
                 const steps = 12;
                 const stepSize = finalPosition / steps;
-                const raceAnimationTime = 6; // 6 seconds for the race
                 const stepDuration = (raceAnimationTime * 1000) / steps;
                 
                 let stepCount = 0;
@@ -1493,7 +1556,7 @@ if (bugleTrigger) {
                     closeModalWithScroll(horseModal);
                 }, 2000);
                 
-            }, (6 * 1000) + 500); // Race duration (6 seconds) + 500ms buffer
+            }, (actualRaceDuration * 1000) + 500); // Dynamic race duration + 500ms buffer
             
         }, (totalDuration * 1000) + 200); // Wait for bugle call to finish + small buffer before starting gun/race
     });
