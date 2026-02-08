@@ -1322,6 +1322,37 @@ if (bugleTrigger) {
                     // Race duration based on leader's at-bats (more AB = longer animation)
                     const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats));
                     raceAnimationTime = Math.min(6, Math.max(2, leaderAtBats / 40)); // 2-6 seconds
+                    
+                    // Speed variation: Leaders run faster (shorter duration)
+                    // Top 3 horses get speed boost
+                    const sortedByAB = [...raceHorses].sort((a, b) => b.atBats - a.atBats);
+                    const horseRank = sortedByAB.findIndex(h => h.id === horse.id);
+                    if (horseRank === 0) {
+                        raceAnimationTime *= 0.85; // Leader 15% faster
+                    } else if (horseRank === 1) {
+                        raceAnimationTime *= 0.92; // 2nd place 8% faster
+                    } else if (horseRank === 2) {
+                        raceAnimationTime *= 0.96; // 3rd place 4% faster
+                    }
+                    
+                    // Bell sound if horse has reached 200 AB
+                    if (horse.atBats >= 200) {
+                        const bellTime = audioContext.currentTime + (raceAnimationTime * 0.95);
+                        const bellOsc = audioContext.createOscillator();
+                        const bellGain = audioContext.createGain();
+                        
+                        bellOsc.type = 'sine';
+                        bellOsc.frequency.setValueAtTime(800, bellTime);
+                        bellOsc.frequency.exponentialRampToValueAtTime(600, bellTime + 0.3);
+                        
+                        bellGain.gain.setValueAtTime(0.6, bellTime);
+                        bellGain.gain.exponentialRampToValueAtTime(0.01, bellTime + 0.5);
+                        
+                        bellOsc.connect(bellGain);
+                        bellGain.connect(audioContext.destination);
+                        bellOsc.start(bellTime);
+                        bellOsc.stop(bellTime + 0.5);
+                    }
                 } else if (isPostAllStarBreak) {
                     // SECOND HALF: Position based on closeness to .200
                     // Scale: 200 spaces = ~500px (same scale as first half)
@@ -1331,6 +1362,18 @@ if (bugleTrigger) {
                     // Race duration based on who's closest to .200 (runs longest)
                     const closestToMendoza = Math.max(...raceHorses.map(h => h.racePosition));
                     raceAnimationTime = Math.min(6, Math.max(2, closestToMendoza / 40)); // 2-6 seconds
+                    
+                    // Speed variation: Horses closer to .200 run faster
+                    // Top 3 closest get speed boost
+                    const sortedByCloseness = [...raceHorses].sort((a, b) => b.racePosition - a.racePosition);
+                    const horseRank = sortedByCloseness.findIndex(h => h.id === horse.id);
+                    if (horseRank === 0) {
+                        raceAnimationTime *= 0.85; // Closest 15% faster
+                    } else if (horseRank === 1) {
+                        raceAnimationTime *= 0.92; // 2nd closest 8% faster
+                    } else if (horseRank === 2) {
+                        raceAnimationTime *= 0.96; // 3rd closest 4% faster
+                    }
                 } else {
                     // PRE-SEASON: Use spread-based positioning
                     finalPosition = horse.racePosition * 45;
