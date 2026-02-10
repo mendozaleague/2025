@@ -1655,60 +1655,40 @@ function runRaceAnimation(raceHorses, currentDate, gameDay, isSeasonActive, isPo
                 const raceTitle = document.getElementById('race-title');
                 raceTitle.style.visibility = 'hidden';
                 
-                // Calculate countdown text based on season phase
+                // Calculate countdown text based on season phase (for race animation end)
                 let countdownText;
                 
                 // Define all key dates
-                const springTrainingStart = new Date('2026-02-12T00:00:00'); // Spring training starts
-                const openingDayDate = new Date('2026-03-25T00:00:00'); // Opening day (Post Time)
-                const allStarBreakStart = new Date('2026-07-11T00:00:00'); // All-Star break starts
-                const allStarBreakEnd = new Date('2026-07-15T00:00:00'); // All-Star break ends (2nd half starts)
-                const seasonEnd = new Date('2026-09-27T23:59:59'); // Regular season ends
+                const springTrainingStart = new Date('2026-02-12T00:00:00');
+                const openingDayDate = new Date('2026-03-25T00:00:00');
+                const allStarBreakStart = new Date('2026-07-11T00:00:00');
+                const allStarBreakEnd = new Date('2026-07-15T00:00:00');
+                const seasonEnd = new Date('2026-09-27T23:59:59');
                 
                 if (currentDate < springTrainingStart) {
                     // PRESEASON: Before spring training
-                    const diff = springTrainingStart - currentDate;
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    countdownText = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} 'TIL SPRING`;
+                    const daysLeft = Math.max(0, Math.ceil((springTrainingStart - currentDate) / (1000 * 60 * 60 * 24)));
+                    countdownText = `${daysLeft} Days 'til Spring!`;
                     
                 } else if (currentDate >= springTrainingStart && currentDate < openingDayDate) {
                     // SPRING TRAINING: After spring training starts, before opening day
-                    const diff = openingDayDate - currentDate;
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    countdownText = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} 'TIL POST TIME`;
+                    const daysLeft = Math.max(0, Math.ceil((openingDayDate - currentDate) / (1000 * 60 * 60 * 24)));
+                    countdownText = `${daysLeft} Days to Post Time!`;
                     
                 } else if (currentDate >= openingDayDate && currentDate < allStarBreakStart) {
                     // 1ST HALF: Opening day to all-star break
-                    const diff = allStarBreakStart - currentDate;
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    countdownText = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} TO THE BREAK`;
+                    const daysLeft = Math.max(0, Math.ceil((allStarBreakStart - currentDate) / (1000 * 60 * 60 * 24)));
+                    countdownText = `${daysLeft} Days 'til The Break!`;
                     
                 } else if (currentDate >= allStarBreakStart && currentDate < allStarBreakEnd) {
                     // ALL-STAR BREAK: During the break
-                    const diff = allStarBreakEnd - currentDate;
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    countdownText = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} 'TIL THE 2nd HALF`;
+                    const daysLeft = Math.max(0, Math.ceil((allStarBreakEnd - currentDate) / (1000 * 60 * 60 * 24)));
+                    countdownText = `${daysLeft} Days 'til the 2nd Half!`;
                     
                 } else {
                     // 2ND HALF: After all-star break to season end
-                    const diff = seasonEnd - currentDate;
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    countdownText = `${String(days).padStart(2, '0')}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')} TO THE FINISH LINE`;
+                    const daysLeft = Math.max(0, Math.ceil((seasonEnd - currentDate) / (1000 * 60 * 60 * 24)));
+                    countdownText = `${daysLeft} Days to The Finish Line!!`;
                 }
                 
                 horseElement.innerHTML = `<div style="font-size: 0.7rem; text-align: center; width: 100%;">${countdownText}</div>`;
