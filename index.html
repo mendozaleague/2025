@@ -8,8 +8,8 @@
     <meta name="author" content="Dud Lawson">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { height: 100%; overflow-x: hidden; overscroll-behavior: none; }
-        body { font-family: 'Arial', sans-serif; background: #b8ddf2; min-height: 100%; padding: 10px; padding-bottom: 30px; color: #2c2c2c; overflow-x: hidden; position: relative; overscroll-behavior: none; }
+        html { height: 100%; overscroll-behavior: none; }
+        body { font-family: 'Arial', sans-serif; background: #b8ddf2; min-height: 100%; padding: 10px; padding-bottom: 30px; color: #2c2c2c; position: relative; overscroll-behavior: none; }
         @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
         .wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
@@ -38,7 +38,9 @@
         .mendoza-line-divider::before { left: 0; }
         .mendoza-line-divider::after { right: 0; }
         .hits-squares-text { text-align: center; margin: 20px 0; font-size: 1.8rem; font-weight: normal; font-style: normal; font-family: 'Brush Script MT', cursive, 'Arial', sans-serif; color: #2c2c2c; line-height: 1.3; min-height: 2.6rem; display: flex; align-items: center; justify-content: center; }
-        .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: #cc99cc; }
+        .mlb-logo-container { text-align: center; margin-top: 20px; margin-bottom: 10px; }
+        .mlb-logo-container img { width: 80px; height: auto; opacity: 1; display: inline-block; filter: invert(1); }
+        .copyright { text-align: center; margin-top: 5px; font-size: 0.8rem; opacity: 0.8; color: #cc99cc; }
         .copyright a { color: #cc99cc; text-decoration: underline; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; overscroll-behavior: contain; }
         .modal.open { display: block; }
@@ -188,6 +190,9 @@
         </div>
         <div class="live-standings">
             <p>2026 Race for 200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
+        </div>
+        <div class="mlb-logo-container">
+            <img src="MENDOZA_STRIKE_LOGO_CLEAR.png" alt="MLB Logo">
         </div>
         <div class="copyright">mendozaleague.com ver3.2 ©2026</div>
     </div>
