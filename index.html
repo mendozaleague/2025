@@ -8,8 +8,8 @@
     <meta name="author" content="Dud Lawson">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { height: 100%; overscroll-behavior: none; }
-        body { font-family: 'Arial', sans-serif; background: #b8ddf2; min-height: 100%; padding: 10px; padding-bottom: 30px; color: #2c2c2c; position: relative; overscroll-behavior: none; }
+        html { height: 100%; overflow-x: hidden; overscroll-behavior: none; }
+        body { font-family: 'Arial', sans-serif; background: #b8ddf2; min-height: 100%; padding: 10px; padding-bottom: 30px; color: #2c2c2c; overflow-x: hidden; position: relative; overscroll-behavior: none; }
         @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
         .wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
@@ -38,9 +38,7 @@
         .mendoza-line-divider::before { left: 0; }
         .mendoza-line-divider::after { right: 0; }
         .hits-squares-text { text-align: center; margin: 20px 0; font-size: 1.8rem; font-weight: normal; font-style: normal; font-family: 'Brush Script MT', cursive, 'Arial', sans-serif; color: #2c2c2c; line-height: 1.3; min-height: 2.6rem; display: flex; align-items: center; justify-content: center; }
-        .mlb-logo-container { text-align: center; margin-top: 20px; margin-bottom: 10px; }
-        .mlb-logo-container img { width: 80px; height: auto; opacity: 1; display: inline-block; }
-        .copyright { text-align: center; margin-top: 5px; font-size: 0.8rem; opacity: 0.8; color: #cc99cc; }
+        .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: #cc99cc; }
         .copyright a { color: #cc99cc; text-decoration: underline; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; overscroll-behavior: contain; }
         .modal.open { display: block; }
@@ -191,9 +189,6 @@
         <div class="live-standings">
             <p>2026 Race for 200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
         </div>
-        <div class="mlb-logo-container">
-            <img src="MENDOZA_STRIKE_LOGO_CLEAR.png" alt="MLB Logo">
-        </div>
         <div class="copyright">mendozaleague.com ver3.2 ©2026</div>
     </div>
     <div id="rules-modal" class="modal">
@@ -292,9 +287,9 @@ const playerData={
     6:{name:"C. MOREL",number:"24",position:"IF",fullName:"Christopher Morel",wbcFlag:null,mlbId:666624,age:26,height:"6'0\"",weight:"200lbs",battingAvg2025:".219/278AB",pecota2026:".223",url:"https://www.baseball-reference.com/players/m/morelch01.shtml",bio:"Christopher Morel paints two lines of eye black on his cheeks like Peter Criss from Kiss. Maybe it's more Hello Kitty? Either way, it's pretty goofy. Morel dipped below The Mendoza Line in 2024, & getting back on top last season wasn't enough to keep him from getting DFAd by Tampa Bay last December. He signed a one-year deal to play first base for Miami — a position he has never played before in his life. It's <i>Moneyball</i>, y'all! Chris Morel is Chris Pratt!!"},
     7:{name:"D. MOORE",number:"25",position:"IF",fullName:"Dylan Moore",wbcFlag:null,mlbId:664238,age:32,height:"6'0\"",weight:"205lbs",battingAvg2025:".201/219AB",pecota2026:"N/A",url:"https://www.baseball-reference.com/players/m/mooredy01.shtml",bio:"Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"},
     8:{name:"L. ROBERT Jr.",number:"88",position:"OF",fullName:"Luis Robert, Junior",wbcFlag:null,mlbId:673357,age:28,height:"6'3\"",weight:"225lbs",battingAvg2025:".224/395AB",pecota2026:".233",url:"https://www.baseball-reference.com/players/r/roberlu01.shtml",bio:"The 2021 Chicago White Sox were supposed to be The Future. Now five years removed from seemingly limitless potential and two seasons after claiming the title of \"worst team in history,\" nearly every player from the core built to bring the South Side \"multiple parades\" is gone. Luis Robert, Jr. will spend this summer in Queens, coincidentally replacing last season's Metropolitan Center Fielder, Jose Siri (who may I remind you, broke his dang leg like an actual horse). Junior hit .233 last year and maybe a change of scenery will help — even if it's mainly just an airport and scrapyards."},
-    9:{name:"SOON COME (AL)",number:"?",position:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
-    10:{name:"SOON COME (NL)",number:"?",position:"",fullName:"SOON COME (NL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
-    11:{name:"SOON COME (NL)",number:"?",position:"",fullName:"SOON COME (NL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""} // v2.0 - Updated SOON COME names
+    9:{name:"N. CASTELLANOS",number:"?",position:"OF",fullName:"Nicholas Castellanos",wbcFlag:null,mlbId:592206,age:34,height:"6'5\"",weight:"218lbs",battingAvg2025:".250/547AB",pecota2026:".246",url:"https://www.baseball-reference.com/players/c/casteni01.shtml",bio:"SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME SOON COME"},
+    10:{name:"SOON COME (AL)",number:"?",position:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
+    11:{name:"SOON COME (AL)",number:"?",position:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""} // v2.0 - Updated SOON COME names
 };
 
 let playersArray = [];
@@ -645,7 +640,8 @@ function openPlayerModal(playerId) {
         5: 'Senior Circuit',
         6: 'Senior Circuit',
         7: 'Junior Circuit',
-        8: 'Senior Circuit'
+        8: 'Senior Circuit',
+        9: 'Senior Circuit'
     };
     teamDesignationEl.innerHTML = teamDesignations[playerId] || '';
     
