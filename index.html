@@ -287,7 +287,7 @@ const playerData={
     6:{name:"C. MOREL",number:"24",position:"IF",fullName:"Christopher Morel",wbcFlag:null,mlbId:666624,age:26,height:"6'0\"",weight:"200lbs",battingAvg2025:".219/278AB",pecota2026:".223",url:"https://www.baseball-reference.com/players/m/morelch01.shtml",bio:"Christopher Morel paints two lines of eye black on his cheeks like Peter Criss from Kiss. Maybe it's more Hello Kitty? Either way, it's pretty goofy. Morel dipped below The Mendoza Line in 2024, & getting back on top last season wasn't enough to keep him from getting DFAd by Tampa Bay last December. He signed a one-year deal to play first base for Miami — a position he has never played before in his life. It's <i>Moneyball</i>, y'all! Chris Morel is Chris Pratt!!"},
     7:{name:"D. MOORE",number:"25",position:"UT",fullName:"Dylan Moore",wbcFlag:null,mlbId:664238,age:32,height:"6'0\"",weight:"205lbs",battingAvg2025:".201/219AB",pecota2026:"N/A",url:"https://www.baseball-reference.com/players/m/mooredy01.shtml",bio:"<strong>UPDATE: Feb 16, 2026</strong><br><br>Well, well, well! Look look who Philadelphia invited to Spring Training to potentially take the place of ousted outfielder (and 2026 Mendoza Stakes competitor) Nick Castellanos. Mr. Moore is out of options, so he either starts on the Phillies or not at all. Godspeed, \"Champ!\"<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br>Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"},
     8:{name:"L. ROBERT Jr.",number:"88",position:"OF",fullName:"Luis Robert, Junior",wbcFlag:null,mlbId:673357,age:28,height:"6'3\"",weight:"225lbs",battingAvg2025:".224/395AB",pecota2026:".233",url:"https://www.baseball-reference.com/players/r/roberlu01.shtml",bio:"The 2021 Chicago White Sox were supposed to be The Future. Now five years removed from seemingly limitless potential & two seasons after claiming the title of \"worst team in history,\" nearly every player from the core built to bring the South Side \"multiple parades\" is gone. Luis Robert, Jr. will spend this summer in Queens, coincidentally replacing last season's Metropolitan Center Fielder, Jose Siri (who may I remind you, broke his dang leg like an actual horse). Junior hit .233 last year & maybe a change of scenery will help — even if it's mainly just an airport & scrapyards."},
-    9:{name:"N. CASTELLANOS",number:"?",position:"OF",fullName:"Nicholas Castellanos",wbcFlag:null,mlbId:592206,age:34,height:"6'5\"",weight:"218lbs",battingAvg2025:".250/547AB",pecota2026:".246",url:"https://www.baseball-reference.com/players/c/casteni01.shtml",bio:"Man, everybody <i>hates</i> Nick Castellanos. Your loyal Commissioner has remained willfully ignorant about what went down to totally fracture the relationship with his former team, but it involved him cracking open a Dominican beer in the dugout after being pulled for a defensive replacement. He's now officially a Padre, which makes one consider if San Diego's National League Ball Club has a minimum Bad Vibes quota every season. So what's 2026 have in store for the home run-hitting harbinger of bad news? Worst case scenario is a Ritchie Tenenbaum-esque \"He's taken off his shoes & one of his socks — actually I think he's crying\" situation that sucks him toward The Mendoza Line. Best case is he continues to absolutely never, <i>ever</i> walk & runs off with the Race to 200AB in the first half."},
+    9:{name:"N. CASTELLANOS",number:"21",position:"OF",fullName:"Nicholas Castellanos",wbcFlag:null,mlbId:592206,age:34,height:"6'5\"",weight:"218lbs",battingAvg2025:".250/547AB",pecota2026:".246",url:"https://www.baseball-reference.com/players/c/casteni01.shtml",bio:"Man, everybody <i>hates</i> Nick Castellanos. Your loyal Commissioner has remained willfully ignorant about what went down to totally fracture the relationship with his former team, but it involved him cracking open a Dominican beer in the dugout after being pulled for a defensive replacement. He's now officially on the Padres roster making the league minimum, which makes one consider if San Diego's National League Ball Club has a minimum Bad Vibes quota every season. So what's 2026 have in store for the home run-hitting harbinger of bad news? Worst case scenario is a Ritchie Tenenbaum-esque \"He's taken off his shoes & one of his socks — actually I think he's crying\" situation that sucks him toward The Mendoza Line. Best case is he continues to absolutely never, <i>ever</i> walk & runs off with the Race to 200AB in the first half."},
     10:{name:"SOON COME (AL)",number:"?",position:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""},
     11:{name:"SOON COME (AL)",number:"?",position:"",fullName:"SOON COME (AL)",wbcFlag:null,mlbId:null,age:"TBD",height:"TBD",weight:"TBD",battingAvg2025:".---/---AB",pecota2026:".---/---AB",url:"",bio:""} // v2.0 - Updated SOON COME names
 };
@@ -329,12 +329,32 @@ function calculateDistanceFrom200(avg) {
 }
 
 function rankPlayers() {
-    playersArray.sort((a, b) => {
-        const distA = a.distanceFrom200;
-        const distB = b.distanceFrom200;
-        if (distA !== distB) return distA - distB;
-        return a.originalOrder - b.originalOrder;
-    });
+    const openingDay = new Date('2026-03-25T00:00:00');
+    const now = new Date();
+    
+    if (now < openingDay) {
+        // Before opening day: sort by jersey number
+        playersArray.sort((a, b) => {
+            const numA = playerData[a.id]?.number;
+            const numB = playerData[b.id]?.number;
+            
+            // Handle '?' as highest value
+            if (numA === '?' && numB === '?') return a.originalOrder - b.originalOrder;
+            if (numA === '?') return 1;
+            if (numB === '?') return -1;
+            
+            // Sort numerically
+            return parseInt(numA) - parseInt(numB);
+        });
+    } else {
+        // After opening day: sort by distance from .200
+        playersArray.sort((a, b) => {
+            const distA = a.distanceFrom200;
+            const distB = b.distanceFrom200;
+            if (distA !== distB) return distA - distB;
+            return a.originalOrder - b.originalOrder;
+        });
+    }
 }
 
 function getRowClass(index, playersArray) {
@@ -1110,7 +1130,7 @@ if (bugleTrigger) {
                     {number: 24, id: 6, name: 'C. MOREL', atBats: 0, avg: 0, distanceFrom200: 1000},
                     {number: 25, id: 7, name: 'D. MOORE', atBats: 0, avg: 0, distanceFrom200: 1000},
                     {number: 88, id: 8, name: 'L. ROBERT Jr.', atBats: 0, avg: 0, distanceFrom200: 1000},
-                    {number: '?', id: 9, name: 'N. CASTELLANOS', atBats: 0, avg: 0, distanceFrom200: 1000},
+                    {number: 21, id: 9, name: 'N. CASTELLANOS', atBats: 0, avg: 0, distanceFrom200: 1000},
                     {number: '?', id: 10, name: 'SOON COME (AL)', atBats: 0, avg: 0, distanceFrom200: 1000},
                     {number: '?', id: 11, name: 'SOON COME (AL)', atBats: 0, avg: 0, distanceFrom200: 1000}
                 ];
