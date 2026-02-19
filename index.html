@@ -494,6 +494,8 @@ const SEASON = {
 
 // ============================================================
 // PLAYER DATA
+// NOTE: Each player entry should include a birthday field:
+//   birthday: { month: M, day: D }  ← required for 🎂 on leaderboard
 // ============================================================
 const playerData = {
     1: {
@@ -502,6 +504,7 @@ const playerData = {
         position: "OF",
         fullName: "Pete Crow-Armstrong",
         wbcFlag: "🇺🇸",
+        birthday: { month: 3, day: 25 },
         mlbId: 691718,
         age: 23,
         height: "6'0\"",
@@ -518,6 +521,7 @@ const playerData = {
         position: "DH",
         fullName: "Munetaka Murakami",
         wbcFlag: "🇯🇵",
+        birthday: { month: 2, day: 2 },
         mlbId: null,
         age: 25,
         height: "6'2\"",
@@ -536,6 +540,7 @@ const playerData = {
         position: "IF",
         fullName: "MAX P. MUNCY",
         wbcFlag: null,
+        birthday: { month: 8, day: 25 },
         mlbId: null,
         age: 23,
         height: "6'1\"",
@@ -552,6 +557,7 @@ const playerData = {
         position: "C",
         fullName: "Noah-Gibson \"Bo\" Naylor",
         wbcFlag: null,
+        birthday: { month: 2, day: 21 },
         mlbId: 647304,
         age: 25,
         height: "6'0\"",
@@ -568,6 +574,7 @@ const playerData = {
         position: "IF",
         fullName: "Oneil Cruz",
         wbcFlag: "🇩🇴",
+        birthday: { month: 10, day: 4 },
         mlbId: 665833,
         age: 25,
         height: "6'7\"",
@@ -584,6 +591,7 @@ const playerData = {
         position: "IF",
         fullName: "Christopher Morel",
         wbcFlag: null,
+        birthday: { month: 6, day: 24 },
         mlbId: 666624,
         age: 26,
         height: "6'0\"",
@@ -600,6 +608,7 @@ const playerData = {
         position: "UT",
         fullName: "Dylan Moore",
         wbcFlag: null,
+        birthday: { month: 8, day: 2 },
         mlbId: 664238,
         age: 32,
         height: "6'0\"",
@@ -616,6 +625,7 @@ const playerData = {
         position: "OF",
         fullName: "Luis Robert, Junior",
         wbcFlag: null,
+        birthday: { month: 8, day: 3 },
         mlbId: 673357,
         age: 28,
         height: "6'3\"",
@@ -632,6 +642,7 @@ const playerData = {
         position: "OF",
         fullName: "Nicholas Castellanos",
         wbcFlag: null,
+        birthday: { month: 3, day: 4 },
         mlbId: 592206,
         age: 34,
         height: "6'5\"",
@@ -648,6 +659,7 @@ const playerData = {
         position: "",
         fullName: "SOON COME (AL)",
         wbcFlag: null,
+        // ⚠️ ADD birthday: { month: M, day: D } when this player is filled in
         mlbId: null,
         age: "TBD",
         height: "TBD",
@@ -664,6 +676,7 @@ const playerData = {
         position: "",
         fullName: "SOON COME (AL)",
         wbcFlag: null,
+        // ⚠️ ADD birthday: { month: M, day: D } when this player is filled in
         mlbId: null,
         age: "TBD",
         height: "TBD",
@@ -725,6 +738,13 @@ function rankPlayers(now) {
             return a.originalOrder - b.originalOrder;
         });
     }
+}
+
+// Returns true if today is the player's birthday
+function isBirthday(player, now) {
+    if (!player.birthday) return false;
+    now = now || new Date();
+    return now.getMonth() + 1 === player.birthday.month && now.getDate() === player.birthday.day;
 }
 
 // Single O(n) pass: compute all row classes at once and return as an array.
@@ -838,6 +858,11 @@ function renderPlayers(now) {
                 if (!wantsDiamond && hasDiamond) {
                     nameEl.innerHTML = nameEl.innerHTML.replace('⬥', '');
                 }
+                // Birthday cake
+                const hasCake = nameEl.textContent.includes('🎂');
+                const wantsCake = isBirthday(player, now);
+                if (wantsCake && !hasCake) nameEl.innerHTML += ' 🎂';
+                if (!wantsCake && hasCake) nameEl.innerHTML = nameEl.innerHTML.replace(' 🎂', '').replace('🎂', '');
             }
         });
         return;
@@ -875,6 +900,7 @@ function renderPlayers(now) {
 
         if (isWBC && player.wbcFlag) displayName += ' ' + player.wbcFlag;
         if (player.id === diamondPlayerId) displayName += '⬥';
+        if (isBirthday(player, now)) displayName += ' 🎂';
 
         const row = document.createElement('div');
         row.className = `player-row ${rowClass}`;
