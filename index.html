@@ -60,6 +60,7 @@
             width: auto;
             box-sizing: border-box;
             max-width: fit-content;
+            min-width: 257px;
         }
         .live-standings { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: var(--dark); }
         .live-standings a { color: var(--dark); text-decoration: underline; cursor: pointer; }
@@ -331,7 +332,7 @@
                 <br>MENDOZA STAKES
             </strong></h1>
             <div class="hexagon-bar">
-                <p class="race-title" id="season-subtitle"><i>Season Eleven</i>⬩<i>Spring Training</i></p>
+                <p class="race-title" id="season-subtitle"><i>Season Eleven</i>⬩<i id="week-label">Week One</i></p>
             </div>
         </div>
         <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
@@ -454,6 +455,42 @@ const SEASON = {
     wbcStart:          new Date('2026-03-05T00:00:00'),
     wbcEnd:            new Date('2026-03-17T23:59:59'),
 };
+
+// ============================================================
+// DYNAMIC WEEK LABEL
+// ============================================================
+(function() {
+    const now = new Date();
+    const weekLabelEl = document.getElementById('week-label');
+    if (!weekLabelEl) return;
+
+    const weekNames = [
+        'Week One', 'Week Two', 'Week Three', 'Week Four', 'Week Five',
+        'Week Six', 'Week Seven', 'Week Eight', 'Week Nine', 'Week Ten',
+        'Week Eleven', 'Week Twelve', 'Week Thirteen', 'Week Fourteen',
+        'Week Fifteen', 'Week Sixteen', 'Week Seventeen', 'Week Eighteen',
+        'Week Nineteen', 'Week Twenty', 'Week Twenty-One', 'Week Twenty-Two',
+        'Week Twenty-Three', 'Week Twenty-Four', 'Week Twenty-Five', 'Week Twenty-Six'
+    ];
+
+    if (now < SEASON.openingDay) {
+        // Before season: show Spring Training or Pre-Season
+        if (now >= SEASON.springTraining) {
+            weekLabelEl.textContent = 'Spring Training';
+        } else {
+            weekLabelEl.textContent = 'Pre-Season';
+        }
+    } else if (now >= SEASON.allStarBreakStart && now < SEASON.allStarBreakEnd) {
+        weekLabelEl.textContent = 'All-Star Break';
+    } else if (now > SEASON.finishLine) {
+        weekLabelEl.textContent = 'Final Standings';
+    } else {
+        // Calculate week number from opening day
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const weekNum = Math.floor((now - SEASON.openingDay) / msPerWeek);
+        weekLabelEl.textContent = weekNames[weekNum] || ('Week ' + (weekNum + 1));
+    }
+})();
 
 // ============================================================
 // PLAYER DATA
@@ -1292,7 +1329,7 @@ const WEEK_WORDS = ['One','Two','Three','Four','Five','Six','Seven','Eight',
                     'Twenty One','Twenty Two','Twenty Three','Twenty Four','Twenty Five',
                     'Twenty Six','Twenty Seven'];
 
-function updateSeasonSubtitle() {
+function updateSeasonSubtitle_DISABLED() {
     const el = document.getElementById('season-subtitle');
     if (!el) return;
 
@@ -1369,7 +1406,7 @@ function updateSeasonSubtitle() {
     el.innerHTML = `<i>Season Eleven</i>⬩<i>${label}</i>`;
 }
 
-updateSeasonSubtitle();
+// updateSeasonSubtitle(); -- PREVIEW
 
 // Pause background fetches when tab is hidden, resume when visible
 document.addEventListener('visibilitychange', function () {
