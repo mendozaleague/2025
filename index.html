@@ -19,16 +19,16 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { height: 100%; overflow-x: hidden; overscroll-behavior: none; }
         body { font-family: 'Arial', sans-serif; background: var(--blue); min-height: 100%; padding: 10px; padding-bottom: 30px; color: var(--dark); overflow-x: hidden; position: relative; overscroll-behavior: none; }
+        @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
+        @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
         @media (prefers-reduced-motion: no-preference) {
-            @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
-            @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
             .wave-emoji-1 { animation: wave 11s ease-in-out 10s infinite; }
             .wave-emoji-2 { animation: wave 11s ease-in-out 10.15s infinite; }
             .wave-emoji-3 { animation: wave 11s ease-in-out 10.3s infinite; }
             .wave-emoji-4 { animation: wave 11s ease-in-out 10.45s infinite; }
             .wave-emoji-5 { animation: wave 11s ease-in-out 10.6s infinite; }
             .wave-emoji-6 { animation: wave 11s ease-in-out 10.75s infinite; }
-                                    .batting-display.is-loading .batting-average { animation: pulse 1.2s ease-in-out infinite; }
+            .batting-display.is-loading .batting-average { animation: pulse 1.2s ease-in-out infinite; }
         }
         @keyframes pulse {
             0%, 100% { opacity: 0.35; }
