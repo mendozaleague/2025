@@ -40,7 +40,7 @@
         .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
         .header { text-align: center; margin-bottom: 0; padding: 15px; background: var(--blue); border: 2px solid var(--blue); }
         .header h1 { font-size: 2.0rem; margin-bottom: 0; color: black; line-height: 1.2; }
-        .header-diamond { display: inline-block; width: 1.2rem; height: 1.2rem; background-color: black; transform: rotate(45deg); margin: 0 0.4rem; vertical-align: middle; }
+        .header-diamond { display: inline-block; width: 1.2rem; height: 1.2rem; background-color: black; transform: rotate(45deg); margin: 0 0.15rem; vertical-align: middle; }
         .header-diamond.wave-emoji-1 { animation: wave-diamond 11s ease-in-out 10s infinite; }
         .header-diamond.wave-emoji-2 { animation: wave-diamond 11s ease-in-out 10.15s infinite; }
         .header-diamond.wave-emoji-3 { animation: wave-diamond 11s ease-in-out 10.3s infinite; }
@@ -82,7 +82,8 @@
         .player-row.second-place { background: var(--blue); color: black; }
         .player-row:last-child { border-bottom: none; }
         .player-info { flex: 1; display: flex; justify-content: space-between; align-items: center; min-width: 0; width: 100%; }
-        .player-name { font-size: 1.5rem; font-weight: bold; line-height: 1.2; position: relative; padding-left: 0; cursor: pointer; display: flex; align-items: center; }
+        .player-name { font-size: 1.5rem; font-weight: bold; line-height: 1.2; position: relative; padding-left: 0; cursor: pointer; display: flex; align-items: center; outline: none; -webkit-tap-highlight-color: transparent; }
+        .player-name:focus, .player-name:focus-visible { outline: none; }
         .player-name.tbd-line .tbd-text { display: none; }
         .player-name.tbd-line::after { content: ''; display: inline-block; width: 11ch; height: 2px; background-color: currentColor; vertical-align: middle; }
         .batting-stats { text-align: right; flex-shrink: 0; position: relative; min-width: 0; }
@@ -119,7 +120,10 @@
             -moz-user-select: none;
             -ms-user-select: none;
             text-align: right;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
+        .batting-display:focus, .batting-display:focus-visible { outline: none; }
         .batting-average { position: relative; z-index: 1; text-align: right; }
         .tap-tooltip  {
             position: absolute;
@@ -290,7 +294,7 @@
             .screw-flanders { font-size: 0.9rem; }
             .rules-divider { font-size: 1rem; }
             .header h1 { font-size: 1.75rem; }
-            .header-diamond { width: 1.05rem; height: 1.05rem; margin: 0 0.35rem; }
+            .header-diamond { width: 1.05rem; height: 1.05rem; margin: 0 0.12rem; }
             .header p { font-size: 0.85rem; }
             .mendoza-line-divider { font-size: 1.2rem; }
             .mendoza-line-divider::before, .mendoza-line-divider::after { width: calc(50% - 110px); }
@@ -379,6 +383,7 @@
                 <h2 id="player-modal-name"></h2>
             </div>
             <div class="player-modal-stats-container">
+                <div style="font-size: 1.8rem; flex-shrink: 0; opacity: 0.5; transform: scaleX(-1); margin-left: 20px; margin-right: auto;">𓃗</div>
                 <div class="player-modal-stats">
                     <p id="player-modal-details"></p>
                     <p id="player-modal-2025-stats"></p>
@@ -386,6 +391,7 @@
                     <p id="player-modal-current-stats"></p>
                     <p id="player-modal-games" style="font-size: 0.9rem; margin-top: 5px; margin-bottom: 8px;"></p>
                 </div>
+                <div style="font-size: 1.8rem; flex-shrink: 0; opacity: 0.5; margin-right: 20px; margin-left: auto;">𓃗</div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding: 0 20px;">
                 <div class="player-status-indicator" style="position: static; transform: none;">
