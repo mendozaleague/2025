@@ -156,7 +156,7 @@
             color: var(--blue);
             background: black;
             margin-bottom: 10px;
-            padding: 10px 60px 10px 60px;
+            padding: 10px 48px 10px 48px;
             font-weight: bold;
             transition: opacity 0.2s;
             display: block;
@@ -171,7 +171,7 @@
             width: 1.5rem;
             height: 1.5rem;
             position: absolute;
-            left: 10px;
+            left: 12px;
             top: 50%;
             transform: translateY(-50%) rotate(45deg);
             margin-right: 0;
@@ -185,7 +185,7 @@
             width: 1.5rem;
             height: 1.5rem;
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%) rotate(45deg);
             margin-right: 0;
@@ -984,9 +984,8 @@ function openPlayerModal(playerId) {
     
     nameEl.innerHTML = htmlContent;
     
-    const ageLabel = player.ageIsLive ? 'Age' : `Age (as of ${SEASON.year} Opening Day)`;
     document.getElementById('player-modal-details').innerHTML =
-        ageLabel + ': ' + player.age + ' | Height: ' + player.height + ' | Weight: ' + player.weight;
+        'Age: ' + player.age + ' | Height: ' + player.height + ' | Weight: ' + player.weight;
     
     if (player.battingAvg2025 === '*') {
         document.getElementById('player-modal-2025-stats').innerHTML = 
