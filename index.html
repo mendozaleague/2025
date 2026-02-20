@@ -898,7 +898,7 @@ function renderPlayers(now) {
         } else {
             const selectedIds = getSelectedBatters();
             const isSelectedPlayer = selectedIds.includes(player.id);
-            const horseSuffix = isSelectedPlayer ? '<span class="player-horse" style="font-style:normal;margin-left:0.3em;"> 𓃗</span>' : '';
+            const horseSuffix = isSelectedPlayer ? '<span class="player-horse" style="margin-left:0.3em;">𓃗</span>' : '';
             displayName += `<span class="player-name-text">${player.name}</span>${horseSuffix}`;
         }
 
@@ -1518,12 +1518,11 @@ function applySelectedBatterStyles() {
         const numberEl = row.querySelector('.player-number');
         if (!nameTextEl) return;
         if (ids.includes(playerId)) {
-            nameTextEl.style.fontStyle = 'italic';
             if (!row.querySelector('.player-horse')) {
                 const horseSpan = document.createElement('span');
                 horseSpan.className = 'player-horse';
                 horseSpan.style.marginLeft = '0.3em';
-                horseSpan.textContent = ' 𓃗';
+                horseSpan.textContent = '𓃗';
                 nameTextEl.insertAdjacentElement('afterend', horseSpan);
             }
         } else {
