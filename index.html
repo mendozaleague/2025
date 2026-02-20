@@ -65,7 +65,7 @@
         .live-standings { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: var(--dark); }
         .live-standings a { color: var(--dark); text-decoration: underline; cursor: pointer; }
         .mendoza-line-divider { text-align: center; margin: -15px 0 0 0; padding: 15px 12px; position: relative; color: var(--dark); font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
-        .mendoza-line-divider::before, .mendoza-line-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 140px); height: 2px; background-color: var(--dark); }
+        .mendoza-line-divider::before, .mendoza-line-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 140px); height: 2px; background-color: var(--dark); pointer-events: none; }
         .mendoza-line-divider::before { left: 0; }
         .mendoza-line-divider::after { right: 0; }
         .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: var(--pink); }
@@ -335,7 +335,7 @@
                 <p class="race-title" id="season-subtitle"><i>Season Eleven</i>⬩<i id="week-label">Week One</i></p>
             </div>
         </div>
-        <div class="mendoza-line-divider">"THE MENDOZA LINE"</div>
+        <div class="mendoza-line-divider" id="mendoza-line-trigger" style="cursor: pointer;">"THE MENDOZA LINE"</div>
         <div id="loading-banner">Hold Yer Horses...</div>
         <div id="standings-container">
         </div>
@@ -1573,6 +1573,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
+    // Mendoza Line Wikipedia — open in new tab
+    const mendozaLineTrigger = document.getElementById('mendoza-line-trigger');
+    if (mendozaLineTrigger) {
+        mendozaLineTrigger.addEventListener('click', function() {
+            window.open('https://en.wikipedia.org/wiki/Mendoza_Line', '_blank');
+        });
+    }
+
     rulesTrigger.addEventListener('click', function (e) {
         e.preventDefault();
         openModalWithScroll(rulesModal);
@@ -1604,9 +1612,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (event.target == playerModal) {
             closeModalWithScroll(playerModal);
-        }
-        if (event.target == contactModal) {
-            closeModalWithScroll(contactModal);
         }
         const horseModal = document.getElementById('horse-modal');
         if (event.target == horseModal) {
@@ -2124,12 +2129,17 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     <span class="horse-icon-${index}" style="display: inline-block; transform: scaleX(-1); font-size: 1.3rem; position: relative;">𓃗</span>
                 `;
                 
+                const isSelectedInRace = getSelectedBatters().includes(horse.id);
+                const nameStyle = isSelectedInRace
+                    ? 'color: #b8ddf2; white-space: nowrap; text-shadow: 0.4px 0 0 #b8ddf2, -0.4px 0 0 #b8ddf2;'
+                    : 'color: #b8ddf2; white-space: nowrap;';
+
                 const playerInfo = `
                     <span style="display: flex; align-items: center; gap: 5px; position: absolute; right: calc(100% + 8px); white-space: nowrap;">
                         <span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: rotate(45deg); position: relative;">
                             <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 0.35rem; font-weight: bold; color: black;">${horse.number}</span>
                         </span>
-                        <span style="color: #b8ddf2; white-space: nowrap;">${horse.name}</span>
+                        <span style="${nameStyle}">${horse.name}</span>
                     </span>
                 `;
                 
