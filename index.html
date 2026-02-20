@@ -441,7 +441,7 @@ Bob Uecker Memorial Race for Two Hundred</div>
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script>
 // ============================================================
 // SEASON CONFIGURATION — update these each year, nothing else
 // ============================================================
@@ -1220,8 +1220,7 @@ async function fetchPlayerStatusAndTrend(playerId) {
 }
 
 function showLoadingState() {
-    // Only show loading UI during the season when stats are expected
-    if (new Date() < SEASON.openingDay) return;
+    if (new Date() < SEASON.springTraining) return;
 
     document.getElementById('loading-banner').classList.add('visible');
     document.querySelectorAll('.batting-display').forEach(el => el.classList.add('is-loading'));
@@ -1237,11 +1236,18 @@ async function fetchMLBStats() {
 
     showLoadingState();
     const now = new Date();
+    const isSpringTraining = now >= SEASON.springTraining && now < SEASON.openingDay;
 
     await Promise.all(playersWithIds.map(async player => {
         try {
+            // Request both season and springTraining types — spring training data
+            // lives in a separate bucket and won't appear under type=[season]
+            const statTypes = isSpringTraining
+                ? 'type=[springTraining,season]'
+                : 'type=[season]';
+
             const response = await fetch(
-                `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=stats(group=[hitting],type=[season],season=${SEASON.year})`
+                `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=stats(group=[hitting],${statTypes},season=${SEASON.year})`
             );
 
             if (!response.ok) return;
@@ -1250,7 +1256,11 @@ async function fetchMLBStats() {
             const person = data.people[0];
 
             if (person.stats && person.stats.length > 0) {
+                // During spring training prefer springTraining stats; fall back to season
+                const statTypeName = isSpringTraining ? 'springTraining' : 'season';
                 const hittingStats = person.stats.find(s =>
+                    s.group.displayName === 'hitting' && s.type.displayName === statTypeName
+                ) || person.stats.find(s =>
                     s.group.displayName === 'hitting' && s.type.displayName === 'season'
                 );
 
@@ -1293,8 +1303,8 @@ function scheduledFetch() {
 
 initializePlayers();
 attachEventListeners(); // Set once — uses event delegation, survives re-renders
-// Only fetch live stats during the season — no data exists before Opening Day
-if (new Date() >= SEASON.openingDay) {
+// Fetch live stats from spring training onwards
+if (new Date() >= SEASON.springTraining) {
     fetchMLBStats();
 }
 
@@ -1462,8 +1472,7 @@ function updateSeasonSubtitle_DISABLED() {
 
 // Pause background fetches when tab is hidden, resume when visible
 document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && new Date() >= SEASON.openingDay) {
-        // Tab became visible — fetch now to catch up, then resume normal cadence
+    if (!document.hidden && new Date() >= SEASON.springTraining) {
         fetchMLBStats();
     }
 });
