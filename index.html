@@ -1675,6 +1675,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (horseModalClose) {
         horseModalClose.addEventListener('click', function() {
             closeModalWithScroll(document.getElementById('horse-modal'));
+            // Kill all pending animation timeouts and intervals
+            activeAnimationRunId++; // invalidate any still-pending timer callbacks
+            activeAnimationTimeouts.forEach(t => clearTimeout(t));
+            activeAnimationTimeouts = [];
+            activeAnimationIntervals.forEach(i => clearInterval(i));
+            activeAnimationIntervals = [];
+            // Suspend audio
             if (activeAudioContext) {
                 activeAudioContext.suspend();
                 activeAudioContext = null;
@@ -1848,13 +1855,44 @@ localStorage.setItem('lastMessage', newMessage);
 
 // Call to the Post bugle sound effect
 let activeAudioContext = null;
+let activeAnimationTimeouts = [];
+let activeAnimationIntervals = [];
+let activeAnimationRunId = 0;
 const bugleTrigger = document.getElementById('bugle-trigger');
 if (bugleTrigger) {
     bugleTrigger.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        // Kill any previous animation before starting fresh
+        activeAnimationTimeouts.forEach(t => clearTimeout(t));
+        activeAnimationTimeouts = [];
+        activeAnimationIntervals.forEach(i => clearInterval(i));
+        activeAnimationIntervals = [];
+        if (activeAudioContext) { activeAudioContext.suspend(); }
+
+        // Open modal and show first text FIRST so screen and audio start together
+        const horseModal = document.getElementById('horse-modal');
+        openModalWithScroll(horseModal);
+        const horseElementImmediate = document.getElementById('horse-animation');
+        if (horseElementImmediate) {
+            horseElementImmediate.style.fontSize = '0.9rem';
+            horseElementImmediate.style.color = '#b8ddf2';
+            horseElementImmediate.style.textAlign = 'center';
+            horseElementImmediate.style.justifyContent = 'center';
+            horseElementImmediate.style.alignItems = 'center';
+            horseElementImmediate.innerHTML = 'MendozaLeague.com<br>Proudly Presents';
+        }
+        const horseTextImmediate = document.getElementById('horse-text');
+        if (horseTextImmediate) { horseTextImmediate.textContent = ''; horseTextImmediate.style.visibility = 'hidden'; }
+        const finishLineImmediate = document.getElementById('finish-line');
+        if (finishLineImmediate) finishLineImmediate.style.display = 'none';
+        const raceTitleImmediate = document.getElementById('race-title');
+        if (raceTitleImmediate) raceTitleImmediate.style.visibility = 'hidden';
+
+        // NOW start audio — as close to screen appearance as possible
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         activeAudioContext = audioContext;
+        const clickTime = performance.now();
         const now = audioContext.currentTime;
         
         // Function to play a note - racetrack bugle sound
@@ -1959,10 +1997,6 @@ if (bugleTrigger) {
         // For setTimeout timing, use a fixed 7.2 second delay (7200ms) instead of audio timing
         const raceStartDelay = 7200; // Race starts 700ms after "they're OFF" at 6500ms
         
-        // Open horse animation modal
-        const horseModal = document.getElementById('horse-modal');
-        openModalWithScroll(horseModal);
-        
         // Fetch live data from API
         fetch('/api/mendoza-stakes-data')
             .then(response => response.json())
@@ -1982,7 +2016,7 @@ if (bugleTrigger) {
                 const isSeasonActive = apiData.isSeasonActive;
                 const isPostAllStarBreak = apiData.isPostAllStarBreak;
                 
-                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext });
+                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
             })
             .catch(error => {
                 console.error('Error fetching race data:', error);
@@ -2000,12 +2034,39 @@ if (bugleTrigger) {
                 const isSeasonActive     = false;
                 const isPostAllStarBreak = false;
 
-                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext });
+                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
             });
     });
 }
 
-function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext }) {
+function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime }) {
+        // Clear any previous animation state and assign a new run ID
+        activeAnimationTimeouts.forEach(t => clearTimeout(t));
+        activeAnimationTimeouts = [];
+        activeAnimationIntervals.forEach(i => clearInterval(i));
+        activeAnimationIntervals = [];
+        const myRunId = ++activeAnimationRunId;
+
+        // raceTimeout: fires at `delay` ms from the original button click (subtracts fetch elapsed time)
+        // raceDelay: fires at `delay` ms from NOW — use inside callbacks for relative timing
+        function raceTimeout(fn, delay) {
+            const elapsed = performance.now() - clickTime;
+            const adjusted = Math.max(0, delay - elapsed);
+            const id = setTimeout(() => { if (activeAnimationRunId === myRunId) fn(); }, adjusted);
+            activeAnimationTimeouts.push(id);
+            return id;
+        }
+        function raceDelay(fn, delay) {
+            const id = setTimeout(() => { if (activeAnimationRunId === myRunId) fn(); }, delay);
+            activeAnimationTimeouts.push(id);
+            return id;
+        }
+        function raceInterval(fn, delay) {
+            const id = setInterval(() => { if (activeAnimationRunId === myRunId) fn(); }, delay);
+            activeAnimationIntervals.push(id);
+            return id;
+        }
+
         // Season dates come from the global SEASON config
 
         // Sort horses by race position
@@ -2051,40 +2112,36 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
         const horseElement = document.getElementById('horse-animation');
         const horseText = document.getElementById('horse-text');
         
-        // Reset horse text
+        // Reset all stale state from previous run
         if (horseText) {
             horseText.style.visibility = 'hidden';
             horseText.textContent = '';
         }
+        const finishLineEl = document.getElementById('finish-line');
+        if (finishLineEl) finishLineEl.style.display = 'none';
+        const raceTitleEl = document.getElementById('race-title');
+        if (raceTitleEl) raceTitleEl.style.visibility = 'hidden';
         
         // Build text progressively during the bugle call - EVEN SPLIT
-        // Set up the horseElement to display text in blue
-        horseElement.style.fontSize = '0.9rem';
-        horseElement.style.color = '#b8ddf2';
-        horseElement.style.textAlign = 'center';
-        horseElement.style.justifyContent = 'center';
-        horseElement.style.alignItems = 'center';
-        
-        // Message 1: MendozaLeague.com Proudly Presents (0s - 2.17s)
-        horseElement.innerHTML = 'MendozaLeague.com<br>Proudly Presents';
+        // (first message already set immediately on click)
         
         // Message 2: The 3rd Running of the Mendoza Stakes (2.17s - 4.33s)
-        setTimeout(() => {
+        raceTimeout(() => {
             horseElement.innerHTML = 'The 3rd Running of<br>The Mendoza Stakes';
         }, 2170);
         
         // Message 3: Bob Uecker Memorial Race for Two Hundred (4.33s - 6.5s)
-        setTimeout(() => {
+        raceTimeout(() => {
             horseElement.innerHTML = 'Bob Uecker Memorial<br>Race for Two Hundred';
         }, 4330);
         
         // Final message: "...& they're OFF!!!" (at 6.5s - perfect timing)
-        setTimeout(() => {
+        raceTimeout(() => {
             horseElement.textContent = '...& they\'re OFF!!!';
         }, 6500);
         
         // After bugle call completes, play starting gun & start race
-        setTimeout(() => {
+        raceTimeout(() => {
             // Starting gun sound
             
             // Layer 1: White noise blast
@@ -2150,6 +2207,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             const totalGallopDuration = actualRaceDuration + 0.5 + 2; // race + buffer + countdown
             const gallopInterval = 0.15; // Time between gallops (faster = more hoofbeats)
             const numGallops = Math.floor(totalGallopDuration / gallopInterval);
+            const gallopLeadIn = 0.0; // timing handled by clickTime offset in raceTimeout
             
             // Create three offset gallop patterns for multiple horse sound
             const gallopOffsets = [0, 0.05, 0.08]; // Slight offsets to create depth
@@ -2157,7 +2215,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             gallopOffsets.forEach((offset, horseIndex) => {
                 // Create individual gallop sounds for each "horse"
                 for (let i = 0; i < numGallops; i++) {
-                    const startTime = audioContext.currentTime + (i * gallopInterval) + offset;
+                    const startTime = audioContext.currentTime + gallopLeadIn + (i * gallopInterval) + offset;
                     
                     // Create two quick thuds for each gallop (clip-clop)
                     for (let thud = 0; thud < 2; thud++) {
@@ -2217,7 +2275,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             horseElement.appendChild(fenceDiv);
             
             // Create horse elements
-            const allIntervals = [];
+            // intervals tracked via activeAnimationIntervals
             raceHorses.forEach((horse, index) => {
                 const horseDiv = document.createElement('div');
                 horseDiv.style.cssText = `
@@ -2345,7 +2403,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 const horseIconElement = horseDiv.querySelector(`.horse-icon-${index}`);
                 
                 // Independent gallop animation - only affects horse icon
-                const gallopInterval = setInterval(() => {
+                const gallopInterval = raceInterval(() => {
                     gallopFrame = 1 - gallopFrame; // Toggle between 0 & 1
                     const yOffset = gallopFrame === 0 ? -5 : 0;
                     if (horseIconElement) {
@@ -2354,7 +2412,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 }, 140);
                 
                 // Horizontal movement - affects entire row (name + horse)
-                const moveInterval = setInterval(() => {
+                const moveInterval = raceInterval(() => {
                     if (stepCount >= steps) {
                         clearInterval(moveInterval);
                         clearInterval(gallopInterval);
@@ -2370,7 +2428,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 }, stepDuration);
                 
                 // Store intervals for cleanup
-                allIntervals.push(gallopInterval, moveInterval);
+                activeAnimationIntervals.push(gallopInterval, moveInterval);
             });
             
             // Add fence at the bottom
@@ -2388,7 +2446,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             horseElement.appendChild(bottomFenceDiv);
             
             // Position & show finish line between the fences
-            setTimeout(() => {
+            raceDelay(() => {
                 const topFenceRect = fenceDiv.getBoundingClientRect();
                 const bottomFenceRect = bottomFenceDiv.getBoundingClientRect();
                 const containerRect = horseElement.getBoundingClientRect();
@@ -2451,7 +2509,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 const emptyLine = `<div style="height: 1.3rem;"></div>`;
                 
                 // Show DAY header earlier
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText) {
                         horseText.innerHTML = dayHeaderHtml + emptyLine + emptyLine + emptyLine;
                         horseText.style.visibility = 'visible';
@@ -2459,27 +2517,27 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 }, 500);
                 
                 // Hold a moment before first player
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText) {
                         horseText.innerHTML = dayHeaderHtml + emptyLine + emptyLine + emptyLine;
                     }
                 }, 1200);
                 
                 // Show leaderboard progressively with slower cadence
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText) {
                         horseText.innerHTML = dayHeaderHtml + top3[0] + emptyLine + emptyLine;
                         horseText.style.visibility = 'visible';
                     }
                 }, 1800);
                 
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText && top3[1]) {
                         horseText.innerHTML = dayHeaderHtml + top3[0] + top3[1] + emptyLine;
                     }
                 }, 3000);
                 
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText && top3[2]) {
                         horseText.innerHTML = dayHeaderHtml + top3[0] + top3[1] + top3[2];
                     }
@@ -2489,7 +2547,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 const raceTime = 6000; // 6 seconds of race animation
                 
                 // Message 1: "This is just a simulation"
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText) {
                         horseText.textContent = "This is just a simulation";
                         horseText.style.visibility = 'visible';
@@ -2497,14 +2555,14 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 }, raceTime * 0.20); // 1200ms
                 
                 // Black screen after message 1
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText) {
                         horseText.textContent = "";
                     }
                 }, raceTime * 0.50); // 3000ms
                 
                 // Message 2: "View race LIVE starting Opening Day"
-                setTimeout(() => {
+                raceDelay(() => {
                     if (horseText) {
                         horseText.textContent = "View race LIVE starting Opening Day";
                     }
@@ -2512,9 +2570,10 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             }
             
             // When animation ends, show countdown
-            setTimeout(() => {
+            raceDelay(() => {
                 // Clear all horse animations
-                allIntervals.forEach(interval => clearInterval(interval));
+                activeAnimationIntervals.forEach(interval => clearInterval(interval));
+                activeAnimationIntervals = [];
                 
                 if (horseText) {
                     horseText.style.visibility = 'hidden';
@@ -2572,7 +2631,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 horseElement.innerHTML = `<div style="font-size: 0.7rem; text-align: center; width: 100%;">${countdownText}</div>`;
                 
                 // Close modal after 2 seconds
-                setTimeout(() => {
+                raceDelay(() => {
                         closeModalWithScroll(horseModal);
                 }, 2000);
                 
