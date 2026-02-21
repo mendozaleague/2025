@@ -22,6 +22,7 @@
         @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
         @media (prefers-reduced-motion: no-preference) {
+            /* Pre-season: continuous slow wave */
             .wave-active .wave-emoji-1 { animation: wave 11s ease-in-out 0s infinite; }
             .wave-active .wave-emoji-2 { animation: wave 11s ease-in-out 0.15s infinite; }
             .wave-active .wave-emoji-3 { animation: wave 11s ease-in-out 0.3s infinite; }
@@ -34,6 +35,19 @@
             .wave-active .header-diamond.wave-emoji-4 { animation: wave-diamond 11s ease-in-out 0.45s infinite; }
             .wave-active .header-diamond.wave-emoji-5 { animation: wave-diamond 11s ease-in-out 0.6s infinite; }
             .wave-active .header-diamond.wave-emoji-6 { animation: wave-diamond 11s ease-in-out 0.75s infinite; }
+            /* Season: one-shot bounce on fetch */
+            .wave-bounce .wave-emoji-1 { animation: wave 11s ease-in-out 0s 1; }
+            .wave-bounce .wave-emoji-2 { animation: wave 11s ease-in-out 0.15s 1; }
+            .wave-bounce .wave-emoji-3 { animation: wave 11s ease-in-out 0.3s 1; }
+            .wave-bounce .wave-emoji-4 { animation: wave 11s ease-in-out 0.45s 1; }
+            .wave-bounce .wave-emoji-5 { animation: wave 11s ease-in-out 0.6s 1; }
+            .wave-bounce .wave-emoji-6 { animation: wave 11s ease-in-out 0.75s 1; }
+            .wave-bounce .header-diamond.wave-emoji-1 { animation: wave-diamond 11s ease-in-out 0s 1; }
+            .wave-bounce .header-diamond.wave-emoji-2 { animation: wave-diamond 11s ease-in-out 0.15s 1; }
+            .wave-bounce .header-diamond.wave-emoji-3 { animation: wave-diamond 11s ease-in-out 0.3s 1; }
+            .wave-bounce .header-diamond.wave-emoji-4 { animation: wave-diamond 11s ease-in-out 0.45s 1; }
+            .wave-bounce .header-diamond.wave-emoji-5 { animation: wave-diamond 11s ease-in-out 0.6s 1; }
+            .wave-bounce .header-diamond.wave-emoji-6 { animation: wave-diamond 11s ease-in-out 0.75s 1; }
             .batting-display.is-loading .batting-average { animation: pulse 1.2s ease-in-out infinite; }
         }
         @keyframes pulse {
@@ -68,6 +82,9 @@
         .mendoza-line-divider::before, .mendoza-line-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 140px); height: 2px; background-color: var(--dark); pointer-events: none; }
         .mendoza-line-divider::before { left: 0; }
         .mendoza-line-divider::after { right: 0; }
+        @media (hover: hover) {
+            #mendoza-line-trigger:hover .mendoza-line-text { text-decoration: underline; }
+        }
         .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: var(--pink); }
         .copyright a { color: var(--pink); text-decoration: underline; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto; overscroll-behavior: contain; }
@@ -92,13 +109,6 @@
             opacity: 0.35;
             animation: pulse 1.2s ease-in-out infinite;
         }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.35; }
-            50% { opacity: 0.7; }
-        }
-        /* display:inline-block is layout, not animation — always applied */
-        .wave-emoji-1, .wave-emoji-2, .wave-emoji-3,
-        .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
         #loading-banner {
             text-align: center;
             padding: 12px;
@@ -322,20 +332,22 @@
     <div class="container">
         <div class="header">
             <h1><strong>
+                <button id="diamond-trigger" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;">
                 <span class="header-diamond wave-emoji-1"></span>
                 <span class="header-diamond wave-emoji-2"></span>
-                <span class="header-diamond wave-emoji-3"></span>
+                <span class="header-diamond wave-emoji-3"></span></button>
                 2026
+                <button id="diamond-trigger-2" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;">
                 <span class="header-diamond wave-emoji-4"></span>
                 <span class="header-diamond wave-emoji-5"></span>
-                <span class="header-diamond wave-emoji-6"></span>
+                <span class="header-diamond wave-emoji-6"></span></button>
                 <br>MENDOZA STAKES
             </strong></h1>
             <div class="hexagon-bar">
                 <p class="race-title" id="season-subtitle"><i>Season Eleven</i>⬩<i id="week-label">Week One</i></p>
             </div>
         </div>
-        <div class="mendoza-line-divider" id="mendoza-line-trigger" style="cursor: pointer;">"THE MENDOZA LINE"</div>
+        <div class="mendoza-line-divider" id="mendoza-line-trigger" style="cursor: pointer;">"<span class="mendoza-line-text">THE MENDOZA LINE</span>"</div>
         <div id="loading-banner">Hold Yer Horses...</div>
         <div id="standings-container">
         </div>
@@ -441,7 +453,18 @@ Bob Uecker Memorial Race for Two Hundred</div>
         </div>
     </div>
 
-    <script>
+    <!-- Diamond info modal -->
+    <div id="diamond-modal" class="modal" role="dialog" aria-modal="true" aria-label="Live Update Info">
+        <div class="modal-content" style="text-align: center; max-width: 340px; background-color: black; color: var(--blue);">
+            <p style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">UPDATES ON THE ELEVENS</p>
+            <p style="font-weight: bold; margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">1<sup>st</sup> PITCH TO FINAL OUT DAILY</p>
+            <p id="diamond-modal-last-update" style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);"></p>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+const OPENING_DAY_FIRST_PITCH = new Date('2026-03-26T01:05:11Z'); // 5:05:11PM PT / 7:05:11PM CT / 8:05:11PM ET
+
 // ============================================================
 // SEASON CONFIGURATION — update these each year, nothing else
 // ============================================================
@@ -506,12 +529,7 @@ const playerData = {
         wbcFlag: "🇺🇸",
         birthday: { month: 3, day: 25 },
         mlbId: 691718,
-        age: 23,
-        height: "6'0\"",
-        weight: "184lbs",
-        battingAvg2025: ".247/591AB",
-        pecota2026: ".247",
-        url: "https://www.baseball-reference.com/players/c/crowape01.shtml",
+        league: 'Senior Circuit',
         bio: "<i>Technically</i> the Cubs mascot is a pantsless bear named Clark, but the <i>real</i> face of the franchise is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats with only 29 walks all year, & hit a Khris Davis-approved .247 with 31 home runs… but only 7 of those dingers came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"
     },
 
@@ -523,6 +541,7 @@ const playerData = {
         wbcFlag: "🇯🇵",
         birthday: { month: 2, day: 2 },
         mlbId: 808959,
+        league: 'Junior Circuit',
         age: 25,
         height: "6'2\"",
         weight: "213lbs",
@@ -542,6 +561,7 @@ const playerData = {
         wbcFlag: null,
         birthday: { month: 8, day: 25 },
         mlbId: 691777,
+        league: 'Junior Circuit',
         age: 23,
         height: "6'1\"",
         weight: "180lbs",
@@ -559,6 +579,7 @@ const playerData = {
         wbcFlag: null,
         birthday: { month: 2, day: 21 },
         mlbId: 647304,
+        league: 'Junior Circuit',
         age: 25,
         height: "6'0\"",
         weight: "205lbs",
@@ -576,6 +597,7 @@ const playerData = {
         wbcFlag: "🇩🇴",
         birthday: { month: 10, day: 4 },
         mlbId: 665833,
+        league: 'Senior Circuit',
         age: 25,
         height: "6'7\"",
         weight: "240lbs",
@@ -593,6 +615,7 @@ const playerData = {
         wbcFlag: null,
         birthday: { month: 6, day: 24 },
         mlbId: 666624,
+        league: 'Senior Circuit',
         age: 26,
         height: "6'0\"",
         weight: "200lbs",
@@ -610,6 +633,7 @@ const playerData = {
         wbcFlag: null,
         birthday: { month: 8, day: 2 },
         mlbId: 664238,
+        league: 'Junior Circuit',
         age: 32,
         height: "6'0\"",
         weight: "205lbs",
@@ -627,6 +651,7 @@ const playerData = {
         wbcFlag: null,
         birthday: { month: 8, day: 3 },
         mlbId: 673357,
+        league: 'Senior Circuit',
         age: 28,
         height: "6'3\"",
         weight: "225lbs",
@@ -644,6 +669,7 @@ const playerData = {
         wbcFlag: null,
         birthday: { month: 3, day: 4 },
         mlbId: 592206,
+        league: 'Senior Circuit',
         age: 34,
         height: "6'5\"",
         weight: "218lbs",
@@ -985,18 +1011,7 @@ function attachEventListeners() {
     });
 }
 
-// League designations per player ID — defined once at module level
-const teamDesignations = {
-    1: 'Senior Circuit',
-    2: 'Junior Circuit',
-    3: 'Junior Circuit',
-    4: 'Junior Circuit',
-    5: 'Senior Circuit',
-    6: 'Senior Circuit',
-    7: 'Junior Circuit',
-    8: 'Senior Circuit',
-    9: 'Senior Circuit'
-};
+// League designation now lives in playerData[id].league — no separate lookup needed
 
 function openPlayerModal(playerId) {
     const player = playerData[playerId];
@@ -1097,7 +1112,7 @@ function openPlayerModal(playerId) {
     
     // Set team designation
     const teamDesignationEl = document.getElementById('player-team-designation');
-    teamDesignationEl.innerHTML = teamDesignations[playerId] || '';
+    teamDesignationEl.innerHTML = player.league || '';
 
     // Update select batter button state
     currentModalPlayerId = playerId;
@@ -1106,131 +1121,100 @@ function openPlayerModal(playerId) {
     openModalWithScroll(modal);
 }
 
-// Cache status/trend API results per player — keyed by playerId,
-// value is { status, trend, fetchedAt }. Expires after 10 minutes.
-const statusTrendCache = {};
-const STATUS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes in ms
-
-async function fetchPlayerStatusAndTrend(playerId) {
-    const player = playerData[playerId];
+// Status and trend are now populated by fetchMLBStats — no separate API call needed
+function fetchPlayerStatusAndTrend(playerId) {
+    const player   = playerData[playerId];
+    const playerObj = playersArray.find(p => p.id === playerId);
     const statusEl = document.getElementById('player-status');
     const trendEl  = document.getElementById('player-trend');
 
-    // Check current date for season status
     const now = new Date();
-    const springTrainingStart = SEASON.springTraining;
-    const openingDay          = SEASON.openingDay;
-
-    // Pre-season: no API call needed
-    if (now < springTrainingStart) {
+    if (now < SEASON.springTraining) {
         statusEl.textContent = 'WINTER';
         trendEl.textContent  = '---';
         return;
-    } else if (now < openingDay) {
+    }
+    if (now < SEASON.openingDay) {
         statusEl.textContent = 'SPRING';
         trendEl.textContent  = '---';
         return;
     }
-
     if (!player.mlbId) {
         statusEl.textContent = 'TBD';
         trendEl.textContent  = '---';
         return;
     }
 
-    // Serve from cache if fresh
-    const cached = statusTrendCache[playerId];
-    if (cached && (Date.now() - cached.fetchedAt) < STATUS_CACHE_TTL) {
-        statusEl.textContent = cached.status;
-        trendEl.textContent  = cached.trend;
-        return;
+    statusEl.textContent = playerObj?.rosterStatus || '---';
+    trendEl.textContent  = playerObj?.trend        || '---';
+}
+
+function formatStamp(date) {
+    const mon  = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    const dd   = String(date.getDate()).padStart(2, '0');
+    const yyyy = date.getFullYear();
+    // Force seconds to :11 always
+    const h    = date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    // Replace the seconds with :11
+    const stamp11 = h.replace(/(\d{1,2}:\d{2})/, '$1:11');
+    return `${mon} ${dd}, ${yyyy} ${stamp11.toUpperCase()}`;
+}
+
+let _diamondClockInterval = null;
+
+function startDiamondClock() {
+    const el = document.getElementById('diamond-modal-last-update');
+    if (!el) return;
+    // Update immediately then every 60s
+    el.textContent = formatStamp(new Date());
+    _diamondClockInterval = setInterval(() => {
+        el.textContent = formatStamp(new Date());
+    }, 60000);
+}
+
+function stopDiamondClock() {
+    if (_diamondClockInterval) {
+        clearInterval(_diamondClockInterval);
+        _diamondClockInterval = null;
     }
+}
 
-    // Cache miss — fetch from API
-    statusEl.textContent = 'LOADING';
-    trendEl.textContent  = '---';
-
-    try {
-        const response = await fetch(
-            `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=currentTeam,stats(group=[hitting],type=[gameLog],season=${SEASON.year})`
-        );
-
-        if (!response.ok) {
-            statusEl.textContent = 'ERROR';
-            return;
-        }
-
-        const data   = await response.json();
-        const person = data.people[0];
-
-        // Determine status
-        let status = 'FREE AGENT';
-        if (person.currentTeam) {
-            const teamId    = person.currentTeam.id;
-            player.currentTeamId = teamId; // Store for wave animation logic
-            const sportId   = person.currentTeam.sport?.id;
-            const isMLB     = sportId === 1;
-            const isMinors  = sportId >= 11 && sportId <= 16; // MiLB sport IDs
-
-            if (isMLB) {
-                // Check for IL/60-day IL via roster status
-                const rosterStatus = person.rosterStatus?.code || (person.status && person.status.code);
-                status = (rosterStatus === 'D60' || rosterStatus === 'D10' || rosterStatus === 'D7') ? 'INJURED' : 'ACTIVE';
-            } else if (isMinors) {
-                const teamName = (person.currentTeam.name || '').toUpperCase();
-                if      (teamName.includes('AAA') || teamName.includes('TRIPLE')) status = 'AAA';
-                else if (teamName.includes('AA')  || teamName.includes('DOUBLE')) status = 'AA';
-                else if (teamName.includes('A+')  || teamName.includes('HIGH'))   status = 'A+';
-                else                                                               status = 'A';
-            } else if (person.currentTeam.name) {
-                // Fallback: try to read team name for any other league
-                const teamName = person.currentTeam.name.toUpperCase();
-                if      (teamName.includes('AAA') || teamName.includes('TRIPLE')) status = 'AAA';
-                else if (teamName.includes('AA')  || teamName.includes('DOUBLE')) status = 'AA';
-                else if (teamName.includes('A+')  || teamName.includes('HIGH'))   status = 'A+';
-                else if (teamName.includes('INDEPENDENT') || teamName.includes('INDY')) status = 'IND';
-                else                                                               status = 'ACTIVE';
-            }
-        }
-
-        // Determine trend from game log
-        let trend = '---';
-        if (person.stats && person.stats.length > 0) {
-            const gameLog = person.stats.find(s => s.type.displayName === 'gameLog');
-            if (gameLog && gameLog.splits) {
-                const recentGames = gameLog.splits.filter(g => g.stat && g.stat.atBats > 0).slice(0, 2);
-                if (recentGames.length >= 2) {
-                    const lastAvg = recentGames[0].stat.hits / recentGames[0].stat.atBats;
-                    const prevAvg = recentGames[1].stat.hits / recentGames[1].stat.atBats;
-                    trend = lastAvg > prevAvg ? 'AVG↑' : lastAvg < prevAvg ? 'AVG↓' : 'AVG→';
-                }
-            }
-        }
-
-        // Store in cache
-        statusTrendCache[playerId] = { status, trend, fetchedAt: Date.now() };
-
-        statusEl.textContent = status;
-        trendEl.textContent  = trend;
-
-    } catch (error) {
-        console.error('Error fetching player status:', error);
-        statusEl.textContent = 'ERROR';
+function updateDiamondModalStamp() {
+    const el = document.getElementById('diamond-modal-last-update');
+    if (!el) return;
+    const now = new Date();
+    if (now < SEASON.openingDay) {
+        // Pre-season: show Opening Day first pitch time, static
+        el.textContent = formatStamp(OPENING_DAY_FIRST_PITCH);
+    } else {
+        // Season active: show current time (updated by live clock when modal is open)
+        el.textContent = formatStamp(now);
     }
 }
 
 function showLoadingState() {
-    if (new Date() < SEASON.springTraining) return;
+    if (new Date() < SEASON.openingDay) return;
 
     document.getElementById('loading-banner').classList.add('visible');
     document.querySelectorAll('.batting-display').forEach(el => el.classList.add('is-loading'));
 }
 
+function triggerBounceDiamonds() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+    header.classList.remove('wave-bounce');
+    void header.offsetWidth; // force reflow to restart animation
+    header.classList.add('wave-bounce');
+    // Remove after last diamond finishes (0.75s delay + 11s duration)
+    setTimeout(() => header.classList.remove('wave-bounce'), 11800);
+}
+
 function hideLoadingState() {
     document.getElementById('loading-banner').classList.remove('visible');
     document.querySelectorAll('.batting-display').forEach(el => el.classList.remove('is-loading'));
+    updateDiamondModalStamp();
+    if (new Date() >= SEASON.openingDay) triggerBounceDiamonds();
 }
-
 async function fetchMLBStats() {
     const playersWithIds = playersArray.filter(p => p.mlbId);
 
@@ -1240,23 +1224,23 @@ async function fetchMLBStats() {
 
     await Promise.all(playersWithIds.map(async player => {
         try {
-            // Request both season and springTraining types — spring training data
-            // lives in a separate bucket and won't appear under type=[season]
+            // Request season stats + currentTeam + gameLog in a single API call
+            // Spring training stats live in a separate bucket from regular season
             const statTypes = isSpringTraining
-                ? 'type=[springTraining,season]'
-                : 'type=[season]';
+                ? 'type=[springTraining,season,gameLog]'
+                : 'type=[season,gameLog]';
 
             const response = await fetch(
-                `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=stats(group=[hitting],${statTypes},season=${SEASON.year})`
+                `https://statsapi.mlb.com/api/v1/people/${player.mlbId}?hydrate=currentTeam,stats(group=[hitting],${statTypes},season=${SEASON.year})`
             );
 
             if (!response.ok) return;
 
-            const data = await response.json();
+            const data   = await response.json();
             const person = data.people[0];
 
+            // ── Batting stats ──────────────────────────────────────────
             if (person.stats && person.stats.length > 0) {
-                // During spring training prefer springTraining stats; fall back to season
                 const statTypeName = isSpringTraining ? 'springTraining' : 'season';
                 const hittingStats = person.stats.find(s =>
                     s.group.displayName === 'hitting' && s.type.displayName === statTypeName
@@ -1266,10 +1250,10 @@ async function fetchMLBStats() {
 
                 if (hittingStats && hittingStats.splits && hittingStats.splits.length > 0) {
                     const stats = hittingStats.splits[0].stat;
-                    player.currentAvg       = parseFloat(stats.avg) || 0;
-                    player.liveAtBats       = stats.atBats || 0;
-                    player.liveHits         = stats.hits || 0;
-                    player.distanceFrom200  = calculateDistanceFrom200(player.currentAvg);
+                    player.currentAvg      = parseFloat(stats.avg) || 0;
+                    player.liveAtBats      = stats.atBats || 0;
+                    player.liveHits        = stats.hits || 0;
+                    player.distanceFrom200 = calculateDistanceFrom200(player.currentAvg);
                 }
 
                 // Pull current age from API if available
@@ -1277,7 +1261,52 @@ async function fetchMLBStats() {
                     player.age       = person.currentAge;
                     player.ageIsLive = true;
                 }
+
+                // ── Trend from game log ────────────────────────────────
+                const gameLog = person.stats.find(s => s.type.displayName === 'gameLog');
+                if (gameLog && gameLog.splits) {
+                    const recentGames = gameLog.splits.filter(g => g.stat && g.stat.atBats > 0).slice(0, 2);
+                    if (recentGames.length >= 2) {
+                        const lastAvg = recentGames[0].stat.hits / recentGames[0].stat.atBats;
+                        const prevAvg = recentGames[1].stat.hits / recentGames[1].stat.atBats;
+                        player.trend = lastAvg > prevAvg ? 'AVG↑' : lastAvg < prevAvg ? 'AVG↓' : 'AVG→';
+                    } else {
+                        player.trend = '---';
+                    }
+                }
             }
+
+            // ── Roster status ──────────────────────────────────────────
+            if (person.currentTeam) {
+                player.currentTeamId = person.currentTeam.id;
+                const sportId  = person.currentTeam.sport?.id;
+                const isMLB    = sportId === 1;
+                const isMinors = sportId >= 11 && sportId <= 16;
+
+                if (isMLB) {
+                    const rosterStatus = person.rosterStatus?.code || person.status?.code;
+                    player.rosterStatus = (rosterStatus === 'D60' || rosterStatus === 'D10' || rosterStatus === 'D7')
+                        ? 'INJURED' : 'ACTIVE';
+                } else if (isMinors) {
+                    const t = (person.currentTeam.name || '').toUpperCase();
+                    player.rosterStatus = t.includes('AAA') || t.includes('TRIPLE') ? 'AAA'
+                        : t.includes('AA') || t.includes('DOUBLE') ? 'AA'
+                        : t.includes('A+') || t.includes('HIGH') ? 'A+'
+                        : 'A';
+                } else if (person.currentTeam.name) {
+                    const t = person.currentTeam.name.toUpperCase();
+                    player.rosterStatus = t.includes('AAA') || t.includes('TRIPLE') ? 'AAA'
+                        : t.includes('AA') || t.includes('DOUBLE') ? 'AA'
+                        : t.includes('A+') || t.includes('HIGH') ? 'A+'
+                        : t.includes('INDEPENDENT') || t.includes('INDY') ? 'IND'
+                        : 'ACTIVE';
+                } else {
+                    player.rosterStatus = 'FREE AGENT';
+                }
+            } else {
+                player.rosterStatus = 'FREE AGENT';
+            }
+
         } catch (err) {
             console.error(`Error fetching stats for ${player.name}:`, err);
         }
@@ -1288,51 +1317,79 @@ async function fetchMLBStats() {
     applySelectedBatterStyles();
     hideLoadingState();
 
-    // Schedule the next fetch consistently from when this one finished,
-    // rather than relying on setInterval which drifts from page load time
-    if (!document.hidden) {
-        setTimeout(scheduledFetch, 300000);
-    }
-}
-
-function scheduledFetch() {
-    // Skip fetch if the tab is hidden — reschedule for when it becomes visible
-    if (document.hidden) return;
-    fetchMLBStats();
+    // Re-schedule next fetch at the next :11 if still in an active mode
+    if (_statsRefreshMode) scheduleNextElevenFetch(_statsRefreshMode);
 }
 
 initializePlayers();
 attachEventListeners(); // Set once — uses event delegation, survives re-renders
-// Fetch live stats from spring training onwards
-if (new Date() >= SEASON.springTraining) {
+updateDiamondModalStamp(); // Set pre-season or last-update label immediately
+if (new Date() >= SEASON.openingDay) {
     fetchMLBStats();
 }
 
 // ============================================================
-// WAVE ANIMATION CONTROLLER
-// Pre-season: always wave every 11s
-// Season-active: only wave while Mendoza batters have games live or upcoming today
+// WAVE ANIMATION + SMART REFRESH CONTROLLER
+//
+// Pre-season:          wave always on, no stats fetching
+// Games upcoming:      wave on, fetch every 5 minutes
+// Games live:          wave on, fetch every 11 seconds
+// All games final:     wave off, stop fetching until tomorrow
+// No games today:      wave off, stop fetching until tomorrow
 // ============================================================
 const waveHeader = document.querySelector('.header');
+
+// Refresh interval handle — kept module-level so it can be cleared/reset
+let _statsRefreshTimer = null;
+let _statsRefreshMode  = null; // 'live' | 'pending' | null
 
 function setWave(on) {
     if (on) { waveHeader.classList.add('wave-active'); }
     else     { waveHeader.classList.remove('wave-active'); }
 }
 
-async function updateWaveState() {
+function scheduleNextElevenFetch(mode) {
+    // Cancel any existing timer
+    if (_statsRefreshTimer) { clearTimeout(_statsRefreshTimer); _statsRefreshTimer = null; }
+    if (mode === null) { _statsRefreshMode = null; return; }
+    _statsRefreshMode = mode;
+
+    const now     = new Date();
+    const sec     = now.getSeconds();
+    const ms      = now.getMilliseconds();
+
+    // During live games: fire every minute at :11
+    // During pending:    fire every minute at :11
+    // Both use the same cadence — "on the elevens"
+    const secsUntil11 = sec < 11 ? (11 - sec) : (60 - sec + 11);
+    const msUntilNext = secsUntil11 * 1000 - ms;
+
+    _statsRefreshTimer = setTimeout(() => {
+        if (!document.hidden) fetchMLBStats();
+        // fetchMLBStats calls updateWaveAndRefresh at the end which re-schedules
+    }, msUntilNext);
+}
+
+function setRefreshInterval(mode) {
+    scheduleNextElevenFetch(mode);
+}
+
+async function updateWaveAndRefresh() {
     const now        = new Date();
     const openingDay = SEASON.openingDay;
 
-    // Pre-season: always wave
+    // Pre-season: continuous wave on, no fetching
     if (now < openingDay) {
         setWave(true);
+        setRefreshInterval(null);
         return;
     }
 
+    // Season active: never use wave-active (bounces happen on fetch instead)
+    setWave(false);
+
     // Season active: check MLB schedule for today's games involving our batters' teams
     try {
-        // Use today's date in ET (MLB schedule is Eastern time)
         const todayET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
         const yyyy    = todayET.getFullYear();
         const mm      = String(todayET.getMonth() + 1).padStart(2, '0');
@@ -1342,137 +1399,75 @@ async function updateWaveState() {
         const schedRes = await fetch(
             `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${dateStr}&hydrate=linescore,team`
         );
-        if (!schedRes.ok) { return; } // leave wave state unchanged on error
+        if (!schedRes.ok) return; // leave current state unchanged on error
 
         const schedData = await schedRes.json();
-        const games = schedData.dates?.[0]?.games || [];
+        const games     = schedData.dates?.[0]?.games || [];
 
-        if (games.length === 0) { setWave(false); return; }
+        if (games.length === 0) {
+            // Off day — no games at all
+            setWave(false);
+            setRefreshInterval(null);
+            return;
+        }
 
-        // Get team IDs from players that have been hydrated via the stats fetch
         const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
 
-        if (ourTeamIds.size === 0) { setWave(false); return; }
+        if (ourTeamIds.size === 0) {
+            setWave(false);
+            setRefreshInterval(null);
+            return;
+        }
 
-        // Filter to only games where one of our batters' teams is playing
         const ourGames = games.filter(g => {
             const homeId = g.teams?.home?.team?.id;
             const awayId = g.teams?.away?.team?.id;
             return ourTeamIds.has(homeId) || ourTeamIds.has(awayId);
         });
 
-        if (ourGames.length === 0) { setWave(false); return; }
-
-        // Wave ON: any game is live (including delays/challenges) or still upcoming
-        // Wave OFF: all our games are final
-        const liveStates = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
-        const anyLiveOrUpcoming = ourGames.some(g =>
-            liveStates.has(g.status?.detailedState) || g.status?.abstractGameState === 'Preview'
-        );
-
-        setWave(anyLiveOrUpcoming);
-
-    } catch (err) {
-        console.warn('Wave state check failed:', err);
-        // Leave current state unchanged on network error
-    }
-}
-
-// Run immediately and every 5 minutes (aligned with stats fetch cadence)
-updateWaveState();
-setInterval(updateWaveState, 5 * 60 * 1000);
-
-// ============================================================
-// DYNAMIC SEASON SUBTITLE
-// ============================================================
-const WEEK_WORDS = ['One','Two','Three','Four','Five','Six','Seven','Eight',
-                    'Nine','Ten','Eleven','Twelve','Thirteen','Fourteen',
-                    'Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty',
-                    'Twenty One','Twenty Two','Twenty Three','Twenty Four','Twenty Five',
-                    'Twenty Six','Twenty Seven'];
-
-function updateSeasonSubtitle_DISABLED() {
-    const el = document.getElementById('season-subtitle');
-    if (!el) return;
-
-    const now              = new Date();
-    const springTraining   = SEASON.springTraining;
-    const openingDay       = SEASON.openingDay;
-    const allStarBreakStart = SEASON.allStarBreakStart;
-    const allStarBreakEnd  = SEASON.allStarBreakEnd;
-    const finishLine       = SEASON.finishLine;
-
-    // Last week starts on the final Sunday on or before finishLine
-    const finishDay        = finishLine.getDay(); // 0=Sun
-    const daysToLastSunday = finishDay === 0 ? 0 : finishDay;
-    const lastWeekStart    = new Date(finishLine);
-    lastWeekStart.setDate(finishLine.getDate() - daysToLastSunday);
-    lastWeekStart.setHours(0, 0, 0, 0);
-
-    let phase;
-    if (now < springTraining) {
-        phase = 'pre';
-    } else if (now < openingDay) {
-        phase = 'spring';
-    } else if (now >= allStarBreakStart && now < allStarBreakEnd) {
-        phase = 'allstar';
-    } else if (now >= lastWeekStart && now <= finishLine) {
-        phase = 'final';
-    } else if (now > finishLine) {
-        phase = 'offseason';
-    } else {
-        phase = 'season';
-    }
-
-    let label;
-    if (phase === 'pre' || phase === 'offseason') {
-        label = 'Spring Training'; // fallback until spring training starts
-    } else if (phase === 'spring') {
-        label = 'Spring Training';
-    } else if (phase === 'allstar') {
-        label = 'All-Star Break';
-    } else if (phase === 'final') {
-        label = 'The Final Stretch';
-    } else {
-        // Count weeks since Opening Day, resetting on Sundays
-        // Find the Sunday on or before openingDay
-        const odDay = openingDay.getDay(); // 0=Sun
-        const firstSunday = new Date(openingDay);
-        firstSunday.setDate(openingDay.getDate() - odDay);
-        firstSunday.setHours(0, 0, 0, 0);
-
-        // Current Sunday
-        const nowDay = now.getDay();
-        const thisSunday = new Date(now);
-        thisSunday.setDate(now.getDate() - nowDay);
-        thisSunday.setHours(0, 0, 0, 0);
-
-        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-        let weekNum = Math.floor((thisSunday - firstSunday) / msPerWeek) + 1;
-        weekNum = Math.max(1, weekNum);
-
-        // Skip All-Star break week(s) from count
-        const asDay = allStarBreakStart.getDay();
-        const asSunday = new Date(allStarBreakStart);
-        asSunday.setDate(allStarBreakStart.getDate() - asDay);
-        asSunday.setHours(0, 0, 0, 0);
-        if (thisSunday > asSunday) {
-            const breakWeeks = Math.ceil((allStarBreakEnd - allStarBreakStart) / msPerWeek);
-            weekNum = Math.max(1, weekNum - breakWeeks);
+        if (ourGames.length === 0) {
+            // None of our players' teams are playing today
+            setWave(false);
+            setRefreshInterval(null);
+            return;
         }
 
-        const word = WEEK_WORDS[weekNum - 1] || weekNum;
-        label = `Week ${word}`;
-    }
+        const liveStates  = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
+        const anyLive     = ourGames.some(g => liveStates.has(g.status?.detailedState));
+        const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
+        const anyActive   = anyLive || anyUpcoming;
 
-    el.innerHTML = `<i>Season Eleven</i>⬩<i>${label}</i>`;
+        setWave(anyActive);
+
+        if (anyLive) {
+            // At least one game in progress — fetch on the elevens
+            setRefreshInterval('live');
+        } else if (anyUpcoming) {
+            // Games later today but none live yet — fetch on the elevens
+            setRefreshInterval('pending');
+        } else {
+            // All our games are final for the day
+            setWave(false);
+            setRefreshInterval(null);
+        }
+
+    } catch (err) {
+        console.warn('Schedule check failed:', err);
+        // Leave current wave + interval state unchanged on network error
+    }
 }
 
-// updateSeasonSubtitle(); -- PREVIEW
+// Check schedule every 60 seconds to catch game starts/endings promptly
+updateWaveAndRefresh();
+setInterval(updateWaveAndRefresh, 60 * 1000);
+
+// updateSeasonSubtitle was removed — week label is handled by the IIFE above
 
 // Pause background fetches when tab is hidden, resume when visible
+// When tab becomes visible, re-check schedule and fetch immediately if in season
 document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && new Date() >= SEASON.springTraining) {
+    if (!document.hidden && new Date() >= SEASON.openingDay) {
+        updateWaveAndRefresh();
         fetchMLBStats();
     }
 });
@@ -1628,10 +1623,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 closeModalWithScroll(contactModal);
             } else if (modalType === 'horse') {
                 closeModalWithScroll(document.getElementById('horse-modal'));
+            } else if (modalType === 'diamond') {
+                stopDiamondClock();
+                closeModalWithScroll(document.getElementById('diamond-modal'));
             }
         });
     });
     
+    // Diamond trigger buttons
+    const diamondModal = document.getElementById('diamond-modal');
+    ['diamond-trigger', 'diamond-trigger-2'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                updateDiamondModalStamp();
+                openModalWithScroll(diamondModal);
+                if (new Date() >= SEASON.openingDay) startDiamondClock();
+            });
+        }
+    });
+
+    // Tap anywhere on screen closes the diamond modal
+    diamondModal.addEventListener('click', function () {
+        stopDiamondClock();
+        closeModalWithScroll(diamondModal);
+    });
+
     window.addEventListener('click', function (event) {
         if (event.target == rulesModal) {
             closeModalWithScroll(rulesModal);
@@ -1643,13 +1661,20 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.target == horseModal) {
             closeModalWithScroll(horseModal);
         }
+        if (event.target == diamondModal) {
+            stopDiamondClock();
+            closeModalWithScroll(diamondModal);
+        }
     });
     
     // Escape key closes whichever modal is currently open
     document.addEventListener('keydown', function (e) {
         if (e.key !== 'Escape') return;
         const openModal = document.querySelector('.modal.open');
-        if (openModal) closeModalWithScroll(openModal);
+        if (openModal) {
+            if (openModal.id === 'diamond-modal') stopDiamondClock();
+            closeModalWithScroll(openModal);
+        }
     });
 
     document.getElementById('contact-form').addEventListener('submit', async function (e) {
