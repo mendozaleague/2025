@@ -307,7 +307,23 @@
         .player-number span { display: block; transform: rotate(-45deg); }
         .player-row.first-place .player-number { background-color: var(--blue); color: black; }
         .player-row.second-place .player-number { background-color: black; color: var(--blue); }
-        .player-horse { vertical-align: middle; line-height: 1; display: inline-flex; align-items: center; }
+        .elevens-letter { display: inline-block; }
+            /* Pre-season: continuous wave */
+            .elevens-active .elevens-1 { animation: wave 11s ease-in-out 0s infinite; }
+            .elevens-active .elevens-2 { animation: wave 11s ease-in-out 0.15s infinite; }
+            .elevens-active .elevens-3 { animation: wave 11s ease-in-out 0.3s infinite; }
+            .elevens-active .elevens-4 { animation: wave 11s ease-in-out 0.45s infinite; }
+            .elevens-active .elevens-5 { animation: wave 11s ease-in-out 0.6s infinite; }
+            .elevens-active .elevens-6 { animation: wave 11s ease-in-out 0.75s infinite; }
+            .elevens-active .elevens-7 { animation: wave 11s ease-in-out 0.9s infinite; }
+            /* Season: one-shot bounce on fetch */
+            .elevens-bounce .elevens-1 { animation: wave 11s ease-in-out 0s 1; }
+            .elevens-bounce .elevens-2 { animation: wave 11s ease-in-out 0.15s 1; }
+            .elevens-bounce .elevens-3 { animation: wave 11s ease-in-out 0.3s 1; }
+            .elevens-bounce .elevens-4 { animation: wave 11s ease-in-out 0.45s 1; }
+            .elevens-bounce .elevens-5 { animation: wave 11s ease-in-out 0.6s 1; }
+            .elevens-bounce .elevens-6 { animation: wave 11s ease-in-out 0.75s 1; }
+            .elevens-bounce .elevens-7 { animation: wave 11s ease-in-out 0.9s 1; }
         .player-row.second-place .emoji-blend { filter: grayscale(1); mix-blend-mode: multiply; }
         .player-row.first-place  .emoji-blend { filter: grayscale(1) invert(1) sepia(1) hue-rotate(175deg) saturate(1.3) brightness(1.1); }
         /* Instagram WebView fallback — no mix-blend-mode support */
@@ -511,7 +527,7 @@ Bob Uecker Memorial Race for Two Hundred</div>
                 <!-- Body text -->
                 <p style="margin: 0 0 12px; line-height: 1.6; font-size: 0.95rem;">The <b>Mendoza Line</b> is <a href="https://en.wikipedia.org/wiki/Baseball" target="_blank" style="color: #3366cc;">baseball</a> jargon for a .200 <a href="https://en.wikipedia.org/wiki/Batting_average_(baseball)" target="_blank" style="color: #3366cc;">batting average</a>, the supposed threshold for offensive futility in <a href="https://en.wikipedia.org/wiki/Major_League_Baseball" target="_blank" style="color: #3366cc;">Major League Baseball</a>. It derives from light-hitting <a href="https://en.wikipedia.org/wiki/Mario_Mendoza" target="_blank" style="color: #3366cc;">shortstop Mario Mendoza</a>, who failed to reach .200 five times in his nine big league seasons. When a <a href="https://en.wikipedia.org/wiki/Position_player" target="_blank" style="color: #3366cc;">position player</a>'s batting average falls below .200, he is said to be "below the Mendoza Line".</p>
 
-                <p style="margin: 0 0 12px; line-height: 1.6; font-size: 0.95rem;">The term was popularized by <a href="https://en.wikipedia.org/wiki/Tom_Paciorek" target="_blank" style="color: #3366cc;">Tom Paciorek</a> and <a href="https://en.wikipedia.org/wiki/Bruce_Bochte" target="_blank" style="color: #3366cc;">Bruce Bochte</a>, Mendoza's teammates on the <a href="https://en.wikipedia.org/wiki/Seattle_Mariners" target="_blank" style="color: #3366cc;">Seattle Mariners</a>, and then further by <a href="https://en.wikipedia.org/wiki/George_Brett" target="_blank" style="color: #3366cc;">George Brett</a>, who reportedly said: "The first thing I look for in the Sunday papers is who is below the Mendoza Line." It gained wider recognition after <a href="https://en.wikipedia.org/wiki/Chris_Berman" target="_blank" style="color: #3366cc;">Chris Berman</a> of <a href="https://en.wikipedia.org/wiki/ESPN" target="_blank" style="color: #3366cc;">ESPN</a> began using it in the early 1980s.</p>
+                <p style="margin: 0 0 12px; line-height: 1.6; font-size: 0.95rem;">The term was popularized by <a href="https://en.wikipedia.org/wiki/Tom_Paciorek" target="_blank" style="color: #3366cc;">Tom Paciorek</a> &amp; <a href="https://en.wikipedia.org/wiki/Bruce_Bochte" target="_blank" style="color: #3366cc;">Bruce Bochte</a>, Mendoza's teammates on the <a href="https://en.wikipedia.org/wiki/Seattle_Mariners" target="_blank" style="color: #3366cc;">Seattle Mariners</a>, &amp; then further by <a href="https://en.wikipedia.org/wiki/George_Brett" target="_blank" style="color: #3366cc;">George Brett</a>, who reportedly said: "The first thing I look for in the Sunday papers is who is below the Mendoza Line." It gained wider recognition after <a href="https://en.wikipedia.org/wiki/Chris_Berman" target="_blank" style="color: #3366cc;">Chris Berman</a> of <a href="https://en.wikipedia.org/wiki/ESPN" target="_blank" style="color: #3366cc;">ESPN</a> began using it in the early 1980s.</p>
 
                 <p style="margin: 0 0 12px; line-height: 1.6; font-size: 0.95rem;">Ironically, Mendoza's career batting average of .215 was actually above the line that bears his name. His reputation stemmed from several seasons in which he finished below .200, including a <a href="https://en.wikipedia.org/wiki/1979_in_baseball" target="_blank" style="color: #3366cc;">.198 average in 1979</a>.</p>
 
@@ -528,7 +544,7 @@ Bob Uecker Memorial Race for Two Hundred</div>
     <!-- Diamond info modal -->
     <div id="diamond-modal" class="modal" role="dialog" aria-modal="true" aria-label="Live Update Info">
         <div class="modal-content" style="text-align: center; max-width: 340px; background-color: black; color: var(--blue);">
-            <p style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">UPDATES ON THE ELEVENS</p>
+            <p style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">UPDATES ON THE <span id="elevens-word"><span class="elevens-letter elevens-1">E</span><span class="elevens-letter elevens-2">L</span><span class="elevens-letter elevens-3">E</span><span class="elevens-letter elevens-4">V</span><span class="elevens-letter elevens-5">E</span><span class="elevens-letter elevens-6">N</span><span class="elevens-letter elevens-7">S</span></span></p>
             <p style="font-weight: bold; margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">1<sup>st</sup> PITCH TO FINAL OUT DAILY</p>
             <p id="diamond-modal-last-update" style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);"></p>
         </div>
@@ -607,6 +623,7 @@ const playerData = {
         birthday: { month: 3, day: 25 },
         mlbId: 691718,
         league: 'Senior Circuit',
+        url: "https://www.baseball-reference.com/players/c/crow-ar01.shtml",
         bio: "<i>Technically</i> the Cubs mascot is a pantsless bear named Clark, but the <i>real</i> face of the franchise is Pete Crow-Armstrong. & boy has Chicago's National League ballclub been trotting him around town! On the sideline with the Bears… behind the glass at Blackhawks games with the Bears quarterback… even working out in purple with Chicago's Big Ten Team. It makes sense that Pete's become THE North Side fan favorite after his All Star season in 2025. He absolutely racked up At Bats with only 29 walks all year, & hit a Khris Davis-approved .247 with 31 home runs… but only 7 of those dingers came in the second half. Yikes! Will P.C.A. be refreshed for 2026 or was the end of last season the beginning of a disappointing denouement?"
     },
 
@@ -1295,11 +1312,22 @@ function triggerBounceDiamonds() {
     setTimeout(() => header.classList.remove('wave-bounce'), 11800);
 }
 
+function triggerBounceElevens() {
+    const elevens = document.getElementById('elevens-word');
+    if (!elevens) return;
+    elevens.classList.remove('elevens-active');
+    elevens.classList.remove('elevens-bounce');
+    void elevens.offsetWidth; // force reflow to restart animation
+    elevens.classList.add('elevens-bounce');
+    setTimeout(() => elevens.classList.remove('elevens-bounce'), 12800);
+}
+
 function hideLoadingState() {
     document.getElementById('loading-banner').classList.remove('visible');
     document.querySelectorAll('.batting-display').forEach(el => el.classList.remove('is-loading'));
     updateDiamondModalStamp();
     if (new Date() >= SEASON.openingDay) triggerBounceDiamonds();
+    if (new Date() >= SEASON.openingDay) triggerBounceElevens();
 }
 async function fetchMLBStats() {
     const playersWithIds = playersArray.filter(p => p.mlbId);
@@ -1432,6 +1460,10 @@ let _statsRefreshMode  = null; // 'live' | 'pending' | null
 function setWave(on) {
     if (on) { waveHeader.classList.add('wave-active'); }
     else     { waveHeader.classList.remove('wave-active'); }
+    const elevens = document.getElementById('elevens-word');
+    if (!elevens) return;
+    if (on) { elevens.classList.add('elevens-active'); }
+    else     { elevens.classList.remove('elevens-active'); }
 }
 
 function scheduleNextElevenFetch(mode) {
@@ -2146,14 +2178,8 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             });
         } else if (isPostAllStarBreak) {
             // SECOND HALF: Track closeness to .200
-            // distanceFrom200 is stored as decimal (e.g., 0.014 for .186, 0.001 for .201)
-            // Convert to batting average points: multiply by 1000
-            // e.g., .186 = 14 points away, .199 = 1 point away, .201 = 1 point away
             sortedHorses.forEach(horse => {
                 const pointsFromMendoza = horse.distanceFrom200 * 1000;
-                // Position scale: closest to .200 gets highest position
-                // Max realistic distance is about 50 points (.150 or .250)
-                // Scale so that .200 = finish line (200), others proportionally back
                 horse.racePosition = Math.max(0, 200 - pointsFromMendoza);
             });
         } else {
