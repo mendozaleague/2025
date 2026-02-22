@@ -307,6 +307,12 @@
         .player-number span { display: block; transform: rotate(-45deg); }
         .player-row.first-place .player-number { background-color: var(--blue); color: black; }
         .player-row.second-place .player-number { background-color: black; color: var(--blue); }
+        /* Selected batter: swap diamond to 5-pointed star — same layout footprint, larger visual */
+        .player-number.is-selected {
+            transform: rotate(0deg) scale(1.6);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+        .player-number.is-selected span { transform: rotate(0deg); font-size: 0.38rem; margin-top: 0.1rem; }
         .elevens-letter { display: inline-block; }
             /* Pre-season: continuous wave */
             .elevens-active .elevens-1 { animation: wave 11s ease-in-out 0s infinite; }
@@ -1015,20 +1021,19 @@ function renderPlayers(now) {
 
         let displayName = '';
         const isTBD = player.name.startsWith('SOON COME');
+        const selectedIds = getSelectedBatters();
+        const isSelectedPlayer = selectedIds.includes(player.id);
 
         if (player.number) {
-            displayName += `<span class="player-number"><span>${player.number}</span></span>`;
+            displayName += `<span class="player-number${isSelectedPlayer ? ' is-selected' : ''}"><span>${player.number}</span></span>`;
         } else {
-            displayName += `<span class="player-number"><span></span></span>`;
+            displayName += `<span class="player-number${isSelectedPlayer ? ' is-selected' : ''}"><span></span></span>`;
         }
 
         if (isTBD) {
             displayName += `<span class="tbd-text">${player.name}</span>`;
         } else {
-            const selectedIds = getSelectedBatters();
-            const isSelectedPlayer = selectedIds.includes(player.id);
-            const horseSuffix = isSelectedPlayer ? '<span class="player-horse emoji-blend" style="margin-left:0.3em;">🏇</span>' : '';
-            displayName += `<span class="player-name-text">${player.name}</span>${horseSuffix}`;
+            displayName += `<span class="player-name-text">${player.name}</span>`;
         }
 
         if (isWBC && player.wbcFlag) displayName += ' ' + player.wbcFlag;
@@ -1624,11 +1629,19 @@ function updateSelectBatterUI(playerId) {
     const label   = document.getElementById('select-batter-label');
     if (!diamond || !label) return;
     if (isSelected(playerId)) {
+        // Filled black star
         diamond.style.background = 'currentColor';
+        diamond.style.border = 'none';
+        diamond.style.transform = 'rotate(0deg) scale(1.6)';
+        diamond.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
         label.style.fontStyle = 'italic';
         label.textContent = 'DESELECT BATTER';
     } else {
+        // Diamond outline
         diamond.style.background = 'transparent';
+        diamond.style.border = '2px solid currentColor';
+        diamond.style.transform = 'rotate(45deg)';
+        diamond.style.clipPath = 'none';
         label.style.fontStyle = 'normal';
         label.textContent = 'SELECT BATTER';
     }
@@ -1653,23 +1666,12 @@ function applySelectedBatterStyles() {
     const ids = getSelectedBatters();
     document.querySelectorAll('.player-row').forEach(row => {
         const playerId = parseInt(row.getAttribute('data-player-id'));
-        const nameTextEl = row.querySelector('.player-name-text');
         const numberEl = row.querySelector('.player-number');
-        if (!nameTextEl) return;
+        if (!numberEl) return;
         if (ids.includes(playerId)) {
-            if (!row.querySelector('.player-horse')) {
-                const horseSpan = document.createElement('span');
-                horseSpan.className = 'player-horse emoji-blend';
-                horseSpan.style.marginLeft = '0.3em';
-                horseSpan.style.filter = '';
-                horseSpan.style.mixBlendMode = '';
-                horseSpan.textContent = '🏇';
-                nameTextEl.insertAdjacentElement('afterend', horseSpan);
-            }
+            numberEl.classList.add('is-selected');
         } else {
-            nameTextEl.style.fontStyle = '';
-            const horseSpan = row.querySelector('.player-horse');
-            if (horseSpan) horseSpan.remove();
+            numberEl.classList.remove('is-selected');
         }
     });
 }
@@ -2377,11 +2379,17 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     ? 'color: #b8ddf2; white-space: nowrap; text-shadow: 0.4px 0 0 #b8ddf2, -0.4px 0 0 #b8ddf2;'
                     : 'color: #b8ddf2; white-space: nowrap;';
 
+                const numberBadge = isSelectedInRace
+                    ? `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: scale(1.6); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); position: relative; flex-shrink: 0;">
+                            <span style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); font-size: 0.22rem; font-weight: bold; color: black;">${horse.number}</span>
+                        </span>`
+                    : `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: rotate(45deg); position: relative; flex-shrink: 0;">
+                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 0.35rem; font-weight: bold; color: black;">${horse.number}</span>
+                        </span>`;
+
                 const playerInfo = `
                     <span style="display: flex; align-items: center; gap: 5px; position: absolute; right: calc(100% + 8px); white-space: nowrap;">
-                        <span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: rotate(45deg); position: relative;">
-                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 0.35rem; font-weight: bold; color: black;">${horse.number}</span>
-                        </span>
+                        ${numberBadge}
                         <span style="${nameStyle}">${horse.name}</span>
                     </span>
                 `;
