@@ -428,7 +428,7 @@
             <p><strong>Pre-Race Tickets: $25</strong><br><span style="font-size: 0.85rem;">Available during Spring Training</span></p>
             <p><strong>Mid-Race Tickets: $45</strong><br><span style="font-size: 0.85rem;">Available during All-Star Break</span></p>
             <div class="rules-divider">ENTRY/FEES</div>
-            <p>Please send picks & payments to<br>your loyal <a href="/cdn-cgi/l/email-protection#e2818d8f8f8b918aa28f878c868d98838e8783859787cc818d8fdd91978088878196dfa58b9487c7d0d28f87c7d0d2bdbdc7d0d2968b8189879691c7d0d2848d90c7d0d2bdbdbdbdbdbdbdbdbdbdbdcec7d0d2a18d8f8f8b918ac3" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">Commissioner</a> via <strong>VENMO</strong><br>before Monday, May 25, 2026</p>
+            <p>Please send picks &amp; payments to<br>your loyal <a href="/cdn-cgi/l/email-protection#e2818d8f8f8b918aa28f878c868d98838e8783859787cc818d8fdd91978088878196dfa58b9487c7d0d28f87c7d0d2bdbdc7d0d2968b8189879691c7d0d2848d90c7d0d2bdbdbdbdbdbdbdbdbdbdbdcec7d0d2a18d8f8f8b918ac3" style="color: #2c2c2c; text-decoration: underline; font-weight: bold;">Commissioner</a> via <strong>VENMO</strong><br>before Midnight on Tuesday, Mar 24</p>
             <div class="rules-divider">PAYOUTS</div>
             <p><strong>ALL-STAR BREAK: July 10, 2026</strong></p>
             <p style="font-size: 0.8rem;">20% of purse split between ticket holders<br>of FIRST batter to reach 200 At Bats</p>
@@ -621,7 +621,7 @@ const SEASON = {
 // ============================================================
 const playerData = {
     1: {
-        name: "P.C.A.",
+        name: "P.C. A.",
         number: "4",
         position: "OF",
         fullName: "Pete Crow-Armstrong",
@@ -653,7 +653,7 @@ const playerData = {
         battingAvg2025: "*",
         battingAvgValue: ".273/187AB",
         games: "",
-        pecota2026: ".230",
+        pecota2026: ".234",
         url: "https://www.baseball-reference.com/register/player.fcgi?id=muraka000mun",
         bio: "One of the biggest bats in Japanese baseball history is bringing his talent (& 30% strikeout rate) to the south side of Chicago! Murakami hit a Nippon Professional Baseball record 56 hōmurans in 2022. He most recently missed about half of last season with an oblique injury, but still hit .273 with 187 At Bats *in 56 games. That was against Japanese pitching, though… & the only MLB front office willing to take the risk was none other than Chicago's American League ballclub. Never change, Jerry!!"
     },
@@ -924,6 +924,9 @@ function renderPlayers(now) {
     now = now || new Date();
     const container = document.getElementById('standings-container');
 
+    // Read localStorage once for the entire render pass
+    const selectedIds = getSelectedBatters();
+
     // Check if we're during World Baseball Classic (March 5-17, 2026)
     const wbcStart = SEASON.wbcStart;
     const wbcEnd   = SEASON.wbcEnd;
@@ -993,17 +996,27 @@ function renderPlayers(now) {
             // Update diamond indicator on name
             const nameEl = row.querySelector('.player-name');
             if (nameEl) {
-                const hasDiamond = nameEl.textContent.includes('⬥');
+                const hasDiamond = nameEl.dataset.hasDiamond === '1';
                 const wantsDiamond = player.id === diamondPlayerId;
-                if (wantsDiamond && !hasDiamond) nameEl.innerHTML += '⬥';
+                if (wantsDiamond && !hasDiamond) {
+                    nameEl.innerHTML += '⬥';
+                    nameEl.dataset.hasDiamond = '1';
+                }
                 if (!wantsDiamond && hasDiamond) {
                     nameEl.innerHTML = nameEl.innerHTML.replace('⬥', '');
+                    nameEl.dataset.hasDiamond = '0';
                 }
                 // Birthday cake
-                const hasCake = nameEl.textContent.includes('🎂');
+                const hasCake = nameEl.dataset.hasCake === '1';
                 const wantsCake = isBirthday(player, now);
-                if (wantsCake && !hasCake) nameEl.innerHTML += ' <span class="emoji-blend" style="margin-left:0.2em;">🎂</span>';
-                if (!wantsCake && hasCake) nameEl.innerHTML = nameEl.innerHTML.replace(/ <span class="emoji-blend" style="margin-left:0.2em;">🎂<\/span>/g, '').replace(/ <span style="margin-left:0.2em; filter:grayscale\(1\); mix-blend-mode:multiply;">🎂<\/span>/g, '').replace(' 🎂', '').replace('🎂', '');
+                if (wantsCake && !hasCake) {
+                    nameEl.innerHTML += ' <span class="emoji-blend" style="margin-left:0.2em;">🎂</span>';
+                    nameEl.dataset.hasCake = '1';
+                }
+                if (!wantsCake && hasCake) {
+                    nameEl.innerHTML = nameEl.innerHTML.replace(/ <span class="emoji-blend" style="margin-left:0.2em;">🎂<\/span>/g, '').replace(' 🎂', '').replace('🎂', '');
+                    nameEl.dataset.hasCake = '0';
+                }
             }
         });
         return;
@@ -1026,7 +1039,6 @@ function renderPlayers(now) {
 
         let displayName = '';
         const isTBD = player.name.startsWith('SOON COME');
-        const selectedIds = getSelectedBatters();
         const isSelectedPlayer = selectedIds.includes(player.id);
 
         if (player.number) {
@@ -1336,6 +1348,7 @@ function hideLoadingState() {
     document.getElementById('loading-banner').classList.remove('visible');
     document.querySelectorAll('.batting-display').forEach(el => el.classList.remove('is-loading'));
     updateDiamondModalStamp();
+    // Trigger one-shot wave bounce on every fetch — wave is the visual fetch indicator
     if (new Date() >= SEASON.openingDay) triggerBounceDiamonds();
     if (new Date() >= SEASON.openingDay) triggerBounceElevens();
 }
@@ -1386,14 +1399,19 @@ async function fetchMLBStats() {
                     player.ageIsLive = true;
                 }
 
-                // ── Trend from game log ────────────────────────────────
+                // ── Trend from game log (7-game rolling avg) ──────────
                 const gameLog = person.stats.find(s => s.type.displayName === 'gameLog');
                 if (gameLog && gameLog.splits) {
-                    const recentGames = gameLog.splits.filter(g => g.stat && g.stat.atBats > 0).slice(0, 2);
-                    if (recentGames.length >= 2) {
-                        const lastAvg = recentGames[0].stat.hits / recentGames[0].stat.atBats;
-                        const prevAvg = recentGames[1].stat.hits / recentGames[1].stat.atBats;
-                        player.trend = lastAvg > prevAvg ? 'AVG↑' : lastAvg < prevAvg ? 'AVG↓' : 'AVG→';
+                    const gamesWithABs = gameLog.splits.filter(g => g.stat && g.stat.atBats > 0);
+                    const recent  = gamesWithABs.slice(0, 7);  // last 7 games
+                    const earlier = gamesWithABs.slice(7, 14); // prior 7 games
+                    if (recent.length >= 3 && earlier.length >= 3) {
+                        const avg7  = recent.reduce((s, g)  => s + g.stat.hits, 0) / recent.reduce((s, g)  => s + g.stat.atBats, 0);
+                        const avg14 = earlier.reduce((s, g) => s + g.stat.hits, 0) / earlier.reduce((s, g) => s + g.stat.atBats, 0);
+                        player.trend = avg7 > avg14 + 0.005 ? 'AVG↑' : avg7 < avg14 - 0.005 ? 'AVG↓' : 'AVG→';
+                    } else if (recent.length >= 1) {
+                        // Not enough history for a comparison yet — show neutral
+                        player.trend = 'AVG→';
                     } else {
                         player.trend = '---';
                     }
@@ -1455,11 +1473,14 @@ if (new Date() >= SEASON.openingDay) {
 // ============================================================
 // WAVE ANIMATION + SMART REFRESH CONTROLLER
 //
-// Pre-season:          wave always on, no stats fetching
-// Games upcoming:      wave on, fetch every 5 minutes
-// Games live:          wave on, fetch every 11 seconds
-// All games final:     wave off, stop fetching until tomorrow
-// No games today:      wave off, stop fetching until tomorrow
+// Pre-season:       wave-active (continuous, 11s cycle), no stats fetching
+// Season — live:    wave-bounce (one-shot) fires on every :11 fetch
+// Season — pending: wave-bounce fires on fetch, waiting for first pitch
+// Season — final:   no wave, no fetch until tomorrow
+// Off day:          no wave, no fetch
+//
+// The wave is a visual representation of the API pull.
+// During the season it pulses once per minute at :XX:11.
 // ============================================================
 const waveHeader = document.querySelector('.header');
 
@@ -1513,9 +1534,6 @@ async function updateWaveAndRefresh() {
         return;
     }
 
-    // Season active: never use wave-active (bounces happen on fetch instead)
-    setWave(false);
-
     // Season active: check MLB schedule for today's games involving our batters' teams
     try {
         const todayET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
@@ -1563,19 +1581,19 @@ async function updateWaveAndRefresh() {
         const liveStates  = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
         const anyLive     = ourGames.some(g => liveStates.has(g.status?.detailedState));
         const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
-        const anyActive   = anyLive || anyUpcoming;
 
-        setWave(anyActive);
+        // Season wave is always a one-shot bounce per fetch (visual fetch indicator).
+        // wave-active (continuous) is never used during the season.
+        setWave(false);
 
         if (anyLive) {
             // At least one game in progress — fetch on the elevens
             setRefreshInterval('live');
         } else if (anyUpcoming) {
-            // Games later today but none live yet — fetch on the elevens
+            // Games later today but none live yet — fetch on the elevens, no wave until data arrives
             setRefreshInterval('pending');
         } else {
             // All our games are final for the day
-            setWave(false);
             setRefreshInterval(null);
         }
 
@@ -1585,9 +1603,21 @@ async function updateWaveAndRefresh() {
     }
 }
 
-// Check schedule every 60 seconds to catch game starts/endings promptly
-updateWaveAndRefresh();
-setInterval(updateWaveAndRefresh, 60 * 1000);
+// Check schedule every minute, firing on the :11 second
+(function scheduleWaveRefresh() {
+    updateWaveAndRefresh();
+    function scheduleNext() {
+        const now = new Date();
+        const sec = now.getSeconds();
+        const ms  = now.getMilliseconds();
+        const secsUntil11 = sec < 11 ? (11 - sec) : (60 - sec + 11);
+        setTimeout(() => {
+            updateWaveAndRefresh();
+            scheduleNext();
+        }, secsUntil11 * 1000 - ms);
+    }
+    scheduleNext();
+})();
 
 // updateSeasonSubtitle was removed — week label is handled by the IIFE above
 
