@@ -2147,10 +2147,11 @@ if (bugleTrigger) {
                 const raceHorses = apiData.horses;
                 const currentDate = new Date(apiData.currentDate);
                 const gameDay = apiData.gameDay;
-                const isSeasonActive = apiData.isSeasonActive;
+                const isSeasonActive     = apiData.isSeasonActive;
+                const isAllStarBreak     = apiData.isAllStarBreak || false;
                 const isPostAllStarBreak = apiData.isPostAllStarBreak;
                 
-                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
+                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isAllStarBreak, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
             })
             .catch(error => {
                 console.error('Error fetching race data:', error);
@@ -2166,15 +2167,16 @@ if (bugleTrigger) {
                 const now2           = new Date();
                 const currentDate    = now2;
                 const gameDay        = Math.max(0, Math.floor((now2 - SEASON.openingDay) / (1000 * 60 * 60 * 24)));
-                const isSeasonActive = now2 >= SEASON.openingDay;
+                const isSeasonActive     = now2 >= SEASON.openingDay;
+                const isAllStarBreak     = now2 >= SEASON.allStarBreakStart && now2 < SEASON.allStarBreakEnd;
                 const isPostAllStarBreak = now2 >= SEASON.allStarBreakEnd;
 
-                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
+                runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isAllStarBreak, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
             });
     });
 }
 
-function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime }) {
+function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isAllStarBreak, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime }) {
         // Clear any previous animation state and assign a new run ID
         activeAnimationTimeouts.forEach(t => clearTimeout(t));
         activeAnimationTimeouts = [];
@@ -2624,7 +2626,45 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             }, 50);
             
             // Build leaderboard text if season is active
-            if (isSeasonActive) {
+            if (isAllStarBreak) {
+                // ALL-STAR BREAK: show the first-half champion
+                const champion = [...raceHorses].filter(h => h.atBats > 0).sort((a, b) => b.atBats - a.atBats)[0];
+                const champName = champion ? champion.name : 'TBD';
+                const champTag  = champion ? `#${champion.number} ${champName.replace(/ /g, ' ')}` : 'TBD';
+
+                const asbHeaderHtml = `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 0.2rem;">2026 RACE TO 200AB CHAMPION:</div>`;
+                const champLine     = `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: normal;">${champTag}</div>`;
+
+                raceDelay(() => {
+                    if (horseText) {
+                        horseText.innerHTML = asbHeaderHtml + emptyLine + emptyLine + emptyLine;
+                        horseText.style.visibility = 'visible';
+                    }
+                }, 500);
+
+                // Typewrite the champion name
+                const champPlain = champion ? `#${champion.number} ${champName}` : 'TBD';
+                const champTokens = tokenize(champPlain);
+                const champOffset = [0];
+                raceDelay(() => {
+                    if (horseText) {
+                        requestAnimationFrame(() => requestAnimationFrame(() => {
+                            const containerW = horseText.offsetWidth || 300;
+                            champOffset[0] = Math.max(0, (containerW - measureTextWidth(champPlain)) / 2);
+                        }));
+                    }
+                }, 500);
+                champTokens.forEach((_, i) => {
+                    raceDelay(() => {
+                        if (!horseText) return;
+                        const partial = champTokens.slice(0, i + 1).join(' ');
+                        const lineDiv = `<div style="height:1.3rem;display:flex;align-items:center;justify-content:flex-start;padding-left:${champOffset[0]}px;font-weight:normal;white-space:nowrap;">${partial}</div>`;
+                        horseText.innerHTML = asbHeaderHtml + lineDiv + emptyLine + emptyLine;
+                        horseText.style.visibility = 'visible';
+                    }, 1400 + i * 200);
+                });
+
+            } else if (isSeasonActive) {
                 const _1stLines = [
                     (p, s) => `In 1st place we have ${p} with ${s}`,
                     (p, s) => `Who's in first? It's ${p} with ${s}`,
