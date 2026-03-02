@@ -1801,7 +1801,12 @@ document.addEventListener('DOMContentLoaded', function () {
             activeAnimationTimeouts = [];
             activeAnimationIntervals.forEach(i => clearInterval(i));
             activeAnimationIntervals = [];
-            // Suspend audio
+            // Kill gallop immediately via master gain, then suspend context
+            if (activeGallopGain) {
+                try { activeGallopGain.gain.cancelScheduledValues(0);
+                      activeGallopGain.gain.setValueAtTime(0, 0); } catch(e) {}
+                activeGallopGain = null;
+            }
             if (activeAudioContext) {
                 activeAudioContext.suspend();
                 activeAudioContext = null;
@@ -1978,6 +1983,7 @@ localStorage.setItem('lastMessage', newMessage);
 
 // Call to the Post bugle sound effect
 let activeAudioContext = null;
+let activeGallopGain = null;
 let activeAnimationTimeouts = [];
 let activeAnimationIntervals = [];
 let activeAnimationRunId = 0;
@@ -1991,6 +1997,11 @@ if (bugleTrigger) {
         activeAnimationTimeouts = [];
         activeAnimationIntervals.forEach(i => clearInterval(i));
         activeAnimationIntervals = [];
+        if (activeGallopGain) {
+            try { activeGallopGain.gain.cancelScheduledValues(0);
+                  activeGallopGain.gain.setValueAtTime(0, 0); } catch(e) {}
+            activeGallopGain = null;
+        }
         if (activeAudioContext) { activeAudioContext.suspend(); }
 
         // Open modal and show first text FIRST so screen and audio start together
@@ -2117,8 +2128,8 @@ if (bugleTrigger) {
         // Calculate total song duration
         const totalDuration = t - now;
         
-        // For setTimeout timing, use a fixed 7.2 second delay (7200ms) instead of audio timing
-        const raceStartDelay = 7200; // Race starts 700ms after "they're OFF" at 6500ms
+        // Race starts at 7300ms — 200ms after bugle ends (7100ms), synced to final note
+        const raceStartDelay = 7300;
         
         // Fetch live data from API
         fetch('/api/mendoza-stakes-data')
@@ -2152,10 +2163,11 @@ if (bugleTrigger) {
                     avg:             p.currentAvg || 0,
                     distanceFrom200: p.distanceFrom200 || 1000,
                 }));
-                const currentDate        = new Date();
-                const gameDay            = 0;
-                const isSeasonActive     = false;
-                const isPostAllStarBreak = false;
+                const now2           = new Date();
+                const currentDate    = now2;
+                const gameDay        = Math.max(0, Math.floor((now2 - SEASON.openingDay) / (1000 * 60 * 60 * 24)));
+                const isSeasonActive = now2 >= SEASON.openingDay;
+                const isPostAllStarBreak = now2 >= SEASON.allStarBreakEnd;
 
                 runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime });
             });
@@ -2252,10 +2264,10 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             horseElement.innerHTML = 'Bob Uecker Memorial<br>Race for Two Hundred';
         }, 4330);
         
-        // Final message: "...& they're OFF!!!" (at 6.5s - perfect timing)
+        // Final message: "...& they're OFF!!!" — 4th note from end (first low C4) at 6100ms
         raceTimeout(() => {
             horseElement.textContent = '...& they\'re OFF!!!';
-        }, 6500);
+        }, 6100);
         
         // After bugle call completes, play starting gun & start race
         raceTimeout(() => {
@@ -2309,14 +2321,14 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             if (!isPostAllStarBreak && isSeasonActive) {
                 // First half: based on leader's at-bats
                 const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats));
-                actualRaceDuration = Math.min(6, Math.max(2, leaderAtBats / 40));
+                actualRaceDuration = Math.min(9, Math.max(3, leaderAtBats / 30));
             } else if (isPostAllStarBreak) {
                 // Second half: based on who's closest to .200
                 const closestToMendoza = Math.max(...raceHorses.map(h => h.racePosition));
-                actualRaceDuration = Math.min(6, Math.max(2, closestToMendoza / 40));
+                actualRaceDuration = Math.min(9, Math.max(3, closestToMendoza / 30));
             } else {
                 // Pre-season: standard duration
-                actualRaceDuration = 6;
+                actualRaceDuration = 9;
             }
             
             // GALLOPING SOUND - CRANKED UP with MULTIPLE HORSES!
@@ -2329,6 +2341,12 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             // Create three offset gallop patterns for multiple horse sound
             const gallopOffsets = [0, 0.05, 0.08]; // Slight offsets to create depth
             
+            // Master gain for all gallop sounds — zero it instantly to silence on close
+            const masterGallopGain = audioContext.createGain();
+            masterGallopGain.gain.setValueAtTime(1.0, audioContext.currentTime);
+            masterGallopGain.connect(audioContext.destination);
+            activeGallopGain = masterGallopGain; // store for cleanup
+
             gallopOffsets.forEach((offset, horseIndex) => {
                 // Create individual gallop sounds for each "horse"
                 for (let i = 0; i < numGallops; i++) {
@@ -2354,7 +2372,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                         
                         thudOsc.connect(thudFilter);
                         thudFilter.connect(thudGain);
-                        thudGain.connect(audioContext.destination);
+                        thudGain.connect(masterGallopGain); // route through master, not destination
                         
                         thudOsc.start(thudTime);
                         thudOsc.stop(thudTime + 0.04);
@@ -2445,7 +2463,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     
                     // Race duration based on leader's at-bats (more AB = longer animation)
                     const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats));
-                    raceAnimationTime = Math.min(6, Math.max(2, leaderAtBats / 40)); // 2-6 seconds
+                    raceAnimationTime = Math.min(9, Math.max(3, leaderAtBats / 30)); // 3-9 seconds
                     
                     // Speed variation: Leaders run faster (shorter duration)
                     // Top 3 horses get speed boost
@@ -2498,14 +2516,14 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                         finalPosition = minPos + ((maxDist - horse.distanceFrom200) / distRange) * (maxPos - minPos);
                     }
 
-                    raceAnimationTime = 6; // Same duration for all so stagger is visible at end
+                    raceAnimationTime = 9; // Same duration for all so stagger is visible at end
                 } else {
                     // PRE-SEASON: Use spread-based positioning
                     const modalWidth = horseElement.offsetWidth || 800;
                     const trackWidth = modalWidth * 0.70;
                     // Spread horses across track randomly
                     finalPosition = horse.racePosition * (trackWidth / raceHorses.length) + (Math.random() * 50);
-                    raceAnimationTime = 6;
+                    raceAnimationTime = 9;
                 }
                 
                 // Safety check
@@ -2607,64 +2625,191 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             
             // Build leaderboard text if season is active
             if (isSeasonActive) {
+                const _1stLines = [
+                    (p, s) => `In 1st place we have ${p} with ${s}`,
+                    (p, s) => `Who's in first? It's ${p} with ${s}`,
+                    (p, s) => `Look at ${p} go with ${s}`,
+                    (p, s) => `Leading the pack is ${p} with ${s}`,
+                    (p, s) => `Way out in front is ${p} with ${s}`,
+                    (p, s) => `${p} is in front with ${s}`,
+                    (p, s) => `Get 'em, ${p}! He's in front with ${s}`,
+                ];
+                const _2ndLines = [
+                    (p, s) => `Coming up next is ${p} with ${s}`,
+                    (p, s) => `${p} with ${s} is in 2nd`,
+                    (p, s) => `${p} is posted up right behind with ${s}`,
+                    (p, s) => `Not far behind is ${p} with ${s}`,
+                    (p, s) => `But here comes ${p} with ${s}`,
+                    (p, s) => `& wait... that's ${p} with ${s}`,
+                ];
+                const _3rdLines = [
+                    (p, s) => `Rounding out 3rd is ${p} with ${s}`,
+                    (p, s) => `Coming in 3rd is ${p} with ${s}`,
+                    (p, s) => `With ${p}'s ${s} in 3rd`,
+                    (p, s) => `& with ${s} it's ${p} in 3rd`,
+                    (p, s) => `Followed by ${p} with ${s}`,
+                    (p, s) => `Keep at it ${p}, sitting at ${s} in 3rd!`,
+                ];
+                const _pickRandom = arr => arr[Math.floor(Math.random() * arr.length)];
+
+                // Special-case line pools
+                const _200Lines = [
+                    (p)         => `Giddyup! ${p} is right on .200!!`,
+                    (p)         => `In 1st, ${p} is sitting on the nose at .200!`,
+                    (p)         => `${p} a PERFECT 1 for 5 with .200!`,
+                ];
+                const _tieLines = [
+                    (p1, p2, s) => `Neck and neck are ${p1} & ${p2} with ${s}!`,
+                    (p1, p2, s) => `We've got a tie with ${p1} & ${p2} both at ${s}!`,
+                    (p1, p2, s) => `Look at ${p1} & ${p2} tied with ${s}!`,
+                    (p1, p2, s) => `Holy cow, it's ${p1} & ${p2} locked up with ${s}!`,
+                ];
+
+                const _playerTag = (h) => `#${h.number} ${h.name.replace(/ /g, ' ')}`;
+                const _isTied = (a, b) => b && (isPostAllStarBreak
+                    ? Math.abs(a.distanceFrom200 - b.distanceFrom200) < 0.0001
+                    : a.atBats === b.atBats);
+
                 const top3 = sortedHorses.slice(0, 3).map((horse, idx) => {
                     let stats;
                     if (isPostAllStarBreak) {
-                        // Show batting average in second half
-                        stats = horse.avg.toFixed(3);
+                        stats = horse.avg.toFixed(3).replace('0.', '.');
                     } else {
-                        // Show at-bats in first half
                         stats = `${horse.atBats}AB`;
                     }
-                    const position = idx === 0 ? '1st' : idx === 1 ? '2nd' : '3rd';
-                    
-                    // Add trophy for first to 200AB (only in first half)
-                    const trophy = (!isPostAllStarBreak && horse.atBats >= 200 && idx === 0) 
-                        ? '<span style="filter: grayscale(100%) brightness(1.5) sepia(100%) hue-rotate(170deg) saturate(300%); margin-left: 5px;">🏆</span>' 
-                        : '';
-                    
-                    return `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: normal;">${position}: ${horse.name} ${stats}${trophy}</div>`;
-                });
+
+                    const player = _playerTag(horse);
+                    let line;
+
+                    if (idx === 0 && _isTied(horse, sortedHorses[1])) {
+                        // 1st and 2nd tied — merge into one line
+                        line = _pickRandom(_tieLines)(player, _playerTag(sortedHorses[1]), stats);
+                    } else if (idx === 1 && _isTied(sortedHorses[0], horse)) {
+                        // Already merged into 1st line — skip
+                        return null;
+                    } else if (idx === 0 && isPostAllStarBreak && Math.abs(horse.avg - 0.200) < 0.0001) {
+                        // Exactly .200
+                        line = _pickRandom(_200Lines)(player);
+                    } else {
+                        if (idx === 0)      line = _pickRandom(_1stLines)(player, stats);
+                        else if (idx === 1) line = _pickRandom(_2ndLines)(player, stats);
+                        else                line = _pickRandom(_3rdLines)(player, stats);
+                    }
+
+                    return `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: normal;">${line}</div>`;
+                }).filter(Boolean);
                 
                 const dayHeaderHtml = `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 0.2rem;">DAY ${gameDay} STANDINGS</div>`;
-                
+
                 // Create placeholder divs for all 3 lines to lock positions
                 const emptyLine = `<div style="height: 1.3rem;"></div>`;
-                
-                // Show DAY header earlier
+
+                // Tokenize a plain-text line for WarGames word-by-word reveal.
+                // Treats anything matching /\d+AB/ as a single token.
+                function tokenize(plainText) {
+                    const tokens = [];
+                    const regex = /\.\d+|\d+(\.\d+)?AB?|\S+/g;
+                    let m;
+                    while ((m = regex.exec(plainText)) !== null) tokens.push(m[0]);
+                    return tokens;
+                }
+
+                // Strip HTML tags to get plain text for tokenizing,
+                // but keep the wrapper div so layout stays locked.
+                function stripHtml(html) {
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = html;
+                    return tmp.textContent || tmp.innerText || '';
+                }
+
+                // Build the WarGames typewriter for one line, calling onUpdate each word.
+                // msPerWord: delay between each word appearing.
+                function typewriterLine(plainText, msPerWord, startDelay, onUpdate) {
+                    const tokens = tokenize(plainText);
+                    tokens.forEach((_, i) => {
+                        raceDelay(() => {
+                            if (!horseText) return;
+                            onUpdate(tokens.slice(0, i + 1).join(' '));
+                        }, startDelay + i * msPerWord);
+                    });
+                    return startDelay + tokens.length * msPerWord;
+                }
+
+                const msPerWord = 160; // ms between each word
+                const linePause = 500; // extra pause between lines
+
+                // Pre-measure each full line so we know the left offset to keep
+                // text anchored in its final centered position as it builds left-to-right.
+                function measureTextWidth(txt) {
+                    const probe = document.createElement('span');
+                    // Explicitly match horse-text styles so measurement is accurate
+                    probe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;white-space:nowrap;font-size:0.85rem;font-family:monospace;font-weight:normal;';
+                    probe.textContent = txt;
+                    document.body.appendChild(probe);
+                    const w = probe.offsetWidth;
+                    document.body.removeChild(probe);
+                    return w;
+                }
+
+                // Shared state for the three growing lines
+                const builtLines   = ['', '', ''];
+                const lineOffsets  = [0, 0, 0]; // computed after show
+
+                // Helper: re-render horseText with current state of all three lines
+                function renderLines() {
+                    if (!horseText) return;
+                    const makeDiv = (txt, offset) =>
+                        `<div style="height:1.3rem;display:flex;align-items:center;justify-content:flex-start;padding-left:${offset}px;font-weight:normal;white-space:nowrap;">${txt || '&nbsp;'}</div>`;
+                    horseText.innerHTML = dayHeaderHtml
+                        + makeDiv(builtLines[0], lineOffsets[0])
+                        + makeDiv(builtLines[1], lineOffsets[1])
+                        + makeDiv(builtLines[2], lineOffsets[2]);
+                }
+
+                // Declare plain text first so measurement block can reference them
+                const plain0 = stripHtml(top3[0]);
+                const plain1 = top3[1] ? stripHtml(top3[1]) : '';
+                const plain2 = top3[2] ? stripHtml(top3[2]) : '';
+
+                // Show header + empty lines first, then measure offsets once visible
                 raceDelay(() => {
                     if (horseText) {
                         horseText.innerHTML = dayHeaderHtml + emptyLine + emptyLine + emptyLine;
                         horseText.style.visibility = 'visible';
+
+                        // Wait for layout to settle before measuring
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                const containerW = horseText.offsetWidth || 300;
+                                [plain0, plain1, plain2].forEach((txt, i) => {
+                                    if (!txt) return;
+                                    const fullW = measureTextWidth(txt);
+                                    lineOffsets[i] = Math.max(0, (containerW - fullW) / 2);
+                                });
+                            });
+                        });
                     }
                 }, 500);
-                
-                // Hold a moment before first player
-                raceDelay(() => {
-                    if (horseText) {
-                        horseText.innerHTML = dayHeaderHtml + emptyLine + emptyLine + emptyLine;
-                    }
-                }, 1200);
-                
-                // Show leaderboard progressively with slower cadence
-                raceDelay(() => {
-                    if (horseText) {
-                        horseText.innerHTML = dayHeaderHtml + top3[0] + emptyLine + emptyLine;
-                        horseText.style.visibility = 'visible';
-                    }
-                }, 1800);
-                
-                raceDelay(() => {
-                    if (horseText && top3[1]) {
-                        horseText.innerHTML = dayHeaderHtml + top3[0] + top3[1] + emptyLine;
-                    }
-                }, 3000);
-                
-                raceDelay(() => {
-                    if (horseText && top3[2]) {
-                        horseText.innerHTML = dayHeaderHtml + top3[0] + top3[1] + top3[2];
-                    }
-                }, 4200);
+
+                // Typewrite each line sequentially
+
+                const line0Start = 1400;
+                const line0End   = typewriterLine(plain0, msPerWord, line0Start, (partial) => {
+                    builtLines[0] = partial;
+                    renderLines();
+                });
+
+                const line1Start = line0End + linePause;
+                const line1End   = plain1 ? typewriterLine(plain1, msPerWord, line1Start, (partial) => {
+                    builtLines[1] = partial;
+                    renderLines();
+                }) : line1Start;
+
+                const line2Start = line1End + linePause;
+                if (plain2) typewriterLine(plain2, msPerWord, line2Start, (partial) => {
+                    builtLines[2] = partial;
+                    renderLines();
+                });
             } else {
                 // Pre-season ONLY: show messages one at a time with black screens between
                 const raceTime = 6000; // 6 seconds of race animation
@@ -2753,7 +2898,8 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 
                 horseElement.innerHTML = `<div style="font-size: 0.7rem; text-align: center; width: 100%;">${countdownText}</div>`;
                 
-                // Close modal after 2 seconds
+                // Close when gallop ends — totalGallopDuration = actualRaceDuration + 0.5 + 2
+                // End screen triggers at actualRaceDuration + 0.5s, so 2s of gallop remain
                 raceDelay(() => {
                         closeModalWithScroll(horseModal);
                 }, 2000);
