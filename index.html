@@ -745,7 +745,7 @@ const playerData = {
         battingAvg2025: ".201/219AB",
         pecota2026: "N/A",
         url: "https://www.baseball-reference.com/players/m/mooredy01.shtml",
-        bio: "<strong>UPDATE: Feb 16, 2026</strong><br><br>Well, well, well! Look look who Philadelphia invited to Spring Training to potentially take the place of ousted outfielder (and 2026 Mendoza Stakes competitor) Nick Castellanos. Mr. Moore is out of options, so he either starts on the Phillies or not at all. Godspeed, \"Champ!\"<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br>Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"
+        bio: "<strong>UPDATE: Mar 4, 2026</strong><br><br>Philadelphia outfielder Johan Rojas has been suspended 80 games for Performance Enhancing Drugs. We don't know which kind yet, and it doesn't really matter — but it DOES mean that the Phillies now have TWO (2) roster spots left to fill. D-Mo's changes of making The Race essentially just doubled!!<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br><strong>UPDATE: Feb 16, 2026</strong><br><br>Well, well, well! Look look who Philadelphia invited to Spring Training to potentially take the place of ousted outfielder (and 2026 Mendoza Stakes competitor) Nick Castellanos. Mr. Moore is out of options, so he either starts on the Phillies or not at all. Godspeed, \"Champ!\"<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br>Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"
     },
 
     8: {
@@ -807,7 +807,7 @@ const playerData = {
         number: "13",
         position: "IF",
         fullName: "Jasrado Prince Hermis Arrington Chisholm, Junior",
-        wbcFlag: "🇧🇸",
+        wbcFlag: "🇬🇧",
         birthday: { month: 1, day: 26 },
         mlbId: 665742,
         league: 'Junior Circuit',
@@ -1055,7 +1055,7 @@ function renderPlayers(now) {
             displayName += `<span class="player-name-text">${player.name}</span>`;
         }
 
-        if (isWBC && player.wbcFlag) displayName += ' ' + player.wbcFlag;
+        if (isWBC && player.wbcFlag) displayName += ' <span class="emoji-blend" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
         if (player.id === diamondPlayerId) displayName += '⬥';
         if (isBirthday(player, now)) displayName += ' <span class="emoji-blend" style="margin-left:0.2em;">🎂</span>';
 
@@ -1207,8 +1207,16 @@ function openPlayerModal(playerId) {
     document.getElementById('player-modal-2026-stats').innerHTML = 
         '<strong>2026 PECOTA Projection: ' + player.pecota2026 + '</strong>';
     
-    document.getElementById('player-modal-current-stats').innerHTML = 
-        '<strong>Current Stats: <span id="player-current-stats">.---/---AB</span></strong>';
+    const modalNow = new Date();
+    const isSpringTrainingModal = modalNow >= SEASON.springTraining && modalNow < SEASON.openingDay;
+    const statsLabel = isSpringTrainingModal ? 'Spring Stats' : 'Current Stats';
+    const showStatsLine = modalNow >= SEASON.openingDay;
+    if (showStatsLine) {
+        document.getElementById('player-modal-current-stats').innerHTML = 
+            '<strong>' + statsLabel + ': <span id="player-current-stats">.---/---AB</span></strong>';
+    } else {
+        document.getElementById('player-modal-current-stats').innerHTML = '';
+    }
     
     if (player.games) {
         document.getElementById('player-modal-games').textContent = '*' + player.games;
@@ -1226,20 +1234,32 @@ function openPlayerModal(playerId) {
     // Fetch player status & trend
     fetchPlayerStatusAndTrend(playerId);
     
-    // Update current stats from playersArray
+    // Update current stats — only shown from opening day onward
     const playerObj = playersArray.find(p => p.id === playerId);
     const currentStatsEl = document.getElementById('player-current-stats');
-    if (playerObj && playerObj.currentAvg !== null && playerObj.liveAtBats !== null) {
-        const avgDisplay = playerObj.currentAvg.toFixed(3);
-        const abDisplay = `${playerObj.liveAtBats}AB`;
-        currentStatsEl.textContent = `${avgDisplay}/${abDisplay}`;
-    } else {
-        currentStatsEl.textContent = '.---/---AB';
+    if (currentStatsEl && modalNow >= SEASON.openingDay) {
+        if (playerObj && playerObj.currentAvg !== null && playerObj.liveAtBats !== null) {
+            currentStatsEl.textContent = `${playerObj.currentAvg.toFixed(3)}/${playerObj.liveAtBats}AB`;
+        } else {
+            currentStatsEl.textContent = '.---/---AB';
+        }
     }
     
     // Set team designation
     const teamDesignationEl = document.getElementById('player-team-designation');
-    teamDesignationEl.innerHTML = player.league || '';
+    const wbcNow = new Date();
+    const isWBCModal = wbcNow >= SEASON.wbcStart && wbcNow <= SEASON.wbcEnd;
+    const wbcCountries = {
+        '🇺🇸': 'United States of America',
+        '🇯🇵': 'Samurai Japan',
+        '🇬🇧': 'Great Britain',
+        '🇩🇴': 'República Dominicana'
+    };
+    if (isWBCModal && player.wbcFlag && wbcCountries[player.wbcFlag]) {
+        teamDesignationEl.innerHTML = wbcCountries[player.wbcFlag];
+    } else {
+        teamDesignationEl.innerHTML = player.league || '';
+    }
 
     // Update select batter button state
     currentModalPlayerId = playerId;
@@ -2436,13 +2456,17 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     ? 'color: #b8ddf2; white-space: nowrap; text-shadow: 0.4px 0 0 #b8ddf2, -0.4px 0 0 #b8ddf2;'
                     : 'color: #b8ddf2; white-space: nowrap;';
 
-                const numberBadge = isSelectedInRace
-                    ? `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: scale(1.6); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); position: relative; flex-shrink: 0;">
-                            <span style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); font-size: 0.22rem; font-weight: bold; color: black;">${horse.number}</span>
-                        </span>`
-                    : `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: rotate(45deg); position: relative; flex-shrink: 0;">
-                            <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 0.35rem; font-weight: bold; color: black;">${horse.number}</span>
-                        </span>`;
+                const horseFlag = playerData[horse.id]?.wbcFlag || null;
+                const badgeContent = horseFlag
+                    ? `<span style="font-size: 0.7rem; line-height: 1; flex-shrink: 0;">${horseFlag}</span>`
+                    : isSelectedInRace
+                        ? `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: scale(1.6); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); position: relative; flex-shrink: 0;">
+                                <span style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); font-size: 0.22rem; font-weight: bold; color: black;">${horse.number}</span>
+                            </span>`
+                        : `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: rotate(45deg); position: relative; flex-shrink: 0;">
+                                <span style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 0.35rem; font-weight: bold; color: black;">${horse.number}</span>
+                            </span>`;
+                const numberBadge = badgeContent;
 
                 const playerInfo = `
                     <span style="display: flex; align-items: center; gap: 5px; position: absolute; right: calc(100% + 8px); white-space: nowrap;">
