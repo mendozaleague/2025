@@ -2458,7 +2458,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
 
                 const horseFlag = playerData[horse.id]?.wbcFlag || null;
                 const badgeContent = horseFlag
-                    ? `<span style="font-size: 0.7rem; line-height: 1; flex-shrink: 0;">${horseFlag}</span>`
+                    ? `<span style="font-size: 0.7rem; line-height: 1; flex-shrink: 0; filter: grayscale(1) invert(1) sepia(1) hue-rotate(175deg) saturate(1.3) brightness(1.1);">${horseFlag}</span>`
                     : isSelectedInRace
                         ? `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: scale(1.6); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); position: relative; flex-shrink: 0;">
                                 <span style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); font-size: 0.22rem; font-weight: bold; color: black;">${horse.number}</span>
