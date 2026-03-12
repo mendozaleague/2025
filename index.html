@@ -1000,6 +1000,18 @@ function renderPlayers(now) {
             // Update diamond indicator on name
             const nameEl = row.querySelector('.player-name');
             if (nameEl) {
+                // WBC flag
+                const hasFlag = nameEl.dataset.hasFlag === '1';
+                const wantsFlag = isWBC && !!player.wbcFlag;
+                if (wantsFlag && !hasFlag) {
+                    nameEl.innerHTML += ' <span class="emoji-blend wbc-flag" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
+                    nameEl.dataset.hasFlag = '1';
+                }
+                if (!wantsFlag && hasFlag) {
+                    nameEl.innerHTML = nameEl.innerHTML.replace(/ <span class="emoji-blend wbc-flag" style="margin-left:0.2em;">[^<]*<\/span>/g, '');
+                    nameEl.dataset.hasFlag = '0';
+                }
+
                 const hasDiamond = nameEl.dataset.hasDiamond === '1';
                 const wantsDiamond = player.id === diamondPlayerId;
                 if (wantsDiamond && !hasDiamond) {
@@ -1007,7 +1019,7 @@ function renderPlayers(now) {
                     nameEl.dataset.hasDiamond = '1';
                 }
                 if (!wantsDiamond && hasDiamond) {
-                    nameEl.innerHTML = nameEl.innerHTML.replace('⬥', '');
+                    nameEl.innerHTML = nameEl.innerHTML.replace(/⬥/g, '');
                     nameEl.dataset.hasDiamond = '0';
                 }
                 // Birthday cake
@@ -1057,7 +1069,7 @@ function renderPlayers(now) {
             displayName += `<span class="player-name-text">${player.name}</span>`;
         }
 
-        if (isWBC && player.wbcFlag) displayName += ' <span class="emoji-blend" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
+        if (isWBC && player.wbcFlag) displayName += ' <span class="emoji-blend wbc-flag" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
         if (player.id === diamondPlayerId) displayName += '⬥';
         if (isBirthday(player, now)) displayName += ' <span class="emoji-blend" style="margin-left:0.2em;">🎂</span>';
 
@@ -1080,6 +1092,14 @@ function renderPlayers(now) {
         `;
 
         container.appendChild(row);
+
+        // Mark diamond/flag/cake state so in-place updates don't double-add them
+        const builtNameEl = row.querySelector('.player-name');
+        if (builtNameEl) {
+            builtNameEl.dataset.hasDiamond = player.id === diamondPlayerId ? '1' : '0';
+            builtNameEl.dataset.hasFlag    = (isWBC && !!player.wbcFlag) ? '1' : '0';
+            builtNameEl.dataset.hasCake    = isBirthday(player, now) ? '1' : '0';
+        }
     });
 }
 
