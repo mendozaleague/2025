@@ -690,6 +690,7 @@ const playerData = {
         weight: "205lbs",
         battingAvg2025: ".195/359AB",
         pecota2026: ".224",
+        wbcFlag: "🇨🇦",
         url: "https://www.baseball-reference.com/players/n/naylobo01.shtml",
         bio: "<strong>UPDATE: Mar 4, 2026</strong><br><br>Even though we all knew the introduction of ABS would have a big impact on gameplay for the 2026 season, none of us expected this! For <em>years</em> BO has self-reported his height as 6'0\" but he has been EXPOSED by the new system. He's actually three (3) inches shorter. Incredible stuff!!!<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br>If Noah-Gibson Naylor, better known as Bo, sounds vaguely familiar it's probably because his older brother Josh plays for the Mariners. Bo only hit .195 last season, yet still seems to be Cleveland's guy behind the plate in the foreseeable future. At the time of this writing, the other two catchers on their roster are David Fry (.171/146AB) & journeyman Austin Hedges (.161/155) so it seems like his job is safe? You can only go up from here, Bo! Unless you go down, of course. That's still a very real possibility."
     },
@@ -794,6 +795,7 @@ const playerData = {
         mlbId: 695506,
         league: 'Junior Circuit',
         age: 23,
+        wbcFlag: "🇮🇹",
         height: "6'4\"",
         weight: "250lbs",
         battingAvg2025: ".157/210AB",
@@ -1253,7 +1255,9 @@ function openPlayerModal(playerId) {
         '🇺🇸': 'United States of America',
         '🇯🇵': 'Samurai Japan',
         '🇬🇧': 'Great Britain',
-        '🇩🇴': 'República Dominicana'
+        '🇩🇴': 'República Dominicana',
+        '🇨🇦': "O' Canada",
+        '🇮🇹': 'Italia'
     };
     if (isWBCModal && player.wbcFlag && wbcCountries[player.wbcFlag]) {
         teamDesignationEl.innerHTML = wbcCountries[player.wbcFlag];
