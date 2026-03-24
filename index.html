@@ -57,6 +57,10 @@
         /* display:inline-block is layout, not animation — always applied */
         .wave-emoji-1, .wave-emoji-2, .wave-emoji-3,
         .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
+        .player-name-text { display: inline-block; }
+        @media (prefers-reduced-motion: no-preference) {
+            .player-name.name-bounce .player-name-text { animation: wave 11s ease-in-out 0s 1; }
+        }
         .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
         .header { text-align: center; margin-bottom: 0; padding: 15px; background: var(--blue); border: 2px solid var(--blue); }
         .header h1 { font-size: 2.0rem; margin-bottom: 0; color: black; line-height: 1.2; }
@@ -746,7 +750,7 @@ const playerData = {
         battingAvg2025: ".201/219AB",
         pecota2026: "N/A",
         url: "https://www.baseball-reference.com/players/m/mooredy01.shtml",
-        bio: "<strong>UPDATE: Mar 4, 2026</strong><br><br>Philadelphia outfielder Johan Rojas has been suspended 80 games for Performance Enhancing Drugs. We don't know which kind yet, and it doesn't really matter — but it DOES mean that the Phillies now have TWO (2) roster spots left to fill. D-Mo's changes of making The Race essentially just doubled!!<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br><strong>UPDATE: Feb 16, 2026</strong><br><br>Well, well, well! Look look who Philadelphia invited to Spring Training to potentially take the place of ousted outfielder (and 2026 Mendoza Stakes competitor) Nick Castellanos. Mr. Moore is out of options, so he either starts on the Phillies or not at all. Godspeed, \"Champ!\"<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br>Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"
+        bio: "<strong>UPDATE: Mar 21, 2026</strong><br><br>Dylan Moore has officially been added to the Philadelphia Phillies 40-man roster for the 2026 season. We did it, everybody. It's all happening.<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br><strong>UPDATE: Mar 4, 2026</strong><br><br>Philadelphia outfielder Johan Rojas has been suspended 80 games for Performance Enhancing Drugs. We don't know which kind yet, and it doesn't really matter — but it DOES mean that the Phillies now have TWO (2) roster spots left to fill. D-Mo's changes of making The Race essentially just doubled!!<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br><strong>UPDATE: Feb 16, 2026</strong><br><br>Well, well, well! Look look who Philadelphia invited to Spring Training to potentially take the place of ousted outfielder (and 2026 Mendoza Stakes competitor) Nick Castellanos. Mr. Moore is out of options, so he either starts on the Phillies or not at all. Godspeed, \"Champ!\"<br><br>⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩⬩<br><br>Whether or not \"D-Mo\" even makes a 2026 Major League roster remains to be seen, but his \"stellar\" performance last year was enough to secure the first spot in the 3rd annual Bob Uecker Memorial Race to Two Hundred. Our 2025 \"Champion\" finished one single point above the Mendoza Line, which is pretty dang \"impressive.\" The 2024 Gold Glove-winning Utility Man spent the entirety of his seven-year pro career with Seattle until being released on August 23. Three days later, he was picked up by the same team that drafted him: the Texas Rangers. What a coincidence, a Mendoza Stakes winner playing for 2/3 of Mario Mendoza's teams in one season!"
     },
 
     8: {
@@ -1500,10 +1504,67 @@ async function fetchMLBStats() {
         }
     }));
 
+    // ── At-the-plate detection ─────────────────────────────────
+    // During live games, fetch each in-progress game's live feed
+    // and check if any of our players is the current batter.
+    try {
+        const todayET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+        const yyyy = todayET.getFullYear();
+        const mm   = String(todayET.getMonth() + 1).padStart(2, '0');
+        const dd   = String(todayET.getDate()).padStart(2, '0');
+        const schedRes = await fetch(
+            `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${yyyy}-${mm}-${dd}&hydrate=linescore,team`
+        );
+        if (schedRes.ok) {
+            const schedData = await schedRes.json();
+            const games     = schedData.dates?.[0]?.games || [];
+            const liveStates = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
+            const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
+            const liveGames  = games.filter(g =>
+                liveStates.has(g.status?.detailedState) &&
+                (ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id))
+            );
+
+            // Reset all at-plate flags
+            playersArray.forEach(p => { p.isAtPlate = false; });
+
+            if (liveGames.length > 0) {
+                await Promise.all(liveGames.map(async game => {
+                    try {
+                        const feedRes = await fetch(
+                            `https://statsapi.mlb.com/api/v1.1/game/${game.gamePk}/feed/live?fields=liveData,plays,currentPlay,matchup,batter,id`
+                        );
+                        if (!feedRes.ok) return;
+                        const feedData = await feedRes.json();
+                        const currentBatterId = feedData?.liveData?.plays?.currentPlay?.matchup?.batter?.id;
+                        if (currentBatterId) {
+                            const match = playersArray.find(p => p.mlbId === currentBatterId);
+                            if (match) match.isAtPlate = true;
+                        }
+                    } catch (e) { /* silent */ }
+                }));
+            }
+        }
+    } catch (e) { /* silent */ }
+    // ────────────────────────────────────────────────────────────
+
     rankPlayers(now);
     renderPlayers(now);
     applySelectedBatterStyles();
     hideLoadingState();
+
+    // Trigger name bounce for any player currently at the plate
+    playersArray.forEach(player => {
+        if (!player.isAtPlate) return;
+        const row = document.querySelector(`[data-player-id="${player.id}"]`);
+        if (!row) return;
+        const nameEl = row.querySelector('.player-name');
+        if (!nameEl) return;
+        nameEl.classList.remove('name-bounce');
+        void nameEl.offsetWidth; // force reflow to restart animation
+        nameEl.classList.add('name-bounce');
+        setTimeout(() => nameEl.classList.remove('name-bounce'), 11800);
+    });
 
     // Re-schedule next fetch at the next :11 if still in an active mode
     if (_statsRefreshMode) scheduleNextElevenFetch(_statsRefreshMode);
@@ -1519,7 +1580,7 @@ if (new Date() >= SEASON.openingDay) {
 // ============================================================
 // WAVE ANIMATION + SMART REFRESH CONTROLLER
 //
-// Pre-season:       wave-active (continuous, 11s cycle), no stats fetching
+// Pre-season:       no wave, no fetching
 // Season — live:    wave-bounce (one-shot) fires on every :11 fetch
 // Season — pending: wave-bounce fires on fetch, waiting for first pitch
 // Season — final:   no wave, no fetch until tomorrow
@@ -1573,9 +1634,11 @@ async function updateWaveAndRefresh() {
     const now        = new Date();
     const openingDay = SEASON.openingDay;
 
-    // Pre-season: continuous wave on, no fetching
+    // Pre-season: elevens bounce continuously, header diamonds stay still
     if (now < openingDay) {
-        setWave(true);
+        waveHeader.classList.remove('wave-active');
+        const elevens = document.getElementById('elevens-word');
+        if (elevens) elevens.classList.add('elevens-active');
         setRefreshInterval(null);
         return;
     }
@@ -2480,10 +2543,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     ? 'color: #b8ddf2; white-space: nowrap; text-shadow: 0.4px 0 0 #b8ddf2, -0.4px 0 0 #b8ddf2;'
                     : 'color: #b8ddf2; white-space: nowrap;';
 
-                const horseFlag = playerData[horse.id]?.wbcFlag || null;
-                const badgeContent = horseFlag
-                    ? `<span style="font-size: 0.7rem; line-height: 1; flex-shrink: 0; filter: grayscale(1) invert(1) sepia(1) hue-rotate(175deg) saturate(1.3) brightness(1.1);">${horseFlag}</span>`
-                    : isSelectedInRace
+                const badgeContent = isSelectedInRace
                         ? `<span style="display: inline-block; width: 0.5rem; height: 0.5rem; background-color: #b8ddf2; transform: scale(1.6); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); position: relative; flex-shrink: 0;">
                                 <span style="position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%); font-size: 0.22rem; font-weight: bold; color: black;">${horse.number}</span>
                             </span>`
