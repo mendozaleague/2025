@@ -2736,6 +2736,35 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
             }, 50);
             
             // Build leaderboard text if season is active
+
+            // Flag: set to true by any branch that schedules its own end-screen,
+            // so the generic fallback below knows to skip.
+            let _endScreenHandled = false;
+
+            // ── Shared helpers (used by ALL branches below) ──────────────────
+            const emptyLine = `<div style="height: 1.3rem;"></div>`;
+
+            // Tokenize a plain-text line for WarGames word-by-word reveal.
+            // Treats anything matching /\d+AB/ as a single token.
+            function tokenize(plainText) {
+                const tokens = [];
+                const regex = /\.\d+|\d+(\.\d+)?AB?|\S+/g;
+                let m;
+                while ((m = regex.exec(plainText)) !== null) tokens.push(m[0]);
+                return tokens;
+            }
+
+            function measureTextWidth(txt) {
+                const probe = document.createElement('span');
+                probe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;white-space:nowrap;font-size:0.85rem;font-family:monospace;font-weight:normal;';
+                probe.textContent = txt;
+                document.body.appendChild(probe);
+                const w = probe.offsetWidth;
+                document.body.removeChild(probe);
+                return w;
+            }
+            // ─────────────────────────────────────────────────────────────────
+
             if (isAllStarBreak) {
                 // ALL-STAR BREAK: show the first-half champion
                 const champion = [...raceHorses].filter(h => h.atBats > 0).sort((a, b) => b.atBats - a.atBats)[0];
@@ -2851,19 +2880,6 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 
                 const dayHeaderHtml = `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 0.2rem;">DAY ${gameDay} STANDINGS</div>`;
 
-                // Create placeholder divs for all 3 lines to lock positions
-                const emptyLine = `<div style="height: 1.3rem;"></div>`;
-
-                // Tokenize a plain-text line for WarGames word-by-word reveal.
-                // Treats anything matching /\d+AB/ as a single token.
-                function tokenize(plainText) {
-                    const tokens = [];
-                    const regex = /\.\d+|\d+(\.\d+)?AB?|\S+/g;
-                    let m;
-                    while ((m = regex.exec(plainText)) !== null) tokens.push(m[0]);
-                    return tokens;
-                }
-
                 // Strip HTML tags to get plain text for tokenizing,
                 // but keep the wrapper div so layout stays locked.
                 function stripHtml(html) {
@@ -2887,19 +2903,6 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
 
                 const msPerWord = 160; // ms between each word
                 const linePause = 500; // extra pause between lines
-
-                // Pre-measure each full line so we know the left offset to keep
-                // text anchored in its final centered position as it builds left-to-right.
-                function measureTextWidth(txt) {
-                    const probe = document.createElement('span');
-                    // Explicitly match horse-text styles so measurement is accurate
-                    probe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;white-space:nowrap;font-size:0.85rem;font-family:monospace;font-weight:normal;';
-                    probe.textContent = txt;
-                    document.body.appendChild(probe);
-                    const w = probe.offsetWidth;
-                    document.body.removeChild(probe);
-                    return w;
-                }
 
                 // Shared state for the three growing lines
                 const builtLines   = ['', '', ''];
@@ -2956,10 +2959,65 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 }) : line1Start;
 
                 const line2Start = line1End + linePause;
-                if (plain2) typewriterLine(plain2, msPerWord, line2Start, (partial) => {
+                const line2End   = plain2 ? typewriterLine(plain2, msPerWord, line2Start, (partial) => {
                     builtLines[2] = partial;
                     renderLines();
-                });
+                }) : line2Start;
+
+                // How long the typewriter actually needs (ms from race start, + 1s reading buffer)
+                const textFinishMs = line2End + 1000;
+
+                // Extend the end-screen trigger if typewriter outlasts the default race window.
+                // We patch actualRaceDuration in-place so the gallop sound (already scheduled)
+                // stays consistent; we only delay the *visual* end-screen cutoff.
+                const endScreenDelay = Math.max((actualRaceDuration * 1000) + 500, textFinishMs);
+
+                // Cancel the previously-queued end-screen timeout and replace it with the
+                // extended one.  We do this by scheduling it here instead of relying on the
+                // fixed raceDelay below — the raceDelay below is now guarded so it won't
+                // double-fire.
+                raceDelay(() => {
+                    activeAnimationIntervals.forEach(interval => clearInterval(interval));
+                    activeAnimationIntervals = [];
+
+                    if (horseText) horseText.style.visibility = 'hidden';
+
+                    const finishLine = document.getElementById('finish-line');
+                    finishLine.style.display = 'none';
+                    const raceTitle = document.getElementById('race-title');
+                    raceTitle.style.visibility = 'hidden';
+
+                    let countdownText;
+                    const springTrainingStart = SEASON.springTraining;
+                    const openingDayDate      = SEASON.openingDay;
+                    const allStarBreakStart   = SEASON.allStarBreakStart;
+                    const allStarBreakEnd     = SEASON.allStarBreakEnd;
+                    const seasonEnd           = SEASON.finishLine;
+
+                    if (currentDate < springTrainingStart) {
+                        const daysLeft = Math.max(0, Math.ceil((springTrainingStart - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysLeft} ${daysLeft === 1 ? 'Day' : 'Days'} 'til Spring!`;
+                    } else if (currentDate >= springTrainingStart && currentDate < openingDayDate) {
+                        const daysLeft = Math.max(0, Math.ceil((openingDayDate - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysLeft} ${daysLeft === 1 ? 'Day' : 'Days'} to Post Time!`;
+                    } else if (currentDate >= openingDayDate && currentDate < allStarBreakStart) {
+                        const daysLeft = Math.max(0, Math.ceil((allStarBreakStart - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysLeft} ${daysLeft === 1 ? 'Day' : 'Days'} 'til The Break!`;
+                    } else if (currentDate >= allStarBreakStart && currentDate < allStarBreakEnd) {
+                        const daysLeft = Math.max(0, Math.ceil((allStarBreakEnd - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysLeft} ${daysLeft === 1 ? 'Day' : 'Days'} 'til the 2nd Half!`;
+                    } else {
+                        const daysLeft = Math.max(0, Math.ceil((seasonEnd - currentDate) / (1000 * 60 * 60 * 24)));
+                        countdownText = `${daysLeft} ${daysLeft === 1 ? 'Day' : 'Days'} to The Finish Line!!`;
+                    }
+
+                    horseElement.innerHTML = `<div style="font-size: 0.7rem; text-align: center; width: 100%;">${countdownText}</div>`;
+                    raceDelay(() => { closeModalWithScroll(horseModal); }, 2000);
+
+                }, endScreenDelay);
+
+                // Flag so the generic end-screen block below skips for this branch
+                _endScreenHandled = true;
             } else {
                 // Pre-season ONLY: show messages one at a time with black screens between
                 const raceTime = 6000; // 6 seconds of race animation
@@ -2983,11 +3041,13 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 raceDelay(() => {
                     if (horseText) {
                         horseText.textContent = "View race LIVE starting Opening Day";
+                        horseText.style.visibility = 'visible';
                     }
                 }, raceTime * 0.70); // 4200ms
             }
             
-            // When animation ends, show countdown
+            // When animation ends, show countdown (skipped if a branch already handled it)
+            if (!_endScreenHandled) {
             raceDelay(() => {
                 // Clear all horse animations
                 activeAnimationIntervals.forEach(interval => clearInterval(interval));
@@ -3055,6 +3115,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 }, 2000);
                 
             }, (actualRaceDuration * 1000) + 500); // Dynamic race duration + 500ms buffer
+            }
             
         }, raceStartDelay); // Use fixed 7200ms delay instead of audio-based timing
 }
