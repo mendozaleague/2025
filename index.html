@@ -851,6 +851,10 @@ function calculateDistanceFrom200(avg) {
     return Math.abs(avg - 0.200);
 }
 
+function formatAvg(avg) {
+    return avg.toFixed(3).replace(/^0\./, '.');
+}
+
 function rankPlayers(now) {
     now = now || new Date();
     const openingDay = SEASON.openingDay;
@@ -995,7 +999,7 @@ function renderPlayers(now) {
             const abEl  = row.querySelector('.tap-tooltip');
 
             if (player.currentAvg !== null && !isNaN(player.currentAvg)) {
-                const avgText = player.currentAvg.toFixed(3);
+                const avgText = formatAvg(player.currentAvg);
                 const abText  = `${player.liveAtBats || 0}AB`;
                 if (avgEl && avgEl.textContent !== avgText) avgEl.textContent = avgText;
                 if (abEl  && abEl.textContent  !== abText)  abEl.textContent  = abText;
@@ -1053,7 +1057,7 @@ function renderPlayers(now) {
         let atBatsDisplay = '---AB';
 
         if (player.currentAvg !== null && !isNaN(player.currentAvg)) {
-            avgDisplay = player.currentAvg.toFixed(3);
+            avgDisplay = formatAvg(player.currentAvg);
             atBatsDisplay = `${player.liveAtBats || 0}AB`;
         }
 
@@ -1265,7 +1269,7 @@ function openPlayerModal(playerId) {
     const currentStatsEl = document.getElementById('player-current-stats');
     if (currentStatsEl && modalNow >= SEASON.openingDay) {
         if (playerObj && playerObj.currentAvg !== null && playerObj.liveAtBats !== null) {
-            currentStatsEl.textContent = `${playerObj.currentAvg.toFixed(3)}/${playerObj.liveAtBats}AB`;
+            currentStatsEl.textContent = `${formatAvg(playerObj.currentAvg)}/${playerObj.liveAtBats}AB`;
         } else {
             currentStatsEl.textContent = '.---/---AB';
         }
