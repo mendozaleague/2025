@@ -1023,11 +1023,11 @@ function renderPlayers(now) {
                 const hasDiamond = nameEl.dataset.hasDiamond === '1';
                 const wantsDiamond = player.id === diamondPlayerId;
                 if (wantsDiamond && !hasDiamond) {
-                    nameEl.innerHTML += '⬥';
+                    nameEl.innerHTML += '<span class="leader-diamond" style="font-size:0.7em;vertical-align:middle;line-height:1;">⬥</span>';
                     nameEl.dataset.hasDiamond = '1';
                 }
                 if (!wantsDiamond && hasDiamond) {
-                    nameEl.innerHTML = nameEl.innerHTML.replace(/⬥/g, '');
+                    nameEl.innerHTML = nameEl.innerHTML.replace(/<span class="leader-diamond"[^>]*>⬥<\/span>/g, '').replace(/⬥/g, '');
                     nameEl.dataset.hasDiamond = '0';
                 }
                 // Birthday cake
@@ -1078,7 +1078,7 @@ function renderPlayers(now) {
         }
 
         if (isWBC && player.wbcFlag) displayName += ' <span class="emoji-blend wbc-flag" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
-        if (player.id === diamondPlayerId) displayName += '⬥';
+        if (player.id === diamondPlayerId) displayName += '<span style="font-size:0.7em;vertical-align:middle;line-height:1;">⬥</span>';
         if (isBirthday(player, now)) displayName += ' <span class="emoji-blend" style="margin-left:0.2em;">🎂</span>';
 
         const row = document.createElement('div');
@@ -2447,54 +2447,52 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 actualRaceDuration = 9;
             }
             
-            // GALLOPING SOUND - CRANKED UP with MULTIPLE HORSES!
-            // Continue galloping until modal closes
-            const totalGallopDuration = actualRaceDuration + 0.5 + 2; // race + buffer + countdown
-            const gallopInterval = 0.15; // Time between gallops (faster = more hoofbeats)
-            const numGallops = Math.floor(totalGallopDuration / gallopInterval);
-            const gallopLeadIn = 0.0; // timing handled by clickTime offset in raceTimeout
-            
-            // Create three offset gallop patterns for multiple horse sound
-            const gallopOffsets = [0, 0.05, 0.08]; // Slight offsets to create depth
-            
-            // Master gain for all gallop sounds — zero it instantly to silence on close
+            // GALLOPING SOUND — continuous loop until modal closes
+            const gallopInterval = 0.15; // seconds between beats
+            const gallopOffsets  = [0, 0.05, 0.08]; // slight offsets for depth
+            const lookahead      = 0.3;  // schedule this many seconds ahead
+
+            // Master gain — zeroed instantly on modal close
             const masterGallopGain = audioContext.createGain();
             masterGallopGain.gain.setValueAtTime(1.0, audioContext.currentTime);
             masterGallopGain.connect(audioContext.destination);
-            activeGallopGain = masterGallopGain; // store for cleanup
+            activeGallopGain = masterGallopGain;
 
-            gallopOffsets.forEach((offset, horseIndex) => {
-                // Create individual gallop sounds for each "horse"
-                for (let i = 0; i < numGallops; i++) {
-                    const startTime = audioContext.currentTime + gallopLeadIn + (i * gallopInterval) + offset;
-                    
-                    // Create two quick thuds for each gallop (clip-clop)
-                    for (let thud = 0; thud < 2; thud++) {
-                        const thudTime = startTime + (thud * 0.05);
-                        const thudOsc = audioContext.createOscillator();
-                        const thudGain = audioContext.createGain();
-                        const thudFilter = audioContext.createBiquadFilter();
-                        
-                        thudOsc.type = 'sine';
-                        // Vary frequency slightly per horse for realism
-                        thudOsc.frequency.setValueAtTime(80 + (thud * 20) + (horseIndex * 5), thudTime);
-                        
-                        thudFilter.type = 'lowpass';
-                        thudFilter.frequency.setValueAtTime(300, thudTime);
-                        
-                        // Slightly lower volume per horse so combined isn't overwhelming
-                        thudGain.gain.setValueAtTime(0.9, thudTime);
-                        thudGain.gain.exponentialRampToValueAtTime(0.01, thudTime + 0.04);
-                        
-                        thudOsc.connect(thudFilter);
-                        thudFilter.connect(thudGain);
-                        thudGain.connect(masterGallopGain); // route through master, not destination
-                        
-                        thudOsc.start(thudTime);
-                        thudOsc.stop(thudTime + 0.04);
-                    }
+            // scheduleGallopBeat: schedule one clip-clop at audioTime for horseIndex
+            function scheduleGallopBeat(audioTime, horseIndex) {
+                for (let thud = 0; thud < 2; thud++) {
+                    const thudTime = audioTime + thud * 0.05;
+                    const thudOsc    = audioContext.createOscillator();
+                    const thudGain   = audioContext.createGain();
+                    const thudFilter = audioContext.createBiquadFilter();
+                    thudOsc.type = 'sine';
+                    thudOsc.frequency.setValueAtTime(80 + thud * 20 + horseIndex * 5, thudTime);
+                    thudFilter.type = 'lowpass';
+                    thudFilter.frequency.setValueAtTime(300, thudTime);
+                    thudGain.gain.setValueAtTime(0.9, thudTime);
+                    thudGain.gain.exponentialRampToValueAtTime(0.01, thudTime + 0.04);
+                    thudOsc.connect(thudFilter);
+                    thudFilter.connect(thudGain);
+                    thudGain.connect(masterGallopGain);
+                    thudOsc.start(thudTime);
+                    thudOsc.stop(thudTime + 0.04);
                 }
-            });
+            }
+
+            // nextGallopTime[horseIndex] tracks the next beat time for each "horse"
+            const nextGallopTime = gallopOffsets.map(offset => audioContext.currentTime + offset);
+
+            // Scheduler loop: runs every 50ms, fills the lookahead window
+            const gallopSchedulerId = setInterval(() => {
+                const now = audioContext.currentTime;
+                gallopOffsets.forEach((_, hi) => {
+                    while (nextGallopTime[hi] < now + lookahead) {
+                        scheduleGallopBeat(nextGallopTime[hi], hi);
+                        nextGallopTime[hi] += gallopInterval;
+                    }
+                });
+            }, 50);
+            activeAnimationIntervals.push(gallopSchedulerId);
             
             // Clear & setup race
             horseElement.innerHTML = '';
