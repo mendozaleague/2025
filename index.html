@@ -1574,7 +1574,10 @@ initializePlayers();
 attachEventListeners(); // Set once — uses event delegation, survives re-renders
 updateDiamondModalStamp(); // Set pre-season or last-update label immediately
 if (new Date() >= SEASON.openingDay) {
-    fetchMLBStats();
+    fetchMLBStats().then(() => {
+        // Run wave/refresh controller AFTER initial fetch so currentTeamIds are populated
+        updateWaveAndRefresh();
+    });
 }
 
 // ============================================================
@@ -1668,17 +1671,14 @@ async function updateWaveAndRefresh() {
 
         const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
 
-        if (ourTeamIds.size === 0) {
-            setWave(false);
-            setRefreshInterval(null);
-            return;
-        }
-
-        const ourGames = games.filter(g => {
-            const homeId = g.teams?.home?.team?.id;
-            const awayId = g.teams?.away?.team?.id;
-            return ourTeamIds.has(homeId) || ourTeamIds.has(awayId);
-        });
+        // If team IDs haven't been fetched yet (e.g. first load), treat all today's games as ours
+        const ourGames = ourTeamIds.size === 0
+            ? games
+            : games.filter(g => {
+                const homeId = g.teams?.home?.team?.id;
+                const awayId = g.teams?.away?.team?.id;
+                return ourTeamIds.has(homeId) || ourTeamIds.has(awayId);
+              });
 
         if (ourGames.length === 0) {
             // None of our players' teams are playing today
@@ -1713,8 +1713,9 @@ async function updateWaveAndRefresh() {
 }
 
 // Check schedule every minute, firing on the :11 second
+// NOTE: The first call to updateWaveAndRefresh() is deferred until after fetchMLBStats()
+// so that currentTeamIds are populated. The IIFE here only handles subsequent minute-by-minute checks.
 (function scheduleWaveRefresh() {
-    updateWaveAndRefresh();
     function scheduleNext() {
         const now = new Date();
         const sec = now.getSeconds();
