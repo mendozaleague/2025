@@ -406,7 +406,7 @@
         <div id="standings-container">
         </div>
         <div class="diamond-key" id="diamond-key">
-            <span class="key-diamond"></span><span id="diamond-key-label">RACE FOR 200 LEADER</span>
+            <span class="key-diamond"></span><span id="diamond-key-label">RACE FOR 200AB LEADER</span>
         </div>
         <div style="text-align: center; margin: 15px 0;">
             <button id="bugle-trigger" style="cursor: pointer; text-decoration: none; background: none; border: none; padding: 0;" aria-label="Run race simulation">
@@ -976,7 +976,7 @@ function renderPlayers(now) {
     const diamondKeyLabel = document.getElementById('diamond-key-label');
     if (diamondKeyEl && diamondKeyLabel) {
         const hasChamp = playersWithData.some(p => p.liveAtBats >= 200);
-        diamondKeyLabel.textContent = hasChamp ? 'RACE FOR 200 CHAMP' : 'RACE FOR 200 LEADER';
+        diamondKeyLabel.textContent = hasChamp ? 'RACE FOR 200AB CHAMP' : 'RACE FOR 200AB LEADER';
         diamondKeyEl.style.display = playersWithData.length > 0 ? 'block' : 'none';
     }
 
