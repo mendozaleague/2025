@@ -551,7 +551,6 @@ Bob Uecker Memorial Race for Two Hundred</div>
         </div>
     </div>
 
-    <!-- Diamond info modal -->
     <div id="diamond-modal" class="modal" role="dialog" aria-modal="true" aria-label="Live Update Info">
         <div class="modal-content" style="text-align: center; max-width: 340px; background-color: black; color: var(--blue);">
             <p style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">UPDATES ON THE <span id="elevens-word"><span class="elevens-letter elevens-1">E</span><span class="elevens-letter elevens-2">L</span><span class="elevens-letter elevens-3">E</span><span class="elevens-letter elevens-4">V</span><span class="elevens-letter elevens-5">E</span><span class="elevens-letter elevens-6">N</span><span class="elevens-letter elevens-7">S</span></span></p>
@@ -581,6 +580,20 @@ const SEASON = {
     wbcStart:          new Date('2026-03-05T00:00:00'),
     wbcEnd:            new Date('2026-03-17T23:59:59'),
 };
+
+// ============================================================
+// SCHEDULE STATE — populated by updateWaveAndRefresh, read by updateCountdown
+// ============================================================
+let _scheduleState = {
+    checked:        false,
+    anyLive:        false,
+    anyUpcoming:    false,
+    activeBatters:  0,
+    nextGameTime:   null,
+    allFinal:       false,
+};
+let _lastGamesEndedTime = null;
+let _lastFetchTime = null; // timestamp of the most recent completed fetchMLBStats call
 
 // ============================================================
 // DYNAMIC WEEK LABEL
@@ -1329,14 +1342,13 @@ function fetchPlayerStatusAndTrend(playerId) {
 }
 
 function formatStamp(date) {
-    const mon  = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-    const dd   = String(date.getDate()).padStart(2, '0');
-    const yyyy = date.getFullYear();
-    // Force seconds to :11 always
-    const h    = date.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    // Replace the seconds with :11
-    const stamp11 = h.replace(/(\d{1,2}:\d{2})/, '$1:11');
-    return `${mon} ${dd}, ${yyyy} ${stamp11.toUpperCase()}`;
+    // Format: LAST UPDATE: H:MM:11 M/D/YY
+    const h   = date.getHours() % 12 || 12;
+    const min = String(date.getMinutes()).padStart(2, '0');
+    const mo  = date.getMonth() + 1;
+    const day = date.getDate();
+    const yr  = String(date.getFullYear()).slice(-2);
+    return `LAST UPDATE: ${h}:${min}:11 ${mo}/${day}/${yr}`;
 }
 
 let _diamondClockInterval = null;
@@ -1344,11 +1356,8 @@ let _diamondClockInterval = null;
 function startDiamondClock() {
     const el = document.getElementById('diamond-modal-last-update');
     if (!el) return;
-    // Update immediately then every 60s
-    el.textContent = formatStamp(new Date());
-    _diamondClockInterval = setInterval(() => {
-        el.textContent = formatStamp(new Date());
-    }, 60000);
+    el.textContent = formatStamp(_lastFetchTime || new Date());
+    // No ticking interval needed — stamp is always the last fetch time, not current time
 }
 
 function stopDiamondClock() {
@@ -1362,14 +1371,16 @@ function updateDiamondModalStamp() {
     const el = document.getElementById('diamond-modal-last-update');
     if (!el) return;
     const now = new Date();
+
     if (now < SEASON.openingDay) {
-        // Pre-season: show Opening Day first pitch time, static
         el.textContent = formatStamp(OPENING_DAY_FIRST_PITCH);
-    } else {
-        // Season active: show current time (updated by live clock when modal is open)
-        el.textContent = formatStamp(now);
+        return;
     }
+
+    // Always show the time of the last completed fetch (the actual last :11 update)
+    el.textContent = formatStamp(_lastFetchTime || now);
 }
+
 
 function showLoadingState() {
     if (new Date() < SEASON.openingDay) return;
@@ -1524,10 +1535,40 @@ async function fetchMLBStats() {
             const games     = schedData.dates?.[0]?.games || [];
             const liveStates = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
             const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
-            const liveGames  = games.filter(g =>
-                liveStates.has(g.status?.detailedState) &&
-                (ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id))
-            );
+            console.log('[Mendoza] ourTeamIds:', [...ourTeamIds]);
+            console.log('[Mendoza] all games today:', games.map(g => ({
+                teams: `${g.teams?.away?.team?.name} @ ${g.teams?.home?.team?.name}`,
+                state: g.status?.abstractGameState,
+                detail: g.status?.detailedState,
+                date: g.gameDate
+            })));
+            const ourGames   = ourTeamIds.size === 0 ? games
+                : games.filter(g => ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id));
+            console.log('[Mendoza] ourGames:', ourGames.map(g => `${g.teams?.away?.team?.name} @ ${g.teams?.home?.team?.name} — ${g.status?.abstractGameState} — ${g.gameDate}`));
+            const liveGames  = ourGames.filter(g => liveStates.has(g.status?.detailedState));
+
+            // ── Update _scheduleState ──────────────────────────────
+            const anyLive     = liveGames.length > 0;
+            const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
+            const allFinal    = ourGames.length > 0 && ourGames.every(g => g.status?.abstractGameState === 'Final');
+
+            const activeTeamIds = new Set(ourGames.flatMap(g =>
+                [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean)));
+            const activeBatters = playersArray.filter(p => activeTeamIds.has(p.currentTeamId)).length;
+
+            let nextGameTime = null;
+            const upcomingGames = ourGames.filter(g => g.status?.abstractGameState === 'Preview' && g.gameDate);
+            if (upcomingGames.length > 0) {
+                upcomingGames.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
+                nextGameTime = new Date(upcomingGames[0].gameDate);
+            }
+            if (!nextGameTime && allFinal) {
+                const todayETInner = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+                nextGameTime = await fetchNextGameTime(todayETInner);
+            }
+
+            _scheduleState = { checked: true, anyLive, anyUpcoming, activeBatters, nextGameTime, allFinal };
+            // ──────────────────────────────────────────────────────
 
             // Reset all at-plate flags
             playersArray.forEach(p => { p.isAtPlate = false; });
@@ -1555,6 +1596,7 @@ async function fetchMLBStats() {
     rankPlayers(now);
     renderPlayers(now);
     applySelectedBatterStyles();
+    _lastFetchTime = new Date();
     hideLoadingState();
 
     // Trigger name bounce for any player currently at the plate
@@ -1667,9 +1709,12 @@ async function updateWaveAndRefresh() {
         const games     = schedData.dates?.[0]?.games || [];
 
         if (games.length === 0) {
-            // Off day — no games at all
+            // Off day — no games at all; fetch tomorrow's schedule for next pitch time
             setWave(false);
             setRefreshInterval(null);
+            const nextPitch = await fetchNextGameTime(todayET);
+            _scheduleState = { checked: true, anyLive: false, anyUpcoming: false,
+                               activeBatters: 0, nextGameTime: nextPitch, allFinal: false };
             return;
         }
 
@@ -1688,25 +1733,59 @@ async function updateWaveAndRefresh() {
             // None of our players' teams are playing today
             setWave(false);
             setRefreshInterval(null);
+            const nextPitch = await fetchNextGameTime(todayET);
+            _scheduleState = { checked: true, anyLive: false, anyUpcoming: false,
+                               activeBatters: 0, nextGameTime: nextPitch, allFinal: false };
             return;
         }
 
         const liveStates  = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
         const anyLive     = ourGames.some(g => liveStates.has(g.status?.detailedState));
         const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
+        const allFinal    = ourGames.every(g => g.status?.abstractGameState === 'Final');
+
+        // Count players whose team is playing today (live or scheduled)
+        const activeTeamIds = new Set(
+            ourGames
+                .filter(g => liveStates.has(g.status?.detailedState) || g.status?.abstractGameState === 'Preview' || g.status?.abstractGameState === 'Final')
+                .flatMap(g => [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean))
+        );
+        const activeBatters = playersArray.filter(p => activeTeamIds.has(p.currentTeamId)).length;
+
+        // First upcoming game time (for countdown)
+        let nextGameTime = null;
+        const upcomingGames = ourGames.filter(g => g.status?.abstractGameState === 'Preview' && g.gameDate);
+        if (upcomingGames.length > 0) {
+            upcomingGames.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
+            nextGameTime = new Date(upcomingGames[0].gameDate);
+        }
+
+        // If all final, record the time and look up tomorrow's first pitch
+        if (allFinal && !anyUpcoming) {
+            if (!_lastGamesEndedTime) _lastGamesEndedTime = now;
+            setWave(false);
+            setRefreshInterval(null);
+            if (!nextGameTime) nextGameTime = await fetchNextGameTime(todayET);
+            _scheduleState = { checked: true, anyLive: false, anyUpcoming: false,
+                               activeBatters, nextGameTime, allFinal: true };
+            // Update stamp to the minute-after-last-out time
+            updateDiamondModalStamp();
+            return;
+        }
+
+        // Reset ended-time if new games are live/upcoming
+        if (anyLive || anyUpcoming) _lastGamesEndedTime = null;
+
+        _scheduleState = { checked: true, anyLive, anyUpcoming, activeBatters, nextGameTime, allFinal: false };
 
         // Season wave is always a one-shot bounce per fetch (visual fetch indicator).
-        // wave-active (continuous) is never used during the season.
         setWave(false);
 
         if (anyLive) {
-            // At least one game in progress — fetch on the elevens
             setRefreshInterval('live');
         } else if (anyUpcoming) {
-            // Games later today but none live yet — fetch on the elevens, no wave until data arrives
             setRefreshInterval('pending');
         } else {
-            // All our games are final for the day
             setRefreshInterval(null);
         }
 
@@ -1714,6 +1793,34 @@ async function updateWaveAndRefresh() {
         console.warn('Schedule check failed:', err);
         // Leave current wave + interval state unchanged on network error
     }
+}
+
+// Fetch the first-pitch time of the next day with Mendoza-batter games
+async function fetchNextGameTime(todayET) {
+    try {
+        // Look up to 7 days ahead
+        for (let daysAhead = 1; daysAhead <= 7; daysAhead++) {
+            const next = new Date(todayET);
+            next.setDate(next.getDate() + daysAhead);
+            const yyyy = next.getFullYear();
+            const mm   = String(next.getMonth() + 1).padStart(2, '0');
+            const dd   = String(next.getDate()).padStart(2, '0');
+            const res  = await fetch(
+                `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${yyyy}-${mm}-${dd}&hydrate=team`
+            );
+            if (!res.ok) continue;
+            const data  = await res.json();
+            const games = data.dates?.[0]?.games || [];
+            if (games.length === 0) continue;
+            const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
+            const ourGames = ourTeamIds.size === 0 ? games
+                : games.filter(g => ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id));
+            if (ourGames.length === 0) continue;
+            ourGames.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
+            return new Date(ourGames[0].gameDate);
+        }
+    } catch (e) { /* silent */ }
+    return null;
 }
 
 // Check schedule every minute, firing on the :11 second
@@ -1848,7 +1955,7 @@ function closeModalWithScroll(modal) {
     modalScrollOffset = 0;
 }
 
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
     const rulesModal = document.getElementById('rules-modal');
     const playerModal = document.getElementById('player-modal');
     const contactModal = document.getElementById('contact-modal');
@@ -2011,7 +2118,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.appendChild(errMsg);
         }
     });
-});
+})();
 
 // Pre-compute timestamps for updateCountdown — no need to rebuild every second
 const COUNTDOWN_TARGETS = {
@@ -2025,48 +2132,75 @@ const COUNTDOWN_TARGETS = {
 function updateCountdown() {
     const now = new Date().getTime();
     const { springTraining, openingDay, allStarBreakStart, allStarBreakEnd, finishLine } = COUNTDOWN_TARGETS;
+    const el = document.getElementById('live-indicator');
+    if (!el) return;
 
-    let targetDate, labelText;
-
+    // ── Pre-season / post-season phases ──────────────────────────────
     if (now < springTraining) {
-        targetDate = springTraining;
-        labelText  = "'TIL SPRING";
-    } else if (now < openingDay) {
-        targetDate = openingDay;
-        labelText  = "'TIL POST TIME";
-    } else if (now < allStarBreakStart) {
-        targetDate = allStarBreakStart;
-        labelText  = "TO THE BREAK";
-    } else if (now < allStarBreakEnd) {
-        targetDate = allStarBreakEnd;
-        labelText  = "'TIL THE 2nd HALF";
-    } else if (now < finishLine) {
-        targetDate = finishLine;
-        labelText  = "TO THE FINISH LINE";
-    } else {
-        document.getElementById('live-indicator').innerHTML =
-            '<span id="countdown-timer">00:00:00:00</span> SEASON COMPLETE';
+        const dist = springTraining - now;
+        el.innerHTML = '<span id="countdown-timer">' + formatCountdownDist(dist) + '</span> \'TIL SPRING';
+        return;
+    }
+    if (now < openingDay) {
+        const dist = openingDay - now;
+        el.innerHTML = '<span id="countdown-timer">' + formatCountdownDist(dist) + '</span> \'TIL POST TIME';
+        return;
+    }
+    if (now >= finishLine) {
+        el.innerHTML = '<span id="countdown-timer">00:00:00:00</span> SEASON COMPLETE';
         return;
     }
 
-    const distance = targetDate - now;
-    if (distance < 0) {
-        document.getElementById('countdown-timer').textContent = '00:00:00:00';
+    // ── All-star break ────────────────────────────────────────────────
+    if (now >= allStarBreakStart && now < allStarBreakEnd) {
+        const dist = allStarBreakEnd - now;
+        el.innerHTML = '<span id="countdown-timer">' + formatCountdownDist(dist) + '</span> \'TIL THE 2nd HALF';
         return;
     }
 
-    const days    = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours   = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // ── Regular season ────────────────────────────────────────────────
+    if (_scheduleState.anyLive) {
+        // Games are in progress: show active batter count
+        const active = _scheduleState.activeBatters;
+        if (active === 9) {
+            el.innerHTML = '<span id="countdown-timer">9/11</span> NEVER FORGET';
+        } else {
+            el.innerHTML = '<span id="countdown-timer">' + active + '/11</span> BATTERS ACTIVE';
+        }
+        return;
+    }
 
-    const formatted = String(days).padStart(2, '0')    + ':' +
-                      String(hours).padStart(2, '0')   + ':' +
-                      String(minutes).padStart(2, '0') + ':' +
-                      String(seconds).padStart(2, '0');
+    // No live games — count down to next pitch (today or tomorrow)
+    if (_scheduleState.nextGameTime) {
+        const dist = _scheduleState.nextGameTime.getTime() - now;
+        if (dist > 0) {
+            el.innerHTML = '<span id="countdown-timer">' + formatCountdownHMS(dist) + '</span> \'TIL NEXT PITCH';
+            return;
+        }
+    }
+    el.innerHTML = '<span id="countdown-timer">00:00:00</span> \'TIL NEXT PITCH';
+    return;
+}
 
-    document.getElementById('live-indicator').innerHTML =
-        '<span id="countdown-timer">' + formatted + '</span> ' + labelText;
+// DD:HH:MM:SS for multi-day countdowns
+function formatCountdownDist(dist) {
+    if (dist < 0) return '00:00:00:00';
+    const days    = Math.floor(dist / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((dist % (1000 * 60)) / 1000);
+    return String(days).padStart(2,'0') + ':' + String(hours).padStart(2,'0') + ':' +
+           String(minutes).padStart(2,'0') + ':' + String(seconds).padStart(2,'0');
+}
+
+// HH:MM:SS for same-day countdowns
+function formatCountdownHMS(dist) {
+    if (dist < 0) return '00:00:00';
+    const hours   = Math.floor(dist / (1000 * 60 * 60));
+    const minutes = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((dist % (1000 * 60)) / 1000);
+    return String(hours).padStart(2,'0') + ':' + String(minutes).padStart(2,'0') + ':' +
+           String(seconds).padStart(2,'0');
 }
 
 updateCountdown();
