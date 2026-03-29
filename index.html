@@ -2703,15 +2703,17 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 let finalPosition, raceAnimationTime;
                 
                 if (!isPostAllStarBreak && isSeasonActive) {
-                    // FIRST HALF: Position based on actual at-bats (200 AB = finish line)
-                    // Scale dynamically to screen width, leaving room for finish line display
+                    // FIRST HALF: Position based on actual at-bats, scaled to leader
+                    // Leader always reaches the finish line; others are shown relative to them
                     const modalWidth = horseElement.offsetWidth || 1000;
-                    // Finish line is at ~15% from right edge (before "TWO HUNDRED" text)
-                    const maxDistance = modalWidth * 0.70; // Use 70% of available width for race track
-                    finalPosition = (horse.atBats / 200) * maxDistance;
+                    const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats), 1);
+                    // Scale track dynamically: 25% of modal at 0 AB → 70% at 200 AB
+                    const trackFraction = 0.25 + (leaderAtBats / 200) * (0.70 - 0.25);
+                    const maxDistance = modalWidth * trackFraction;
+                    // Scale: leader = finish line, 0 AB = start. Keeps true relative spacing.
+                    finalPosition = (horse.atBats / leaderAtBats) * maxDistance;
                     
                     // Race duration based on leader's at-bats (more AB = longer animation)
-                    const leaderAtBats = Math.max(...raceHorses.map(h => h.atBats));
                     raceAnimationTime = Math.min(9, Math.max(3, leaderAtBats / 30)); // 3-9 seconds
                     
                     // Speed variation: Leaders run faster (shorter duration)
@@ -2849,27 +2851,19 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 finishLine.style.height = height + 'px';
                 finishLine.style.display = 'flex';
                 finishLine.style.justifyContent = 'space-between';
-                finishLine.textContent = `|     |
-|     |
-|     |
-|     |
-|     |
-|  T  |
-|  W  |
-|  O  |
-|     |
-|     |
-|  H  |
-|  U  |
-|  N  |
-|  D  |
-|  R  |
-|  E  |
-|  D  |
-|     |
-|     |
-|     |
-|     |`;
+
+                // Build finish line label: during first half show leader's AB, otherwise TWO HUNDRED
+                const leaderABs = isSeasonActive && !isPostAllStarBreak
+                    ? Math.max(...raceHorses.map(h => h.atBats), 0)
+                    : 200;
+                const leaderLabel = String(leaderABs).padStart(3, ' ').split('').join('\n').replace(/\n/g, '\n|  ');
+                const finishLineRows = [' ',' ',' ',' ',' '];
+                const leaderDigits = String(leaderABs).split('');
+                // Build column characters for each row
+                const colChars = Array(22).fill('|     ');
+                // Place digits centered-ish in the label column
+                leaderDigits.forEach((d, i) => { colChars[5 + i] = `|  ${d}  `; });
+                finishLine.textContent = colChars.join('\n') + '\n|     |';
             }, 50);
             
             // Build leaderboard text if season is active
