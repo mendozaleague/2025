@@ -613,20 +613,22 @@ let _lastFetchTime = null; // timestamp of the most recent completed fetchMLBSta
     ];
 
     if (now < SEASON.openingDay) {
-        // Before season: show Spring Training or Pre-Season
-        if (now >= SEASON.springTraining) {
-            weekLabelEl.textContent = 'Spring Training';
-        } else {
-            weekLabelEl.textContent = 'Pre-Season';
-        }
+        weekLabelEl.textContent = now >= SEASON.springTraining ? 'Spring Training' : 'Pre-Season';
     } else if (now >= SEASON.allStarBreakStart && now < SEASON.allStarBreakEnd) {
         weekLabelEl.textContent = 'All-Star Break';
     } else if (now > SEASON.finishLine) {
         weekLabelEl.textContent = 'Final Standings';
     } else {
-        // Calculate week number from opening day
-        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-        const weekNum = Math.floor((now - SEASON.openingDay) / msPerWeek);
+        // Weeks roll over on Sunday. Find the Sunday on or before Opening Day,
+        // then count how many Sundays have passed since then.
+        // Mar 25 (Wed) → anchor Sun Mar 22 → Week 2 starts Mar 29, Week 3 starts Apr 5 ✓
+        const openingDay = SEASON.openingDay;
+        const dow = openingDay.getDay(); // 0=Sun … 6=Sat
+        const weekOneSunday = new Date(openingDay.getTime() - dow * 86400000);
+        weekOneSunday.setHours(0, 0, 0, 0);
+
+        const msPerWeek = 7 * 86400000;
+        const weekNum = Math.floor((now - weekOneSunday) / msPerWeek); // 0-based
         weekLabelEl.textContent = weekNames[weekNum] || ('Week ' + (weekNum + 1));
     }
 })();
@@ -957,30 +959,23 @@ function renderPlayers(now) {
     const wbcEnd   = SEASON.wbcEnd;
     const isWBC = now >= wbcStart && now <= wbcEnd;
 
-    // Determine who gets the diamond (⬥)
-    let diamondPlayerId = null;
+    // Determine who gets the diamond (⬥) — may be multiple if tied
+    let diamondPlayerIds = new Set();
     const playersWithData = playersArray.filter(p => p.liveAtBats !== null && p.liveAtBats > 0);
 
     if (playersWithData.length > 0) {
         const playersOver200 = playersWithData.filter(p => p.liveAtBats >= 200);
 
         if (playersOver200.length > 0) {
-            let closestPlayer = playersOver200[0];
-            let closestDistance = calculateDistanceFrom200(closestPlayer.currentAvg);
-            for (let player of playersOver200) {
-                const distance = calculateDistanceFrom200(player.currentAvg);
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestPlayer = player;
-                }
-            }
-            diamondPlayerId = closestPlayer.id;
+            // Post-200: give diamond to all tied for closest to .200
+            let closestDistance = Math.min(...playersOver200.map(p => calculateDistanceFrom200(p.currentAvg)));
+            playersOver200.filter(p => Math.abs(calculateDistanceFrom200(p.currentAvg) - closestDistance) < 0.0001)
+                          .forEach(p => diamondPlayerIds.add(p.id));
         } else {
-            let mostABPlayer = playersWithData[0];
-            for (let player of playersWithData) {
-                if (player.liveAtBats > mostABPlayer.liveAtBats) mostABPlayer = player;
-            }
-            diamondPlayerId = mostABPlayer.id;
+            // Pre-200: give diamond to all tied for most AB
+            const maxAB = Math.max(...playersWithData.map(p => p.liveAtBats));
+            playersWithData.filter(p => p.liveAtBats === maxAB)
+                           .forEach(p => diamondPlayerIds.add(p.id));
         }
     }
 
@@ -989,7 +984,10 @@ function renderPlayers(now) {
     const diamondKeyLabel = document.getElementById('diamond-key-label');
     if (diamondKeyEl && diamondKeyLabel) {
         const hasChamp = playersWithData.some(p => p.liveAtBats >= 200);
-        diamondKeyLabel.textContent = hasChamp ? 'AB CHAMP' : 'AB LEADER';
+        const multiLead = diamondPlayerIds.size > 1;
+        diamondKeyLabel.textContent = hasChamp
+            ? (multiLead ? 'AB CHAMPS' : 'AB CHAMP')
+            : (multiLead ? 'AB LEADERS' : 'AB LEADER');
         diamondKeyEl.style.display = playersWithData.length > 0 ? 'block' : 'none';
     }
 
@@ -1034,7 +1032,7 @@ function renderPlayers(now) {
                 }
 
                 const hasDiamond = nameEl.dataset.hasDiamond === '1';
-                const wantsDiamond = player.id === diamondPlayerId;
+                const wantsDiamond = diamondPlayerIds.has(player.id);
                 if (wantsDiamond && !hasDiamond) {
                     nameEl.innerHTML += '<span class="leader-diamond" style="font-size:0.7em;vertical-align:middle;line-height:1;">⬥</span>';
                     nameEl.dataset.hasDiamond = '1';
@@ -1091,7 +1089,7 @@ function renderPlayers(now) {
         }
 
         if (isWBC && player.wbcFlag) displayName += ' <span class="emoji-blend wbc-flag" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
-        if (player.id === diamondPlayerId) displayName += '<span style="font-size:0.7em;vertical-align:middle;line-height:1;">⬥</span>';
+        if (diamondPlayerIds.has(player.id)) displayName += '<span style="font-size:0.7em;vertical-align:middle;line-height:1;">⬥</span>';
         if (isBirthday(player, now)) displayName += ' <span class="emoji-blend" style="margin-left:0.2em;">🎂</span>';
 
         const row = document.createElement('div');
@@ -1117,7 +1115,7 @@ function renderPlayers(now) {
         // Mark diamond/flag/cake state so in-place updates don't double-add them
         const builtNameEl = row.querySelector('.player-name');
         if (builtNameEl) {
-            builtNameEl.dataset.hasDiamond = player.id === diamondPlayerId ? '1' : '0';
+            builtNameEl.dataset.hasDiamond = diamondPlayerIds.has(player.id) ? '1' : '0';
             builtNameEl.dataset.hasFlag    = (isWBC && !!player.wbcFlag) ? '1' : '0';
             builtNameEl.dataset.hasCake    = isBirthday(player, now) ? '1' : '0';
         }
