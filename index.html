@@ -505,9 +505,9 @@
 Bob Uecker Memorial Race for Two Hundred</div>
             <div style="position: relative; flex: 1; width: 100%;">
                 <div id="horse-animation" style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-family: monospace; font-size: 1.5rem; line-height: 2.5; color: #b8ddf2; overflow: hidden;"></div>
-                <div id="finish-line" style="position: absolute; right: 0; display: none; flex-direction: column; justify-content: space-between; font-family: monospace; font-size: 0.7rem; line-height: 1.2; color: #b8ddf2; white-space: pre; padding: 0;"></div>
+                <div id="finish-line" style="position: absolute; right: 0; display: none; flex-direction: column; justify-content: space-between; font-family: monospace; font-size: 0.7rem; line-height: 1.2; color: #b8ddf2; white-space: pre; padding: 0; overflow: hidden;"></div>
             </div>
-            <div id="horse-text" style="font-family: monospace; font-size: 0.85rem; line-height: 1.3; color: #b8ddf2; text-align: center; margin-top: 0px; white-space: normal; visibility: hidden; min-height: 5.5rem; display: flex; flex-direction: column; justify-content: flex-start;"></div>
+            <div id="horse-text" style="font-family: monospace; font-size: 0.85rem; line-height: 1.3; color: #b8ddf2; text-align: center; margin-top: 0px; visibility: hidden; min-height: 5.5rem; width: 100%; box-sizing: border-box; overflow: hidden; overflow-wrap: break-word; word-break: break-word;"></div>
         </div>
     </div>
 
@@ -2805,11 +2805,8 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 const moveInterval = raceInterval(() => {
                     if (stepCount >= steps) {
                         clearInterval(moveInterval);
-                        clearInterval(gallopInterval);
                         horseDiv.style.transform = `translateX(${Math.floor(currentPosition)}px)`;
-                        if (horseIconElement) {
-                            horseIconElement.style.transform = `scaleX(-1) translateY(0px)`;
-                        }
+                        // gallopInterval keeps running — horses keep jumping in place
                         return;
                     }
                     currentPosition += stepSize;
@@ -2850,18 +2847,28 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 finishLine.style.display = 'flex';
                 finishLine.style.justifyContent = 'space-between';
 
-                // Build finish line label: during first half show leader's AB, otherwise TWO HUNDRED
-                const leaderABs = isSeasonActive && !isPostAllStarBreak
-                    ? Math.max(...raceHorses.map(h => h.atBats), 0)
-                    : 200;
-                const leaderLabel = String(leaderABs).padStart(3, ' ').split('').join('\n').replace(/\n/g, '\n|  ');
-                const finishLineRows = [' ',' ',' ',' ',' '];
-                const leaderDigits = String(leaderABs).split('');
-                // Build column characters for each row
-                const colChars = Array(22).fill('|     ');
-                // Place digits centered-ish in the label column
-                leaderDigits.forEach((d, i) => { colChars[5 + i] = `|  ${d}  `; });
-                finishLine.textContent = colChars.join('\n') + '\n|     |';
+                // Finish line always says TWO HUNDRED vertically
+                finishLine.textContent = `|     |
+|     |
+|     |
+|     |
+|     |
+|  T  |
+|  W  |
+|  O  |
+|     |
+|     |
+|  H  |
+|  U  |
+|  N  |
+|  D  |
+|  R  |
+|  E  |
+|  D  |
+|     |
+|     |
+|     |
+|     |`;
             }, 50);
             
             // Build leaderboard text if season is active
@@ -2926,7 +2933,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     raceDelay(() => {
                         if (!horseText) return;
                         const partial = champTokens.slice(0, i + 1).join(' ');
-                        const lineDiv = `<div style="height:1.3rem;display:flex;align-items:center;justify-content:flex-start;padding-left:${champOffset[0]}px;font-weight:normal;white-space:nowrap;">${partial}</div>`;
+                        const lineDiv = `<div style="min-height:1.3rem;text-align:center;font-weight:normal;overflow-wrap:break-word;word-break:break-word;">${partial}</div>`;
                         horseText.innerHTML = asbHeaderHtml + lineDiv + emptyLine + emptyLine;
                         horseText.style.visibility = 'visible';
                     }, 1400 + i * 200);
@@ -3024,7 +3031,9 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     tokens.forEach((_, i) => {
                         raceDelay(() => {
                             if (!horseText) return;
-                            onUpdate(tokens.slice(0, i + 1).join(' '));
+                            const partial = tokens.slice(0, i + 1).reduce((acc, t) =>
+                                acc === '' ? t : /^[!?,.]/.test(t) ? acc + t : acc + ' ' + t, '');
+                            onUpdate(partial);
                         }, startDelay + i * msPerWord);
                     });
                     return startDelay + tokens.length * msPerWord;
@@ -3040,12 +3049,9 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 // Helper: re-render horseText with current state of all three lines
                 function renderLines() {
                     if (!horseText) return;
-                    const makeDiv = (txt, offset) =>
-                        `<div style="height:1.3rem;display:flex;align-items:center;justify-content:flex-start;padding-left:${offset}px;font-weight:normal;white-space:nowrap;">${txt || '&nbsp;'}</div>`;
+                    const parts = [builtLines[0], builtLines[1], builtLines[2]].filter(Boolean);
                     horseText.innerHTML = dayHeaderHtml
-                        + makeDiv(builtLines[0], lineOffsets[0])
-                        + makeDiv(builtLines[1], lineOffsets[1])
-                        + makeDiv(builtLines[2], lineOffsets[2]);
+                        + `<div style="text-align:center;font-weight:normal;overflow-wrap:break-word;word-break:break-word;line-height:1.5;">${parts.join(' ')}</div>`;
                 }
 
                 // Declare plain text first so measurement block can reference them
@@ -3066,7 +3072,8 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                                 [plain0, plain1, plain2].forEach((txt, i) => {
                                     if (!txt) return;
                                     const fullW = measureTextWidth(txt);
-                                    lineOffsets[i] = Math.max(0, (containerW - fullW) / 2);
+                                    // If text is wider than container, offset = 0 (left-align, let overflow:hidden clip)
+                                    lineOffsets[i] = fullW >= containerW ? 0 : Math.max(0, (containerW - fullW) / 2);
                                 });
                             });
                         });
