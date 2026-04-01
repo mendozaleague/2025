@@ -594,6 +594,10 @@ let _scheduleState = {
 };
 let _lastGamesEndedTime = null;
 let _lastFetchTime = null; // timestamp of the most recent completed fetchMLBStats call
+// Lineup cache: gamePk → Set of mlbIds confirmed in that game's lineup
+// Cleared each calendar day so stale data doesn't persist
+const _lineupCache = new Map();
+let _lineupCacheDate = ''; // YYYY-MM-DD string; reset cache when date changes
 
 // ============================================================
 // DYNAMIC WEEK LABEL
@@ -1533,16 +1537,8 @@ async function fetchMLBStats() {
             const games     = schedData.dates?.[0]?.games || [];
             const liveStates = new Set(['In Progress', 'Manager Challenge', 'Delayed', 'Suspended', 'Delayed: Rain']);
             const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
-            console.log('[Mendoza] ourTeamIds:', [...ourTeamIds]);
-            console.log('[Mendoza] all games today:', games.map(g => ({
-                teams: `${g.teams?.away?.team?.name} @ ${g.teams?.home?.team?.name}`,
-                state: g.status?.abstractGameState,
-                detail: g.status?.detailedState,
-                date: g.gameDate
-            })));
             const ourGames   = ourTeamIds.size === 0 ? games
                 : games.filter(g => ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id));
-            console.log('[Mendoza] ourGames:', ourGames.map(g => `${g.teams?.away?.team?.name} @ ${g.teams?.home?.team?.name} — ${g.status?.abstractGameState} — ${g.gameDate}`));
             const liveGames  = ourGames.filter(g => liveStates.has(g.status?.detailedState));
 
             // ── Update _scheduleState ──────────────────────────────
@@ -1550,9 +1546,53 @@ async function fetchMLBStats() {
             const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
             const allFinal    = ourGames.length > 0 && ourGames.every(g => g.status?.abstractGameState === 'Final');
 
-            const activeTeamIds = new Set(ourGames.flatMap(g =>
-                [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean)));
-            const activeBatters = playersArray.filter(p => activeTeamIds.has(p.currentTeamId)).length;
+            // Count only players actually in the lineup (not just whose team is playing)
+            // Fetch boxscore for each of our games to get lineup player IDs
+            const activePlayerMlbIds = new Set();
+            const gamesToCheck = ourGames.filter(g =>
+                liveStates.has(g.status?.detailedState) ||
+                g.status?.abstractGameState === 'Preview' ||
+                g.status?.abstractGameState === 'Final'
+            );
+            // Reset lineup cache if date has changed
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+            if (_lineupCacheDate !== todayStr) {
+                _lineupCache.clear();
+                _lineupCacheDate = todayStr;
+            }
+
+            await Promise.all(gamesToCheck.map(async g => {
+                try {
+                    // Use cached lineup if already fetched for this game
+                    if (_lineupCache.has(g.gamePk)) {
+                        _lineupCache.get(g.gamePk).forEach(id => activePlayerMlbIds.add(id));
+                        return;
+                    }
+                    const bsRes = await fetch(
+                        `https://statsapi.mlb.com/api/v1/game/${g.gamePk}/boxscore`
+                    );
+                    if (!bsRes.ok) return;
+                    const bs = await bsRes.json();
+                    const gameIds = new Set();
+                    ['home', 'away'].forEach(side => {
+                        const batters = bs.teams?.[side]?.batters || [];
+                        batters.forEach(id => { gameIds.add(id); activePlayerMlbIds.add(id); });
+                    });
+                    // Only cache once lineup is confirmed (game started or final)
+                    if (g.status?.abstractGameState !== 'Preview') {
+                        _lineupCache.set(g.gamePk, gameIds);
+                    }
+                } catch (e) { /* silent */ }
+            }));
+            // Fall back to team-based count if boxscore fetch failed for all games
+            let activeBatters;
+            if (activePlayerMlbIds.size > 0) {
+                activeBatters = playersArray.filter(p => p.mlbId && activePlayerMlbIds.has(p.mlbId)).length;
+            } else {
+                const activeTeamIds = new Set(ourGames.flatMap(g =>
+                    [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean)));
+                activeBatters = playersArray.filter(p => activeTeamIds.has(p.currentTeamId)).length;
+            }
 
             let nextGameTime = null;
             const upcomingGames = ourGames.filter(g => g.status?.abstractGameState === 'Preview' && g.gameDate);
@@ -1794,28 +1834,32 @@ async function updateWaveAndRefresh() {
 }
 
 // Fetch the first-pitch time of the next day with Mendoza-batter games
+// Fires all 7 day-ahead requests in parallel and returns the soonest match.
 async function fetchNextGameTime(todayET) {
     try {
-        // Look up to 7 days ahead
-        for (let daysAhead = 1; daysAhead <= 7; daysAhead++) {
+        const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
+        const fetches = Array.from({ length: 7 }, (_, i) => {
             const next = new Date(todayET);
-            next.setDate(next.getDate() + daysAhead);
+            next.setDate(next.getDate() + i + 1);
             const yyyy = next.getFullYear();
             const mm   = String(next.getMonth() + 1).padStart(2, '0');
             const dd   = String(next.getDate()).padStart(2, '0');
-            const res  = await fetch(
-                `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${yyyy}-${mm}-${dd}&hydrate=team`
-            );
-            if (!res.ok) continue;
-            const data  = await res.json();
-            const games = data.dates?.[0]?.games || [];
-            if (games.length === 0) continue;
-            const ourTeamIds = new Set(playersArray.map(p => p.currentTeamId).filter(Boolean));
-            const ourGames = ourTeamIds.size === 0 ? games
-                : games.filter(g => ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id));
-            if (ourGames.length === 0) continue;
-            ourGames.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
-            return new Date(ourGames[0].gameDate);
+            return fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${yyyy}-${mm}-${dd}&hydrate=team`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    const games = data?.dates?.[0]?.games || [];
+                    const ourGames = ourTeamIds.size === 0 ? games
+                        : games.filter(g => ourTeamIds.has(g.teams?.home?.team?.id) || ourTeamIds.has(g.teams?.away?.team?.id));
+                    if (ourGames.length === 0) return null;
+                    ourGames.sort((a, b) => new Date(a.gameDate) - new Date(b.gameDate));
+                    return { date: new Date(next), gameTime: new Date(ourGames[0].gameDate) };
+                })
+                .catch(() => null);
+        });
+        const results = await Promise.all(fetches);
+        // Return the earliest match (results are ordered by day, find first non-null)
+        for (const r of results) {
+            if (r) return r.gameTime;
         }
     } catch (e) { /* silent */ }
     return null;
@@ -2890,13 +2934,16 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                 return tokens;
             }
 
+            const _textWidthCache = new Map();
             function measureTextWidth(txt) {
+                if (_textWidthCache.has(txt)) return _textWidthCache.get(txt);
                 const probe = document.createElement('span');
                 probe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;white-space:nowrap;font-size:0.85rem;font-family:monospace;font-weight:normal;';
                 probe.textContent = txt;
                 document.body.appendChild(probe);
                 const w = probe.offsetWidth;
                 document.body.removeChild(probe);
+                _textWidthCache.set(txt, w);
                 return w;
             }
             // ─────────────────────────────────────────────────────────────────
