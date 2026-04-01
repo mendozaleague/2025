@@ -2985,7 +2985,20 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
                     ? Math.abs(a.distanceFrom200 - b.distanceFrom200) < 0.0001
                     : a.atBats === b.atBats);
 
-                const top3 = sortedHorses.slice(0, 3).map((horse, idx) => {
+                // 3+ way tie at the top — one caption line listing all tied batters
+                const leaderAB = sortedHorses[0]?.atBats;
+                const tiedLeaders = !isPostAllStarBreak && isSeasonActive && leaderAB > 0
+                    ? sortedHorses.filter(h => h.atBats === leaderAB)
+                    : [];
+
+                let top3;
+                if (tiedLeaders.length >= 3) {
+                    const names = tiedLeaders.map(_playerTag);
+                    const listed = names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1];
+                    const line = `Holy cow! ${listed} are all tied for the lead with ${leaderAB}AB! What a race!!`;
+                    top3 = [`<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: normal;">${line}</div>`];
+                } else {
+                top3 = sortedHorses.slice(0, 3).map((horse, idx) => {
                     let stats;
                     if (isPostAllStarBreak) {
                         stats = horse.avg.toFixed(3).replace('0.', '.');
@@ -3013,6 +3026,7 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
 
                     return `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: normal;">${line}</div>`;
                 }).filter(Boolean);
+                } // end else (not multi-tie)
                 
                 const dayHeaderHtml = `<div style="height: 1.3rem; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 0.2rem;">DAY ${gameDay} STANDINGS</div>`;
 
