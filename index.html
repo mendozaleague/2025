@@ -867,7 +867,8 @@ function initializePlayers() {
 
 function calculateDistanceFrom200(avg) {
     if (avg === null || avg === undefined || isNaN(avg)) return 1000;
-    return Math.abs(avg - 0.200);
+    const rounded = Math.round(avg * 1000) / 1000;
+    return Math.round(Math.abs(rounded - 0.200) * 1000) / 1000;
 }
 
 function formatAvg(avg) {
@@ -894,10 +895,15 @@ function rankPlayers(now) {
         });
     } else {
         // After opening day: sort by distance from .200
+        // Round to 5 decimal places (matches 3-decimal avg display) so players who
+        // display the same average — or the same distance from .200 — are treated as tied.
+        // Tiebreaker: more at-bats ranked higher, then original order.
         playersArray.sort((a, b) => {
             const distA = a.distanceFrom200;
             const distB = b.distanceFrom200;
             if (distA !== distB) return distA - distB;
+            const abDiff = (b.liveAtBats || 0) - (a.liveAtBats || 0);
+            if (abDiff !== 0) return abDiff;
             return a.originalOrder - b.originalOrder;
         });
     }
