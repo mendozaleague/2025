@@ -2078,9 +2078,11 @@ function renderBattersModal() {
 
     list.innerHTML = rows.map(({ player, badge, right, status }) => {
         const name = player.name;
-        const liveClass = status === 'live' ? ' class="batter-live"' : '';
+        const liveBadge = status === 'live'
+            ? badge.replace('<span style="display:inline-block', '<span class="batter-live" style="display:inline-block')
+            : badge;
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.2em 0;">
-            <span${liveClass} style="display:flex;align-items:center;">${badge}<span style="font-size:0.85rem;">${name}</span></span>
+            <span style="display:flex;align-items:center;">${liveBadge}<span style="font-size:0.85rem;">${name}</span></span>
             <span style="font-size:0.85rem;margin-left:1em;white-space:nowrap;">${right}</span>
         </div>`;
     }).join('');
