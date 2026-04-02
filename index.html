@@ -1552,53 +1552,42 @@ async function fetchMLBStats() {
             const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
             const allFinal    = ourGames.length > 0 && ourGames.every(g => g.status?.abstractGameState === 'Final');
 
-            // Count only players actually in the lineup (not just whose team is playing)
-            // Fetch boxscore for each of our games to get lineup player IDs
+            // Count only players currently active in a LIVE game.
+            // "Active" = they have appeared in the game (have batting stats) AND
+            // are still in the game (not substituted out = gameStatus.isOnBench false, position not "N/A").
+            // Preview and Final games are excluded entirely.
             const activePlayerMlbIds = new Set();
-            const gamesToCheck = ourGames.filter(g =>
-                liveStates.has(g.status?.detailedState) ||
-                g.status?.abstractGameState === 'Preview' ||
-                g.status?.abstractGameState === 'Final'
-            );
-            // Reset lineup cache if date has changed
+
+            // Reset lineup cache if date has changed (cache is only for completed game lineups)
             const todayStr = `${yyyy}-${mm}-${dd}`;
             if (_lineupCacheDate !== todayStr) {
                 _lineupCache.clear();
                 _lineupCacheDate = todayStr;
             }
 
-            await Promise.all(gamesToCheck.map(async g => {
-                try {
-                    // Use cached lineup if already fetched for this game
-                    if (_lineupCache.has(g.gamePk)) {
-                        _lineupCache.get(g.gamePk).forEach(id => activePlayerMlbIds.add(id));
-                        return;
-                    }
-                    const bsRes = await fetch(
-                        `https://statsapi.mlb.com/api/v1/game/${g.gamePk}/boxscore`
-                    );
-                    if (!bsRes.ok) return;
-                    const bs = await bsRes.json();
-                    const gameIds = new Set();
-                    ['home', 'away'].forEach(side => {
-                        const batters = bs.teams?.[side]?.batters || [];
-                        batters.forEach(id => { gameIds.add(id); activePlayerMlbIds.add(id); });
-                    });
-                    // Only cache once lineup is confirmed (game started or final)
-                    if (g.status?.abstractGameState !== 'Preview') {
-                        _lineupCache.set(g.gamePk, gameIds);
-                    }
-                } catch (e) { /* silent */ }
-            }));
-            // Fall back to team-based count if boxscore fetch failed for all games
-            let activeBatters;
-            if (activePlayerMlbIds.size > 0) {
-                activeBatters = playersArray.filter(p => p.mlbId && activePlayerMlbIds.has(p.mlbId)).length;
-            } else {
-                const activeTeamIds = new Set(ourGames.flatMap(g =>
-                    [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean)));
-                activeBatters = playersArray.filter(p => activeTeamIds.has(p.currentTeamId)).length;
+            if (liveGames.length > 0) {
+                await Promise.all(liveGames.map(async g => {
+                    try {
+                        const bsRes = await fetch(
+                            `https://statsapi.mlb.com/api/v1/game/${g.gamePk}/boxscore`
+                        );
+                        if (!bsRes.ok) return;
+                        const bs = await bsRes.json();
+                        ['home', 'away'].forEach(side => {
+                            const players = bs.teams?.[side]?.players || {};
+                            Object.values(players).forEach(p => {
+                                const id = p.person?.id;
+                                if (!id) return;
+                                // Count if: in the batting order AND not substituted out
+                                const inLineup = p.battingOrder && !p.gameStatus?.isOnBench;
+                                if (inLineup) activePlayerMlbIds.add(id);
+                            });
+                        });
+                    } catch (e) { /* silent */ }
+                }));
             }
+
+            const activeBatters = playersArray.filter(p => p.mlbId && activePlayerMlbIds.has(p.mlbId)).length;
 
             let nextGameTime = null;
             const upcomingGames = ourGames.filter(g => g.status?.abstractGameState === 'Preview' && g.gameDate);
