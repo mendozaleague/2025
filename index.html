@@ -21,6 +21,8 @@
         body { font-family: 'Arial', sans-serif; background: var(--blue); min-height: 100%; padding: 10px; padding-bottom: 30px; color: var(--dark); overflow-x: hidden; position: relative; overscroll-behavior: none; }
         @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
+        @keyframes batter-flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+        .batter-live { animation: batter-flash 1.2s ease-in-out infinite; }
         @media (prefers-reduced-motion: no-preference) {
             /* Pre-season: continuous slow wave */
             .wave-active .wave-emoji-1 { animation: wave 11s ease-in-out 0s infinite; }
@@ -137,15 +139,16 @@
         }
         #loading-banner {
             text-align: center;
-            padding: 12px;
-            background: black;
-            color: var(--blue);
+            padding: 6px 12px;
+            background: var(--blue);
+            color: black;
             font-family: 'Brush Script MT', cursive, 'Arial', sans-serif;
             font-size: 1.5rem;
             letter-spacing: 0.03em;
             display: none;
         }
         #loading-banner.visible { display: block; }
+        #standings-wrapper { position: relative; }
         .batting-display  {
             font-size: 1.5rem;
             font-weight: bold;
@@ -416,7 +419,7 @@
             </button>
         </div>
         <div class="live-standings">
-            <p>2026 Race for 200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
+            <p>2026 Race for 200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator" style="cursor:pointer;"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
         </div>
         <div class="copyright"><i>Hits are for Squares</i> ©MMXXVI</div>
     </div>
@@ -559,6 +562,14 @@ Bob Uecker Memorial Race for Two Hundred</div>
         </div>
     </div>
 
+    <!-- Today's Batters modal -->
+    <div id="batters-modal" class="modal" role="dialog" aria-modal="true" aria-label="Today's Batters">
+        <div class="modal-content" style="text-align: center; max-width: 340px; background-color: black; color: var(--blue);">
+            <p style="font-weight: bold; margin-bottom: 0.6em; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">TODAY'S BATTERS</p>
+            <div id="batters-modal-list" style="font-family: monospace; font-size: 0.85rem; letter-spacing: 0.03em; color: var(--blue); text-align: left;"></div>
+        </div>
+    </div>
+
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Detect Instagram in-app browser and flag for CSS fallbacks
 if (/Instagram/.test(navigator.userAgent)) {
@@ -593,7 +604,10 @@ let _scheduleState = {
     allFinal:       false,
 };
 let _lastGamesEndedTime = null;
-let _lastFetchTime = null; // timestamp of the most recent completed fetchMLBStats call
+let _lastFetchTime = null;
+// Per-player today stats for the batters modal: mlbId → { hits, atBats, gameTime, status }
+// status: 'live' | 'upcoming' | 'final'
+let _todayBatterStats = new Map();
 // Lineup cache: gamePk → Set of mlbIds confirmed in that game's lineup
 // Cleared each calendar day so stale data doesn't persist
 const _lineupCache = new Map();
@@ -1553,39 +1567,85 @@ async function fetchMLBStats() {
             const allFinal    = ourGames.length > 0 && ourGames.every(g => g.status?.abstractGameState === 'Final');
 
             // Count only players currently active in a LIVE game.
-            // "Active" = they have appeared in the game (have batting stats) AND
-            // are still in the game (not substituted out = gameStatus.isOnBench false, position not "N/A").
-            // Preview and Final games are excluded entirely.
+            // Also gather per-player stats for the batters modal.
             const activePlayerMlbIds = new Set();
+            const todayBatterStatsNew = new Map();
 
-            // Reset lineup cache if date has changed (cache is only for completed game lineups)
+            // Reset lineup cache if date has changed
             const todayStr = `${yyyy}-${mm}-${dd}`;
             if (_lineupCacheDate !== todayStr) {
                 _lineupCache.clear();
                 _lineupCacheDate = todayStr;
             }
 
-            if (liveGames.length > 0) {
-                await Promise.all(liveGames.map(async g => {
-                    try {
-                        const bsRes = await fetch(
-                            `https://statsapi.mlb.com/api/v1/game/${g.gamePk}/boxscore`
-                        );
-                        if (!bsRes.ok) return;
-                        const bs = await bsRes.json();
-                        ['home', 'away'].forEach(side => {
-                            const players = bs.teams?.[side]?.players || {};
-                            Object.values(players).forEach(p => {
-                                const id = p.person?.id;
-                                if (!id) return;
-                                // Count if: in the batting order AND not substituted out
-                                const inLineup = p.battingOrder && !p.gameStatus?.isOnBench;
-                                if (inLineup) activePlayerMlbIds.add(id);
-                            });
+            // Fetch boxscore for all our games (live, upcoming, final) for the modal
+            const allOurGames = ourGames;
+            await Promise.all(allOurGames.map(async g => {
+                const isLive   = liveStates.has(g.status?.detailedState);
+                const isPreview = g.status?.abstractGameState === 'Preview';
+                const isFinal  = g.status?.abstractGameState === 'Final';
+                const gameTime = g.gameDate ? new Date(g.gameDate) : null;
+
+                if (isPreview) {
+                    // For upcoming games, just record the game time — no boxscore needed yet
+                    // We'll match players by team after the loop
+                    return;
+                }
+
+                try {
+                    const bsRes = await fetch(`https://statsapi.mlb.com/api/v1/game/${g.gamePk}/boxscore`);
+                    if (!bsRes.ok) return;
+                    const bs = await bsRes.json();
+                    ['home', 'away'].forEach(side => {
+                        const players = bs.teams?.[side]?.players || {};
+                        Object.values(players).forEach(p => {
+                            const id = p.person?.id;
+                            if (!id) return;
+                            const inLineup = p.battingOrder && !p.gameStatus?.isOnBench;
+                            const batting  = p.stats?.batting || {};
+                            const hits     = batting.hits ?? 0;
+                            const abs      = batting.atBats ?? 0;
+                            const hasBatted = abs > 0 || hits > 0;
+
+                            if (isLive && inLineup) activePlayerMlbIds.add(id);
+
+                            // Add to modal stats if they're in the lineup or have batted
+                            if (inLineup || hasBatted) {
+                                todayBatterStatsNew.set(id, {
+                                    hits, atBats: abs, hasBatted,
+                                    status: isLive ? 'live' : isFinal ? 'final' : 'upcoming',
+                                    gameTime
+                                });
+                            }
                         });
-                    } catch (e) { /* silent */ }
-                }));
-            }
+                    });
+                } catch (e) { /* silent */ }
+            }));
+
+            // For upcoming (Preview) games, record the game time for players on those teams
+            const upcomingGamesForModal = allOurGames.filter(g => g.status?.abstractGameState === 'Preview' && g.gameDate);
+            const upcomingTeamToGame = new Map();
+            upcomingGamesForModal.forEach(g => {
+                const t = new Date(g.gameDate);
+                [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean).forEach(tid => {
+                    if (!upcomingTeamToGame.has(tid) || t < upcomingTeamToGame.get(tid)) {
+                        upcomingTeamToGame.set(tid, t);
+                    }
+                });
+            });
+            playersArray.forEach(p => {
+                if (!p.mlbId || !p.currentTeamId) return;
+                if (todayBatterStatsNew.has(p.mlbId)) return; // already have data
+                const gt = upcomingTeamToGame.get(p.currentTeamId);
+                if (gt) {
+                    todayBatterStatsNew.set(p.mlbId, {
+                        hits: 0, atBats: 0, hasBatted: false,
+                        status: 'upcoming', gameTime: gt
+                    });
+                }
+            });
+
+            _todayBatterStats = todayBatterStatsNew;
 
             const activeBatters = playersArray.filter(p => p.mlbId && activePlayerMlbIds.has(p.mlbId)).length;
 
@@ -1777,13 +1837,8 @@ async function updateWaveAndRefresh() {
         const anyUpcoming = ourGames.some(g => g.status?.abstractGameState === 'Preview');
         const allFinal    = ourGames.every(g => g.status?.abstractGameState === 'Final');
 
-        // Count players whose team is playing today (live or scheduled)
-        const activeTeamIds = new Set(
-            ourGames
-                .filter(g => liveStates.has(g.status?.detailedState) || g.status?.abstractGameState === 'Preview' || g.status?.abstractGameState === 'Final')
-                .flatMap(g => [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean))
-        );
-        const activeBatters = playersArray.filter(p => activeTeamIds.has(p.currentTeamId)).length;
+        // Reuse activeBatters from the last fetchMLBStats run (accurate lineup-based count)
+        const activeBatters = _scheduleState.activeBatters;
 
         // First upcoming game time (for countdown)
         let nextGameTime = null;
@@ -1970,7 +2025,60 @@ function applySelectedBatterStyles() {
 }
 
 
-let modalScrollOffset = 0;
+function renderBattersModal() {
+    const list = document.getElementById('batters-modal-list');
+    if (!list) return;
+
+    // Build rows: players who have stats today (live, final, or upcoming)
+    const rows = [];
+
+    playersArray.forEach(player => {
+        if (!player.mlbId) return;
+        const stats = _todayBatterStats.get(player.mlbId);
+        if (!stats) return;
+
+        const data = playerData[player.id];
+        const num  = data?.number || '?';
+
+        // Diamond badge
+        const diamond = `<span style="display:inline-block;width:0.7em;height:0.7em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.3em;"></span>`;
+        const numSpan = `<span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.55em;font-weight:bold;color:black;">${num}</span>`;
+        const badge   = `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;">${numSpan}</span>`;
+
+        let right;
+        if (stats.status === 'upcoming' && stats.gameTime) {
+            const h = stats.gameTime.getHours();
+            const m = stats.gameTime.getMinutes();
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12  = h % 12 || 12;
+            const mStr = m === 0 ? '' : `:${String(m).padStart(2,'0')}`;
+            right = `@ ${h12}${mStr}${ampm}`;
+        } else {
+            right = stats.atBats === 0 && stats.hits === 0 && !stats.hasBatted ? 'DNP' : `${stats.hits}-${stats.atBats}`;
+        }
+
+        rows.push({ player, badge, right, status: stats.status, gameTime: stats.gameTime });
+    });
+
+    if (rows.length === 0) {
+        list.innerHTML = `<p style="color:var(--blue);font-family:monospace;font-size:0.85rem;text-align:center;margin:0;">NO GAMES TODAY</p>`;
+        return;
+    }
+
+    // Sort by roster order (PCA first, Robert last)
+    rows.sort((a, b) => a.player.originalOrder - b.player.originalOrder);
+
+    list.innerHTML = rows.map(({ player, badge, right, status }) => {
+        const name = player.name;
+        const nameClass = status === 'live' ? ' class="batter-live"' : '';
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.2em 0;">
+            <span style="display:flex;align-items:center;">${badge}<span${nameClass} style="font-size:0.85rem;">${name}</span></span>
+            <span style="font-size:0.85rem;margin-left:1em;white-space:nowrap;">${right}</span>
+        </div>`;
+    }).join('');
+}
+
+
 
 function openModalWithScroll(modal) {
     modalScrollOffset = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
@@ -2091,6 +2199,22 @@ function closeModalWithScroll(modal) {
         stopDiamondClock();
         closeModalWithScroll(diamondModal);
     });
+
+    // Live indicator → batters modal
+    const battersModal = document.getElementById('batters-modal');
+    const liveIndicator = document.getElementById('live-indicator');
+    if (liveIndicator && battersModal) {
+        liveIndicator.addEventListener('click', function (e) {
+            e.stopPropagation();
+            // Only open during the season when BATTERS ACTIVE is showing
+            if (new Date() < SEASON.openingDay) return;
+            renderBattersModal();
+            openModalWithScroll(battersModal);
+        });
+        battersModal.addEventListener('click', function () {
+            closeModalWithScroll(battersModal);
+        });
+    }
 
     window.addEventListener('click', function (event) {
         if (event.target == rulesModal) {
