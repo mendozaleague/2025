@@ -22,7 +22,7 @@
         @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
         @keyframes batter-flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
-        .batter-live { animation: batter-flash 1.2s ease-in-out infinite; }
+        .batter-live { animation: batter-flash 2.5s ease-in-out infinite; }
         @media (prefers-reduced-motion: no-preference) {
             /* Pre-season: continuous slow wave */
             .wave-active .wave-emoji-1 { animation: wave 11s ease-in-out 0s infinite; }
@@ -83,13 +83,16 @@
             min-width: 257px;
         }
         .live-standings { text-align: center; margin-bottom: 20px; font-size: 0.9rem; color: var(--dark); }
-        .live-standings a { color: var(--dark); text-decoration: underline; cursor: pointer; }
+        .live-standings a { color: var(--dark); text-decoration: none; cursor: pointer; }
         .mendoza-line-divider { text-align: center; margin: -15px 0 0 0; padding: 15px 12px; position: relative; color: var(--dark); font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center; }
         .mendoza-line-divider::before, .mendoza-line-divider::after { content: ''; position: absolute; top: 50%; width: calc(50% - 140px); height: 2px; background-color: var(--dark); pointer-events: none; }
         .mendoza-line-divider::before { left: 0; }
         .mendoza-line-divider::after { right: 0; }
         @media (hover: hover) {
             #mendoza-line-trigger:hover .mendoza-line-text { text-decoration: underline; }
+            #rules-trigger:hover .rules-trigger-text { text-decoration: underline; }
+            #contact-trigger:hover .contact-trigger-text { text-decoration: underline; }
+            #live-indicator:hover .batters-active-text { text-decoration: underline; }
         }
         .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: var(--pink); }
         .diamond-key {
@@ -389,19 +392,19 @@
     <div class="container">
         <div class="header">
             <h1><strong>
-                <button id="diamond-trigger" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;">
                 <span class="header-diamond wave-emoji-1"></span>
                 <span class="header-diamond wave-emoji-2"></span>
-                <span class="header-diamond wave-emoji-3"></span></button>
+                <span class="header-diamond wave-emoji-3"></span>
                 2026
-                <button id="diamond-trigger-2" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;">
                 <span class="header-diamond wave-emoji-4"></span>
                 <span class="header-diamond wave-emoji-5"></span>
-                <span class="header-diamond wave-emoji-6"></span></button>
+                <span class="header-diamond wave-emoji-6"></span>
                 <br>MENDOZA STAKES
             </strong></h1>
             <div class="hexagon-bar">
+                <button id="diamond-trigger" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                 <p class="race-title" id="season-subtitle"><i>Season Eleven</i>⬩<i id="week-label">Week One</i></p>
+                </button>
             </div>
         </div>
         <div class="mendoza-line-divider" id="mendoza-line-trigger" style="cursor: pointer;">"<span class="mendoza-line-text">THE MENDOZA LINE</span>"</div>
@@ -419,7 +422,7 @@
             </button>
         </div>
         <div class="live-standings">
-            <p>2026 Race for 200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator" style="cursor:pointer;"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
+            <p>2026 Race for 200 <a id="rules-trigger"><strong><span class="rules-trigger-text">PARAMETERS</span></strong></a><br><a id="contact-trigger"><strong><span class="contact-trigger-text">CONTACT</span></strong></a> your loyal Commissioner<br><strong id="live-indicator" style="cursor:pointer;"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
         </div>
         <div class="copyright"><i>Hits are for Squares</i> ©MMXXVI</div>
     </div>
@@ -554,7 +557,7 @@ Bob Uecker Memorial Race for Two Hundred</div>
         </div>
     </div>
 
-    <div id="diamond-modal" class="modal" role="dialog" aria-modal="true" aria-label="Live Update Info">
+    <div id="diamond-modal" class="modal" role="dialog" aria-modal="true" aria-label="Live Update Info" style="overflow: visible;">
         <div class="modal-content" style="text-align: center; max-width: 340px; background-color: black; color: var(--blue);">
             <p style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">UPDATES ON THE <span id="elevens-word"><span class="elevens-letter elevens-1">E</span><span class="elevens-letter elevens-2">L</span><span class="elevens-letter elevens-3">E</span><span class="elevens-letter elevens-4">V</span><span class="elevens-letter elevens-5">E</span><span class="elevens-letter elevens-6">N</span><span class="elevens-letter elevens-7">S</span></span></p>
             <p style="font-weight: bold; margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">1<sup>st</sup> PITCH TO FINAL OUT DAILY</p>
@@ -658,7 +661,7 @@ let _lineupCacheDate = ''; // YYYY-MM-DD string; reset cache when date changes
 // ============================================================
 const playerData = {
     1: {
-        name: "P.C. A.",
+        name: "P.C.A.",
         number: "4",
         position: "OF",
         fullName: "Pete Crow-Armstrong",
@@ -2065,8 +2068,12 @@ function renderBattersModal() {
         return;
     }
 
-    // Sort by roster order (PCA first, Robert last)
-    rows.sort((a, b) => a.player.originalOrder - b.player.originalOrder);
+    // Sort by jersey number numerically (4 → 88)
+    rows.sort((a, b) => {
+        const numA = parseInt(playerData[a.player.id]?.number) || 0;
+        const numB = parseInt(playerData[b.player.id]?.number) || 0;
+        return numA - numB;
+    });
 
     list.innerHTML = rows.map(({ player, badge, right, status }) => {
         const name = player.name;
@@ -2180,19 +2187,34 @@ function closeModalWithScroll(modal) {
         });
     }
 
-    // Diamond trigger buttons
+    // Diamond trigger button (hexagon bar)
     const diamondModal = document.getElementById('diamond-modal');
-    ['diamond-trigger', 'diamond-trigger-2'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                updateDiamondModalStamp();
-                openModalWithScroll(diamondModal);
-                if (new Date() >= SEASON.openingDay) startDiamondClock();
-            });
-        }
-    });
+    const diamondModalContent = diamondModal.querySelector('.modal-content');
+    const diamondBtn = document.getElementById('diamond-trigger');
+
+    function positionDiamondModal() {
+        const hexbar = document.getElementById('diamond-trigger');
+        if (!hexbar || !diamondModalContent) return;
+        const rect = hexbar.getBoundingClientRect();
+        const barBottom = rect.bottom;
+        // Pin the modal content so its bottom edge = barBottom
+        diamondModalContent.style.position = 'absolute';
+        diamondModalContent.style.top = 'auto';
+        diamondModalContent.style.bottom = (window.innerHeight - barBottom) + 'px';
+        diamondModalContent.style.left = '50%';
+        diamondModalContent.style.transform = 'translateX(-50%)';
+        diamondModalContent.style.margin = '0';
+    }
+
+    if (diamondBtn) {
+        diamondBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            updateDiamondModalStamp();
+            positionDiamondModal();
+            openModalWithScroll(diamondModal);
+            if (new Date() >= SEASON.openingDay) startDiamondClock();
+        });
+    }
 
     // Tap anywhere on screen closes the diamond modal
     diamondModal.addEventListener('click', function () {
@@ -2326,7 +2348,7 @@ function updateCountdown() {
         if (active === 9) {
             el.innerHTML = '<span id="countdown-timer">9/11</span> NEVER FORGET';
         } else {
-            el.innerHTML = '<span id="countdown-timer">' + active + '/11</span> BATTERS ACTIVE';
+            el.innerHTML = '<span id="countdown-timer">' + active + '/11</span> <strong><span class="batters-active-text">BATTERS ACTIVE</span></strong>';
         }
         return;
     }
