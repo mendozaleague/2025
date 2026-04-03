@@ -572,8 +572,13 @@ Bob Uecker Memorial Race for Two Hundred</div>
     <!-- Today's Batters modal -->
     <div id="batters-modal" class="modal" role="dialog" aria-modal="true" aria-label="Today's Batters">
         <div class="modal-content" style="text-align: center; max-width: 340px; background-color: black; color: var(--blue);">
-            <p style="font-weight: bold; margin-bottom: 0.6em; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">TODAY'S BATTERS</p>
+            <p style="font-weight: bold; margin-bottom: 0.6em; font-family: monospace; letter-spacing: 0.05em; color: var(--blue);">TODAY'S LINEUP</p>
             <div id="batters-modal-list" style="font-family: monospace; font-size: 0.85rem; letter-spacing: 0.03em; color: var(--blue); text-align: left;"></div>
+            <div style="margin-top: 1em; border-top: 2px solid var(--blue); padding-top: 0.6em;">
+                <p style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue); font-size: 0.85rem;">UPDATES ON THE <span id="batters-elevens-word"><span class="elevens-letter elevens-1">E</span><span class="elevens-letter elevens-2">L</span><span class="elevens-letter elevens-3">E</span><span class="elevens-letter elevens-4">V</span><span class="elevens-letter elevens-5">E</span><span class="elevens-letter elevens-6">N</span><span class="elevens-letter elevens-7">S</span></span></p>
+                <p style="font-weight: bold; margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue); font-size: 0.85rem;">1<sup>st</sup> PITCH TO FINAL OUT DAILY</p>
+                <p id="batters-modal-last-update" style="margin-bottom: 0; font-family: monospace; letter-spacing: 0.05em; color: var(--blue); font-size: 0.85rem;"></p>
+            </div>
         </div>
     </div>
 
@@ -1408,6 +1413,23 @@ function updateDiamondModalStamp() {
 
     // Always show the time of the last completed fetch (the actual last :11 update)
     el.textContent = formatStamp(_lastFetchTime || now);
+}
+
+function updateBattersModalStamp() {
+    const el = document.getElementById('batters-modal-last-update');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now < SEASON.openingDay
+        ? formatStamp(OPENING_DAY_FIRST_PITCH)
+        : formatStamp(_lastFetchTime || now);
+    // Trigger elevens bounce animation
+    const elevens = document.getElementById('batters-elevens-word');
+    if (elevens) {
+        elevens.classList.remove('elevens-active', 'elevens-bounce');
+        void elevens.offsetWidth;
+        elevens.classList.add('elevens-bounce');
+        setTimeout(() => elevens.classList.remove('elevens-bounce'), 12800);
+    }
 }
 
 
@@ -2253,14 +2275,21 @@ function closeModalWithScroll(modal) {
         });
     }
 
-    // Season subtitle trigger (SEASON ELEVEN box)
+    // Season subtitle trigger (SEASON ELEVEN box) → opens TODAY'S LINEUP modal
     const seasonSubtitleTrigger = document.getElementById('season-subtitle-trigger');
     if (seasonSubtitleTrigger) {
         seasonSubtitleTrigger.addEventListener('click', function (e) {
             e.stopPropagation();
-            updateDiamondModalStamp();
-            openModalWithScroll(diamondModal);
-            if (new Date() >= SEASON.openingDay) startDiamondClock();
+            if (new Date() >= SEASON.openingDay) {
+                renderBattersModal();
+                updateBattersModalStamp();
+                openModalWithScroll(battersModal);
+            } else {
+                // Pre-season: still open diamond modal
+                updateDiamondModalStamp();
+                openModalWithScroll(diamondModal);
+                startDiamondClock();
+            }
         });
     }
 
@@ -2279,6 +2308,7 @@ function closeModalWithScroll(modal) {
             // Only open during the season when BATTERS ACTIVE is showing
             if (new Date() < SEASON.openingDay) return;
             renderBattersModal();
+            updateBattersModalStamp();
             openModalWithScroll(battersModal);
         });
         battersModal.addEventListener('click', function () {
