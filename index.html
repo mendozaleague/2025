@@ -1622,6 +1622,32 @@ async function fetchMLBStats() {
                 } catch (e) { /* silent */ }
             }));
 
+            // For live/final games, add players whose team played but weren't in the lineup
+            const liveOrFinalTeamToGame = new Map();
+            allOurGames.filter(g => g.status?.abstractGameState !== 'Preview' && g.gameDate).forEach(g => {
+                const t = new Date(g.gameDate);
+                [g.teams?.home?.team?.id, g.teams?.away?.team?.id].filter(Boolean).forEach(tid => {
+                    if (!liveOrFinalTeamToGame.has(tid) || t < liveOrFinalTeamToGame.get(tid)) {
+                        liveOrFinalTeamToGame.set(tid, t);
+                    }
+                });
+            });
+            playersArray.forEach(p => {
+                if (!p.mlbId || !p.currentTeamId) return;
+                if (todayBatterStatsNew.has(p.mlbId)) return; // already have data (in lineup or batted)
+                const gt = liveOrFinalTeamToGame.get(p.currentTeamId);
+                if (gt) {
+                    const gameObj = allOurGames.find(g => g.status?.abstractGameState !== 'Preview' && (g.teams?.home?.team?.id === p.currentTeamId || g.teams?.away?.team?.id === p.currentTeamId));
+                    const isLiveGame = gameObj && liveStates.has(gameObj?.status?.detailedState);
+                    todayBatterStatsNew.set(p.mlbId, {
+                        hits: 0, atBats: 0, hasBatted: false,
+                        status: isLiveGame ? 'live' : 'final',
+                        gameTime: gt,
+                        notInLineup: true
+                    });
+                }
+            });
+
             // For upcoming (Preview) games, record the game time for players on those teams
             const upcomingGamesForModal = allOurGames.filter(g => g.status?.abstractGameState === 'Preview' && g.gameDate);
             const upcomingTeamToGame = new Map();
@@ -2040,10 +2066,13 @@ function renderBattersModal() {
         const data = playerData[player.id];
         const num  = data?.number || '?';
 
-        // Diamond badge
+        // Diamond badge (star if this is the selected batter)
         const diamond = `<span style="display:inline-block;width:0.7em;height:0.7em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.3em;"></span>`;
         const numSpan = `<span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.55em;font-weight:bold;color:black;">${num}</span>`;
-        const badge   = `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;">${numSpan}</span>`;
+        const isMyBatter = isSelected(player.id);
+        const badge = isMyBatter
+            ? `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;"></span>`
+            : `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;">${numSpan}</span>`;
 
         let right;
         if (stats.status === 'upcoming' && stats.gameTime) {
@@ -2057,7 +2086,7 @@ function renderBattersModal() {
             right = stats.atBats === 0 && stats.hits === 0 && !stats.hasBatted ? 'DNP' : `${stats.hits}-${stats.atBats}`;
         }
 
-        rows.push({ player, badge, right, status: stats.status, gameTime: stats.gameTime });
+        rows.push({ player, badge, right, status: stats.status, gameTime: stats.gameTime, notInLineup: stats.notInLineup });
     });
 
     if (rows.length === 0) {
@@ -2073,11 +2102,12 @@ function renderBattersModal() {
         return a.player.originalOrder - b.player.originalOrder;
     });
 
-    list.innerHTML = rows.map(({ player, badge, right, status }) => {
+    list.innerHTML = rows.map(({ player, badge, right, status, notInLineup }) => {
         const name = player.name;
         const nameClass = status === 'live' ? ' class="batter-live"' : '';
+        const nameStyle = notInLineup ? 'font-size:0.85rem;text-decoration:line-through;' : 'font-size:0.85rem;';
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.2em 0;">
-            <span style="display:flex;align-items:center;">${badge}<span${nameClass} style="font-size:0.85rem;">${name}</span></span>
+            <span style="display:flex;align-items:center;">${badge}<span${nameClass} style="${nameStyle}">${name}</span></span>
             <span style="font-size:0.85rem;margin-left:1em;white-space:nowrap;">${right}</span>
         </div>`;
     }).join('');
