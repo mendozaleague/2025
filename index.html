@@ -60,8 +60,9 @@
         .wave-emoji-1, .wave-emoji-2, .wave-emoji-3,
         .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
         .player-name-text { display: inline-block; }
+        .player-number.number-flash { animation: batter-flash 1.2s ease-in-out infinite; }
         @media (prefers-reduced-motion: no-preference) {
-            .player-name.name-bounce .player-name-text { animation: wave 11s ease-in-out 0s 1; }
+            .batter-wave { animation: wave 11s ease-in-out 0s 1; }
         }
         .container { max-width: 100%; margin: 0 auto; padding-bottom: 20px; }
         .header { text-align: center; margin-bottom: 0; padding: 15px; background: var(--blue); border: 2px solid var(--blue); }
@@ -1718,17 +1719,38 @@ async function fetchMLBStats() {
     _lastFetchTime = new Date();
     hideLoadingState();
 
-    // Trigger name bounce for any player currently at the plate
+    // Flash the number diamond for any player currently at the plate
+    // Also wave their name in the Today's Batters modal if it's open
+    document.querySelectorAll('.player-number.number-flash').forEach(el => el.classList.remove('number-flash'));
+    const battersModalOpen = document.getElementById('batters-modal')?.classList.contains('open');
     playersArray.forEach(player => {
         if (!player.isAtPlate) return;
+
+        // Leaderboard: flash the number diamond
         const row = document.querySelector(`[data-player-id="${player.id}"]`);
-        if (!row) return;
-        const nameEl = row.querySelector('.player-name');
-        if (!nameEl) return;
-        nameEl.classList.remove('name-bounce');
-        void nameEl.offsetWidth; // force reflow to restart animation
-        nameEl.classList.add('name-bounce');
-        setTimeout(() => nameEl.classList.remove('name-bounce'), 11800);
+        if (row) {
+            const numberEl = row.querySelector('.player-number');
+            if (numberEl) {
+                numberEl.classList.remove('number-flash');
+                void numberEl.offsetWidth; // force reflow
+                numberEl.classList.add('number-flash');
+            }
+        }
+
+        // Batters modal: wave the player's name span if the modal is open
+        if (battersModalOpen) {
+            const list = document.getElementById('batters-modal-list');
+            if (list) {
+                list.querySelectorAll('span[data-player-id]').forEach(el => {
+                    if (parseInt(el.dataset.playerId) === player.id) {
+                        el.classList.remove('batter-wave');
+                        void el.offsetWidth;
+                        el.classList.add('batter-wave');
+                        setTimeout(() => el.classList.remove('batter-wave'), 11800);
+                    }
+                });
+            }
+        }
     });
 
     // Re-schedule next fetch at the next :11 if still in an active mode
@@ -2071,7 +2093,7 @@ function renderBattersModal() {
         const numSpan = `<span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.55em;font-weight:bold;color:black;">${num}</span>`;
         const isMyBatter = isSelected(player.id);
         const badge = isMyBatter
-            ? `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;"></span>`
+            ? `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;"><span style="position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);font-size:0.4em;font-weight:bold;color:black;">${num}</span></span>`
             : `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;">${numSpan}</span>`;
 
         let right;
@@ -2105,9 +2127,11 @@ function renderBattersModal() {
     list.innerHTML = rows.map(({ player, badge, right, status, notInLineup }) => {
         const name = player.name;
         const nameClass = status === 'live' ? ' class="batter-live"' : '';
-        const nameStyle = notInLineup ? 'font-size:0.85rem;text-decoration:line-through;' : 'font-size:0.85rem;';
+        const nameStyle = notInLineup
+            ? 'display:inline-block;font-size:0.85rem;text-decoration:line-through;'
+            : 'display:inline-block;font-size:0.85rem;';
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.2em 0;">
-            <span style="display:flex;align-items:center;">${badge}<span${nameClass} style="${nameStyle}">${name}</span></span>
+            <span style="display:flex;align-items:center;">${badge}<span${nameClass} data-player-id="${player.id}" style="${nameStyle}">${name}</span></span>
             <span style="font-size:0.85rem;margin-left:1em;white-space:nowrap;">${right}</span>
         </div>`;
     }).join('');
