@@ -91,7 +91,13 @@
         .mendoza-line-divider::after { right: 0; }
         @media (hover: hover) {
             #mendoza-line-trigger:hover .mendoza-line-text { text-decoration: underline; }
+            #rules-trigger:hover { text-decoration: underline; }
+            #contact-trigger:hover { text-decoration: underline; }
+            #live-indicator:hover { text-decoration: underline; }
+            #season-subtitle-trigger:hover { opacity: 0.75; }
         }
+        #rules-trigger { text-decoration: none; cursor: pointer; }
+        #contact-trigger { text-decoration: none; cursor: pointer; }
         .copyright { text-align: center; margin-top: 15px; font-size: 0.8rem; opacity: 0.8; color: var(--pink); }
         .diamond-key {
             text-align: right;
@@ -390,19 +396,19 @@
     <div class="container">
         <div class="header">
             <h1><strong>
-                <button id="diamond-trigger" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;">
                 <span class="header-diamond wave-emoji-1"></span>
                 <span class="header-diamond wave-emoji-2"></span>
-                <span class="header-diamond wave-emoji-3"></span></button>
+                <span class="header-diamond wave-emoji-3"></span>
                 2026
-                <button id="diamond-trigger-2" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;">
                 <span class="header-diamond wave-emoji-4"></span>
                 <span class="header-diamond wave-emoji-5"></span>
-                <span class="header-diamond wave-emoji-6"></span></button>
+                <span class="header-diamond wave-emoji-6"></span>
                 <br>MENDOZA STAKES
             </strong></h1>
             <div class="hexagon-bar">
+                <button id="season-subtitle-trigger" aria-label="Live update info" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:inherit;line-height:inherit;display:contents;">
                 <p class="race-title" id="season-subtitle"><i>Season Eleven</i>⬩<i id="week-label">Week One</i></p>
+                </button>
             </div>
         </div>
         <div class="mendoza-line-divider" id="mendoza-line-trigger" style="cursor: pointer;">"<span class="mendoza-line-text">THE MENDOZA LINE</span>"</div>
@@ -420,7 +426,7 @@
             </button>
         </div>
         <div class="live-standings">
-            <p>2026 Race for 200 <a id="rules-trigger"><strong><u>PARAMETERS</u></strong></a><br><a id="contact-trigger"><strong><u>CONTACT</u></strong></a> your loyal Commissioner<br><strong id="live-indicator" style="cursor:pointer;"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
+            <p>2026 Race for 200 <a id="rules-trigger"><strong>PARAMETERS</strong></a><br><a id="contact-trigger"><strong>CONTACT</strong></a> your loyal Commissioner<br><strong id="live-indicator" style="cursor:pointer;"><span id="countdown-timer">00:00:00:00</span> 'TIL POST TIME</strong></p>
         </div>
         <div class="copyright"><i>Hits are for Squares</i> ©MMXXVI</div>
     </div>
@@ -2163,6 +2169,7 @@ function closeModalWithScroll(modal) {
     const rulesModal = document.getElementById('rules-modal');
     const playerModal = document.getElementById('player-modal');
     const contactModal = document.getElementById('contact-modal');
+    const diamondModal = document.getElementById('diamond-modal');
     const rulesTrigger = document.getElementById('rules-trigger');
     const contactTrigger = document.getElementById('contact-trigger');
 
@@ -2239,19 +2246,43 @@ function closeModalWithScroll(modal) {
         });
     }
 
-    // Diamond trigger buttons
-    const diamondModal = document.getElementById('diamond-modal');
-    ['diamond-trigger', 'diamond-trigger-2'].forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                updateDiamondModalStamp();
-                openModalWithScroll(diamondModal);
-                if (new Date() >= SEASON.openingDay) startDiamondClock();
-            });
-        }
-    });
+    // Season subtitle trigger (SEASON ELEVEN box)
+    const seasonSubtitleTrigger = document.getElementById('season-subtitle-trigger');
+    if (seasonSubtitleTrigger) {
+        seasonSubtitleTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            updateDiamondModalStamp();
+
+            // Position the popup so its bottom aligns with the bottom of the SEASON ELEVEN box
+            const hexBar = document.querySelector('.hexagon-bar');
+            if (hexBar) {
+                const rect = hexBar.getBoundingClientRect();
+                const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+                const hexBottomFromDocTop = rect.bottom + scrollY;
+                const modalContent = diamondModal.querySelector('.modal-content');
+                if (modalContent) {
+                    // After openModalWithScroll, body gets position:fixed with top = -scrollY
+                    // So within the fixed viewport, the hexBar bottom is at rect.bottom (viewport px)
+                    // We want modalContent bottom = rect.bottom in the fixed viewport
+                    // modalContent top = rect.bottom - modalContent.offsetHeight
+                    // We set this after opening so offsetHeight is available
+                    modalContent.style.margin = '0';
+                    modalContent.style.position = 'absolute';
+                    modalContent.style.left = '50%';
+                    modalContent.style.transform = 'translateX(-50%)';
+                    // Temporarily show to measure height, then position
+                    openModalWithScroll(diamondModal);
+                    const contentH = modalContent.offsetHeight;
+                    modalContent.style.top = (rect.bottom - contentH) + 'px';
+                    if (new Date() >= SEASON.openingDay) startDiamondClock();
+                    return;
+                }
+            }
+
+            openModalWithScroll(diamondModal);
+            if (new Date() >= SEASON.openingDay) startDiamondClock();
+        });
+    }
 
     // Tap anywhere on screen closes the diamond modal
     diamondModal.addEventListener('click', function () {
