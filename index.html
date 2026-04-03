@@ -2098,8 +2098,8 @@ function renderBattersModal() {
         // Both badges share a fixed-width wrapper so numbers align vertically
         const isMyBatter = isSelected(player.id);
         const badge = isMyBatter
-            ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:1em;overflow:visible;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:2.2em;height:2.2em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);position:relative;flex-shrink:0;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`
-            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:1em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:1.1em;height:1.1em;background:var(--blue);transform:rotate(45deg);position:relative;flex-shrink:0;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`;
+            ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:2.2em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:2.2em;height:2.2em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);position:relative;flex-shrink:0;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`
+            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:2.2em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:1.1em;height:1.1em;background:var(--blue);transform:rotate(45deg);position:relative;flex-shrink:0;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`;
 
         let right;
         if (stats.status === 'upcoming' && stats.gameTime) {
@@ -2137,12 +2137,14 @@ function renderBattersModal() {
 
     list.innerHTML = rows.map(({ player, badge, right, status, notInLineup }) => {
         const name = player.name;
-        const nameClass = status === 'live' ? ' class="batter-live"' : '';
+        const flashClass = status === 'live' ? ' class="batter-live"' : '';
         const nameStyle = notInLineup
             ? 'display:inline-block;font-size:0.85rem;text-decoration:line-through;'
             : 'display:inline-block;font-size:0.85rem;';
+        // Wrap badge in a span that flashes when live
+        const flashedBadge = `<span${flashClass} style="display:inline-flex;">${badge}</span>`;
         return `<div style="display:flex;align-items:center;justify-content:space-between;padding:0.2em 0;">
-            <span style="display:flex;align-items:center;">${badge}<span${nameClass} data-player-id="${player.id}" style="${nameStyle}">${name}</span></span>
+            <span style="display:flex;align-items:center;">${flashedBadge}<span data-player-id="${player.id}" style="${nameStyle}">${name}</span></span>
             <span style="font-size:0.85rem;margin-left:1em;white-space:nowrap;">${right}</span>
         </div>`;
     }).join('');
