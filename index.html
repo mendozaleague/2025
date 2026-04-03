@@ -22,7 +22,7 @@
         @keyframes wave { 0%, 9%, 100% { transform: translateY(0); } 4.5% { transform: translateY(-10px); } }
         @keyframes wave-diamond { 0%, 9%, 100% { transform: translateY(0) rotate(45deg); } 4.5% { transform: translateY(-10px) rotate(45deg); } }
         @keyframes batter-flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
-        .batter-live { animation: batter-flash 1.2s ease-in-out infinite; }
+        .batter-live { animation: batter-flash 3s ease-in-out infinite; }
         @media (prefers-reduced-motion: no-preference) {
             /* Pre-season: continuous slow wave */
             .wave-active .wave-emoji-1 { animation: wave 11s ease-in-out 0s infinite; }
@@ -665,7 +665,7 @@ let _lineupCacheDate = ''; // YYYY-MM-DD string; reset cache when date changes
 // ============================================================
 const playerData = {
     1: {
-        name: "P.C. A.",
+        name: "P.C.A.",
         number: "4",
         position: "OF",
         fullName: "Pete Crow-Armstrong",
@@ -2098,8 +2098,8 @@ function renderBattersModal() {
         // Both badges share a fixed-width wrapper so numbers align vertically
         const isMyBatter = isSelected(player.id);
         const badge = isMyBatter
-            ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:1.6em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:1.6em;height:1.6em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);position:relative;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`
-            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:1.6em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:0.85em;height:0.85em;background:var(--blue);transform:rotate(45deg);position:relative;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`;
+            ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:1em;overflow:visible;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:2.2em;height:2.2em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);position:relative;flex-shrink:0;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`
+            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.2em;height:1em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:1.1em;height:1.1em;background:var(--blue);transform:rotate(45deg);position:relative;flex-shrink:0;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`;
 
         let right;
         if (stats.status === 'upcoming' && stats.gameTime) {
@@ -2110,7 +2110,13 @@ function renderBattersModal() {
             const mStr = m === 0 ? '' : `:${String(m).padStart(2,'0')}`;
             right = `@ ${h12}${mStr}${ampm}`;
         } else {
-            right = stats.atBats === 0 && stats.hits === 0 && !stats.hasBatted ? 'DNP' : `${stats.hits}-${stats.atBats}`;
+            if (stats.notInLineup) {
+                right = 'SCRATCH';
+            } else if (!stats.hasBatted && stats.atBats === 0 && stats.hits === 0) {
+                right = '---';
+            } else {
+                right = `${stats.hits}-${stats.atBats}`;
+            }
         }
 
         rows.push({ player, badge, right, status: stats.status, gameTime: stats.gameTime, notInLineup: stats.notInLineup });
