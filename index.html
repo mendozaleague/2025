@@ -2095,12 +2095,11 @@ function renderBattersModal() {
         const num  = data?.number || '?';
 
         // Diamond badge (star if this is the selected batter)
-        const diamond = `<span style="display:inline-block;width:0.7em;height:0.7em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.3em;"></span>`;
-        const numSpan = `<span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.55em;font-weight:bold;color:black;">${num}</span>`;
+        // Both badges share a fixed-width wrapper so numbers align vertically
         const isMyBatter = isSelected(player.id);
         const badge = isMyBatter
-            ? `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;"><span style="position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);font-size:0.4em;font-weight:bold;color:black;">${num}</span></span>`
-            : `<span style="display:inline-block;width:1em;height:1em;background:var(--blue);transform:rotate(45deg);vertical-align:middle;position:relative;top:-1px;margin-right:0.5em;flex-shrink:0;">${numSpan}</span>`;
+            ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:1.6em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:1.6em;height:1.6em;background:var(--blue);clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);position:relative;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`
+            : `<span style="display:inline-flex;align-items:center;justify-content:center;width:1.6em;flex-shrink:0;margin-right:0.4em;"><span style="display:inline-block;width:0.85em;height:0.85em;background:var(--blue);transform:rotate(45deg);position:relative;"><span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:0.6em;font-weight:bold;color:black;line-height:1;">${num}</span></span></span>`;
 
         let right;
         if (stats.status === 'upcoming' && stats.gameTime) {
@@ -2252,33 +2251,6 @@ function closeModalWithScroll(modal) {
         seasonSubtitleTrigger.addEventListener('click', function (e) {
             e.stopPropagation();
             updateDiamondModalStamp();
-
-            // Position the popup so its bottom aligns with the bottom of the SEASON ELEVEN box
-            const hexBar = document.querySelector('.hexagon-bar');
-            if (hexBar) {
-                const rect = hexBar.getBoundingClientRect();
-                const scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
-                const hexBottomFromDocTop = rect.bottom + scrollY;
-                const modalContent = diamondModal.querySelector('.modal-content');
-                if (modalContent) {
-                    // After openModalWithScroll, body gets position:fixed with top = -scrollY
-                    // So within the fixed viewport, the hexBar bottom is at rect.bottom (viewport px)
-                    // We want modalContent bottom = rect.bottom in the fixed viewport
-                    // modalContent top = rect.bottom - modalContent.offsetHeight
-                    // We set this after opening so offsetHeight is available
-                    modalContent.style.margin = '0';
-                    modalContent.style.position = 'absolute';
-                    modalContent.style.left = '50%';
-                    modalContent.style.transform = 'translateX(-50%)';
-                    // Temporarily show to measure height, then position
-                    openModalWithScroll(diamondModal);
-                    const contentH = modalContent.offsetHeight;
-                    modalContent.style.top = (rect.bottom - contentH) + 'px';
-                    if (new Date() >= SEASON.openingDay) startDiamondClock();
-                    return;
-                }
-            }
-
             openModalWithScroll(diamondModal);
             if (new Date() >= SEASON.openingDay) startDiamondClock();
         });
