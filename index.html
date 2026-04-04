@@ -1435,9 +1435,6 @@ function updateBattersModalStamp() {
 
 function showLoadingState() {
     if (new Date() < SEASON.openingDay) return;
-    // Bounce diamonds at the START of the fetch as the visual indicator
-    triggerBounceDiamonds();
-    triggerBounceElevens();
     document.querySelectorAll('.batting-display').forEach(el => el.classList.add('is-loading'));
 }
 
@@ -1464,6 +1461,9 @@ function triggerBounceElevens() {
 function hideLoadingState() {
     document.querySelectorAll('.batting-display').forEach(el => el.classList.remove('is-loading'));
     updateDiamondModalStamp();
+    // Trigger one-shot bounce after fetch completes — diamonds are the visual fetch indicator
+    if (new Date() >= SEASON.openingDay) triggerBounceDiamonds();
+    if (new Date() >= SEASON.openingDay) triggerBounceElevens();
 }
 async function fetchMLBStats() {
     const playersWithIds = playersArray.filter(p => p.mlbId);
@@ -1739,10 +1739,10 @@ async function fetchMLBStats() {
     // ────────────────────────────────────────────────────────────
 
     rankPlayers(now);
+    _lastFetchTime = new Date();
+    hideLoadingState(); // bounce diamonds first
     renderPlayers(now);
     applySelectedBatterStyles();
-    _lastFetchTime = new Date();
-    hideLoadingState();
 
     // Flash the number diamond for any player currently at the plate
     // Also wave their name in the Today's Batters modal if it's open
