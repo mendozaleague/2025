@@ -620,6 +620,9 @@ let _lastFetchTime = null;
 // Per-player today stats for the batters modal: mlbId → { hits, atBats, gameTime, status }
 // status: 'live' | 'upcoming' | 'final'
 let _todayBatterStats = new Map();
+// ET date string (YYYY-MM-DD) for which _todayBatterStats was last populated.
+// Used to prevent the modal from switching to next-day upcoming games before midnight.
+let _todayBatterStatsDate = '';
 // Lineup cache: gamePk → Set of mlbIds confirmed in that game's lineup
 // Cleared each calendar day so stale data doesn't persist
 const _lineupCache = new Map();
@@ -1571,10 +1574,11 @@ async function fetchMLBStats() {
     // During live games, fetch each in-progress game's live feed
     // and check if any of our players is the current batter.
     try {
-        const todayET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-        const yyyy = todayET.getFullYear();
-        const mm   = String(todayET.getMonth() + 1).padStart(2, '0');
-        const dd   = String(todayET.getDate()).padStart(2, '0');
+        // Use the user's LOCAL calendar date so the modal stays on "today" until local midnight,
+        // even when ET has already rolled over (e.g. 11pm CT = midnight ET).
+        const yyyy = now.getFullYear();
+        const mm   = String(now.getMonth() + 1).padStart(2, '0');
+        const dd   = String(now.getDate()).padStart(2, '0');
         const schedRes = await fetch(
             `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${yyyy}-${mm}-${dd}&hydrate=linescore,team`
         );
@@ -1698,6 +1702,7 @@ async function fetchMLBStats() {
             });
 
             _todayBatterStats = todayBatterStatsNew;
+            _todayBatterStatsDate = todayStr;
 
             const activeBatters = playersArray.filter(p => p.mlbId && activePlayerMlbIds.has(p.mlbId)).length;
 
@@ -1860,11 +1865,14 @@ async function updateWaveAndRefresh() {
 
     // Season active: check MLB schedule for today's games involving our batters' teams
     try {
-        const todayET = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
-        const yyyy    = todayET.getFullYear();
-        const mm      = String(todayET.getMonth() + 1).padStart(2, '0');
-        const dd      = String(todayET.getDate()).padStart(2, '0');
+        // Use local calendar date so the wave/refresh controller agrees with fetchMLBStats
+        // on which day's games are "today" — avoids ET/local midnight mismatch.
+        const yyyy    = now.getFullYear();
+        const mm      = String(now.getMonth() + 1).padStart(2, '0');
+        const dd      = String(now.getDate()).padStart(2, '0');
         const dateStr = `${yyyy}-${mm}-${dd}`;
+        // todayET alias passed to fetchNextGameTime (which only needs a Date to offset from)
+        const todayET = now;
 
         const schedRes = await fetch(
             `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${dateStr}&hydrate=linescore,team`
