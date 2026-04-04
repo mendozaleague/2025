@@ -1435,8 +1435,9 @@ function updateBattersModalStamp() {
 
 function showLoadingState() {
     if (new Date() < SEASON.openingDay) return;
-
-    document.getElementById('loading-banner').classList.add('visible');
+    // Bounce diamonds at the START of the fetch as the visual indicator
+    triggerBounceDiamonds();
+    triggerBounceElevens();
     document.querySelectorAll('.batting-display').forEach(el => el.classList.add('is-loading'));
 }
 
@@ -1461,12 +1462,8 @@ function triggerBounceElevens() {
 }
 
 function hideLoadingState() {
-    document.getElementById('loading-banner').classList.remove('visible');
     document.querySelectorAll('.batting-display').forEach(el => el.classList.remove('is-loading'));
     updateDiamondModalStamp();
-    // Trigger one-shot wave bounce on every fetch — wave is the visual fetch indicator
-    if (new Date() >= SEASON.openingDay) triggerBounceDiamonds();
-    if (new Date() >= SEASON.openingDay) triggerBounceElevens();
 }
 async function fetchMLBStats() {
     const playersWithIds = playersArray.filter(p => p.mlbId);
