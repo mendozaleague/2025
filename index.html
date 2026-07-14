@@ -60,6 +60,7 @@
         .wave-emoji-1, .wave-emoji-2, .wave-emoji-3,
         .wave-emoji-4, .wave-emoji-5, .wave-emoji-6 { display: inline-block; }
         .player-name-text { display: inline-block; }
+        .player-name-text.inactive-player { text-decoration: line-through; }
         .player-number.number-flash { animation: batter-flash 3s ease-in-out infinite; }
         @media (prefers-reduced-motion: no-preference) {
             .batter-wave { animation: wave 11s ease-in-out 0s 1; }
@@ -416,7 +417,7 @@
         <div id="standings-container">
         </div>
         <div class="diamond-key" id="diamond-key">
-            <span class="key-diamond"></span><span id="diamond-key-label">AB LEADER</span>
+            <span class="key-diamond"></span><span id="diamond-key-label">ELIGIBLE</span>
         </div>
         <div style="text-align: center; margin: 15px 0;">
             <button id="bugle-trigger" style="cursor: pointer; text-decoration: none; background: none; border: none; padding: 0;" aria-label="Run race simulation">
@@ -734,6 +735,8 @@ const playerData = {
         position: "C",
         fullName: "Noah-Gibson \"Bo\" Naylor",
         wbcFlag: null,
+        active: false,
+        rosterStatusOverride: 'AAA',
         birthday: { month: 2, day: 21 },
         mlbId: 666310,
         league: 'Junior Circuit',
@@ -789,6 +792,8 @@ const playerData = {
         position: "UT",
         fullName: "Dylan Moore",
         wbcFlag: null,
+        active: false,
+        rosterStatusOverride: 'AAA',
         birthday: { month: 8, day: 2 },
         mlbId: 664238,
         league: 'Junior Circuit',
@@ -825,6 +830,8 @@ const playerData = {
         position: "OF",
         fullName: "Nicholas Castellanos",
         wbcFlag: null,
+        active: false,
+        rosterStatusOverride: 'DFA',
         birthday: { month: 3, day: 4 },
         mlbId: 592206,
         league: 'Senior Circuit',
@@ -998,36 +1005,20 @@ function renderPlayers(now) {
     const wbcEnd   = SEASON.wbcEnd;
     const isWBC = now >= wbcStart && now <= wbcEnd;
 
-    // Determine who gets the diamond (⬥) — may be multiple if tied
+    // Determine who gets the diamond (⬥) — every batter who has reached 200 At Bats
     let diamondPlayerIds = new Set();
-    const playersWithData = playersArray.filter(p => p.liveAtBats !== null && p.liveAtBats > 0);
-
-    if (playersWithData.length > 0) {
-        const playersOver200 = playersWithData.filter(p => p.liveAtBats >= 200);
-
-        if (playersOver200.length > 0) {
-            // Post-200: give diamond to all tied for closest to .200
-            let closestDistance = Math.min(...playersOver200.map(p => calculateDistanceFrom200(p.currentAvg)));
-            playersOver200.filter(p => Math.abs(calculateDistanceFrom200(p.currentAvg) - closestDistance) < 0.0001)
-                          .forEach(p => diamondPlayerIds.add(p.id));
-        } else {
-            // Pre-200: give diamond to all tied for most AB
-            const maxAB = Math.max(...playersWithData.map(p => p.liveAtBats));
-            playersWithData.filter(p => p.liveAtBats === maxAB)
-                           .forEach(p => diamondPlayerIds.add(p.id));
+    playersArray.forEach(p => {
+        if (p.liveAtBats !== null && p.liveAtBats >= 200) {
+            diamondPlayerIds.add(p.id);
         }
-    }
+    });
 
     // Update diamond key legend
     const diamondKeyEl = document.getElementById('diamond-key');
     const diamondKeyLabel = document.getElementById('diamond-key-label');
     if (diamondKeyEl && diamondKeyLabel) {
-        const hasChamp = playersWithData.some(p => p.liveAtBats >= 200);
-        const multiLead = diamondPlayerIds.size > 1;
-        diamondKeyLabel.textContent = hasChamp
-            ? (multiLead ? 'AB CHAMPS' : 'AB CHAMP')
-            : (multiLead ? 'AB LEADERS' : 'AB LEADER');
-        diamondKeyEl.style.display = playersWithData.length > 0 ? 'block' : 'none';
+        diamondKeyLabel.textContent = 'ELIGIBLE';
+        diamondKeyEl.style.display = diamondPlayerIds.size > 0 ? 'block' : 'none';
     }
 
     // Check if the current DOM order matches the desired player order.
@@ -1124,7 +1115,8 @@ function renderPlayers(now) {
         if (isTBD) {
             displayName += `<span class="tbd-text">${player.name}</span>`;
         } else {
-            displayName += `<span class="player-name-text">${player.name}</span>`;
+            const nameTextClass = player.active === false ? 'player-name-text inactive-player' : 'player-name-text';
+            displayName += `<span class="${nameTextClass}">${player.name}</span>`;
         }
 
         if (isWBC && player.wbcFlag) displayName += ' <span class="emoji-blend wbc-flag" style="margin-left:0.2em;">' + player.wbcFlag + '</span>';
@@ -1356,6 +1348,13 @@ function fetchPlayerStatusAndTrend(playerId) {
     const playerObj = playersArray.find(p => p.id === playerId);
     const statusEl = document.getElementById('player-status');
     const trendEl  = document.getElementById('player-trend');
+
+    // Manual status override takes priority over any live-fetched or season-based status
+    if (player.rosterStatusOverride) {
+        statusEl.textContent = player.rosterStatusOverride;
+        trendEl.textContent  = playerObj?.trend || '---';
+        return;
+    }
 
     const now = new Date();
     if (now < SEASON.springTraining) {
