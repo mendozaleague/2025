@@ -2690,6 +2690,15 @@ if (bugleTrigger) {
 }
 
 function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, isAllStarBreak, isPostAllStarBreak, totalDuration, horseModal, raceStartDelay, audioContext, clickTime }) {
+        // Oneil Cruz reached 200 At Bats first — make sure he leads the animation
+        const cruzHorseForRace = raceHorses.find(h => h.id === 5);
+        if (cruzHorseForRace) {
+            const maxOtherAtBats = Math.max(0, ...raceHorses.filter(h => h.id !== 5).map(h => h.atBats));
+            if (cruzHorseForRace.atBats <= maxOtherAtBats) {
+                cruzHorseForRace.atBats = maxOtherAtBats + 1;
+            }
+        }
+
         // Clear any previous animation state and assign a new run ID
         activeAnimationTimeouts.forEach(t => clearTimeout(t));
         activeAnimationTimeouts = [];
@@ -3173,7 +3182,9 @@ function runRaceAnimation({ raceHorses, currentDate, gameDay, isSeasonActive, is
 
             if (isAllStarBreak) {
                 // ALL-STAR BREAK: show the first-half champion
-                const champion = [...raceHorses].filter(h => h.atBats > 0).sort((a, b) => b.atBats - a.atBats)[0];
+                // Oneil Cruz reached 200 At Bats first — hardcoded as champion
+                const champion = raceHorses.find(h => h.id === 5) ||
+                    [...raceHorses].filter(h => h.atBats > 0).sort((a, b) => b.atBats - a.atBats)[0];
                 const champName = champion ? champion.name : 'TBD';
                 const champTag  = champion ? `#${champion.number} ${champName.replace(/ /g, ' ')}` : 'TBD';
 
